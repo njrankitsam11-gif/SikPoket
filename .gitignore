@@ -2,3 +2,4 @@
 .hermes/
 node_modules/
 *.zip
+.vercel
