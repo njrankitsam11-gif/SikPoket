@@ -189,13 +189,20 @@ function updateSpaceList() {
       <span class="space-dot"></span>
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(s.name)}</span>
       <span class="space-count">${(s.items||[]).filter(i=>!i.archived).length}</span>
-      <button class="space-wallpaper-btn" onclick="event.stopPropagation();openSpaceSettings('${s.id}')" title="Change wallpaper">🖼</button>
+      <button class="space-wallpaper-btn" data-space-id="${s.id}" title="Change space atmosphere">🖼</button>
     </div>
   `).join('');
-  c.querySelectorAll('.space-item').forEach(b => b.addEventListener('click', () => {
+  c.querySelectorAll('.space-item').forEach(b => b.addEventListener('click', (e) => {
+    if (e.target.closest('.space-wallpaper-btn')) return;
     state.activeSpace = b.dataset.space; state.collection = 'all'; state.tag = null; updateTagStrip();
     save(); setWallpaper(); render(); updateSpaceList(); updateBadges();
   }));
+  c.querySelectorAll('.space-wallpaper-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSpaceSettings(btn.dataset.spaceId);
+    });
+  });
 }
 
 function renderSidebarTags() {
@@ -229,14 +236,43 @@ function cardHtml(item, lm) {
   const date = new Date(item.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
   let th = item.type==='url'&&item.url ? `<a class="card-title" href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title||item.url)}</a>` : `<span class="card-title">${esc(item.title||item.name||'Untitled')}</span>`;
   let dh = ''; if(item.type==='url'&&item.url) try{dh=`<span class="card-domain">${new URL(item.url).hostname}</span>`}catch{} else if((item.type==='key'||item.type==='password')&&item.username)dh=`<span class="card-domain">${esc(item.username)}</span>`;
-  let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt">${esc(item.content)}</div>`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" onclick="copySecret('${item.id}')">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
-  const thtml = (item.tags||[]).length?`<div class="card-tags">${item.tags.map(t=>`<span class="card-tag" onclick="filterTag('${esc(t)}')">${esc(t)}</span>`).join('')}</div>`:'';
-  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions"><button class="card-action-btn${item.favorite?' fav-active':''}" onclick="toggleFav('${item.id}')">${item.favorite?'★':'☆'}</button><button class="card-action-btn" onclick="toggleArchive('${item.id}')">${item.archived?'📤':'📥'}</button><button class="card-action-btn" onclick="openEdit('${item.id}')">✏️</button><button class="card-action-btn delete-btn" onclick="confirmDelete('${item.id}')">✕</button></div></div></div>`;
+  let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt">${esc(item.content)}</div>`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" data-action="copy-secret" title="Click to copy secret">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
+  const thtml = (item.tags||[]).length?`<div class="card-tags">${item.tags.map(t=>`<span class="card-tag" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>`:'';
+  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions"><button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
+}
+
+function attachCardEventDelegation() {
+  const area = document.getElementById('content-area');
+  if (!area || area._hasDelegation) return;
+  area._hasDelegation = true;
+
+  area.addEventListener('click', (e) => {
+    const actBtn = e.target.closest('[data-action]');
+    if (actBtn) {
+      e.stopPropagation();
+      const action = actBtn.dataset.action;
+      const id = actBtn.dataset.id;
+      if (action === 'fav') toggleFav(id);
+      else if (action === 'archive') toggleArchive(id);
+      else if (action === 'edit') openEdit(id);
+      else if (action === 'delete') confirmDelete(id);
+      else if (action === 'copy-secret') copySecret(id);
+      return;
+    }
+
+    const tagEl = e.target.closest('.card-tag');
+    if (tagEl) {
+      e.stopPropagation();
+      filterTag(tagEl.dataset.tag);
+      return;
+    }
+  });
 }
 
 function render() {
   const a = document.getElementById('content-area'), vt = document.getElementById('view-title'), vc = document.getElementById('view-count');
   if (!a) return; const space = getActiveSpace(); if (!space) return;
+  attachCardEventDelegation();
   const items = getFiltered(), lm = state.viewMode==='list', mm = state.viewMode==='masonry';
   const titles = {all:'All Items',favorites:'Favorites',archived:'Archive',urls:'URLs',notes:'Notes',keys:'API Keys',passwords:'Passwords',highlights:'Highlights',broken:'Broken Links',guide:'How to Use SikPoket'};
   if(vt) vt.textContent = state.tag?`#${state.tag}`:(titles[state.collection]||'All Items');
@@ -611,7 +647,13 @@ document.addEventListener('DOMContentLoaded', () => {
     sessionStorage.removeItem('sikpoket_user');
     window.location.href = 'auth.html';
   });
-  document.getElementById('space-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSpaceModal();});
+  document.getElementById('space-modal')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeSpaceModal();});
+  document.getElementById('space-modal-close')?.addEventListener('click', closeSpaceModal);
+  document.getElementById('space-modal-cancel')?.addEventListener('click', closeSpaceModal);
+  document.getElementById('space-form')?.addEventListener('submit', handleSpaceSubmit);
+  document.getElementById('btn-browse-local')?.addEventListener('click', () => {
+    document.getElementById('space-wallpaper-file')?.click();
+  });
   document.addEventListener('keydown',e=>{
     if((e.key==='n'||e.key==='N')&&!e.ctrlKey&&!e.metaKey&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))openAdd();
     if(e.key==='Escape'){closeModal();closeSpaceModal();}

@@ -52,10 +52,15 @@
         "dashboard/app.js",
         "dashboard/app.css",
         "dashboard/dashboard-init.js",
+        "dashboard/auth.html",
+        "dashboard/auth.js",
         "unlock.html",
         "unlock.js",
         "popup.css",
-        "crypto-helper.js"
+        "crypto-helper.js",
+        "icons/icon16.png",
+        "icons/icon48.png",
+        "icons/icon128.png"
       ],
       "matches": ["<all_urls>"]
     }

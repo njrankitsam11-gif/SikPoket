@@ -227,6 +227,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     el.addEventListener('click', () => toggleModal(el.dataset.modal, false));
   });
 
+  document.querySelectorAll('.sp-modal-bg').forEach(bg => {
+    bg.addEventListener('click', (e) => {
+      if (e.target === bg) toggleModal(bg.id, false);
+    });
+  });
+
+  $('sp-bookmarklet-link')?.addEventListener('click', e => e.preventDefault());
   $('save-firebase-config')?.addEventListener('click', saveFirebaseConfig);
   $('clear-firebase-config')?.addEventListener('click', clearFirebaseConfig);
   $('find-duplicates-btn')?.addEventListener('click', renderDuplicates);
@@ -991,10 +998,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   function handleKeyboardShortcuts(e) {
     const ctrl = e.ctrlKey || e.metaKey;
     const guideModal = $('guide-modal');
+    const wpModal = $('wallpaper-modal');
     if (e.key === 'Escape') {
       if (readerOverlay?.classList.contains('show')) { closeReaderView(); e.preventDefault(); return; }
       if (guideModal?.classList.contains('show')) { toggleModal('guide-modal', false); e.preventDefault(); return; }
       if (settingsModal?.classList.contains('show')) { toggleModal('settings-modal', false); e.preventDefault(); return; }
+      if (wpModal?.classList.contains('show')) { toggleModal('wallpaper-modal', false); e.preventDefault(); return; }
       if (selectMode) { exitSelectMode(); e.preventDefault(); return; }
       if (searchInput?.value) { searchInput.value = ''; renderCurrentTab(); e.preventDefault(); }
       return;

@@ -315,7 +315,7 @@
         <div class="sp-setting-label">🔖 Bookmarklet</div>
         <p class="sp-setting-desc">Drag to your bookmarks bar to save any page in one click.</p>
         <div style="text-align:center;margin-top:8px">
-          <a class="sp-bookmarklet" href="javascript:(function(){window.dispatchEvent(new CustomEvent('sikpoket-save-request',{detail:{url:window.location.href,title:document.title}}));})();" onclick="return false">＋ Save to SikPoket</a>
+          <a class="sp-bookmarklet" id="sp-bookmarklet-link" href="javascript:(function(){window.dispatchEvent(new CustomEvent('sikpoket-save-request',{detail:{url:window.location.href,title:document.title}}));})();">＋ Save to SikPoket</a>
         </div>
       </div>
 

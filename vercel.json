@@ -1,3 +1,14 @@
 {
-  "cleanUrls": true
+  "cleanUrls": false,
+  "rewrites": [
+    { "source": "/", "destination": "/dashboard/index.html" },
+    { "source": "/dashboard", "destination": "/dashboard/index.html" },
+    { "source": "/dashboard/", "destination": "/dashboard/index.html" },
+    { "source": "/app.css", "destination": "/dashboard/app.css" },
+    { "source": "/app.js", "destination": "/dashboard/app.js" },
+    { "source": "/dashboard-init.js", "destination": "/dashboard/dashboard-init.js" },
+    { "source": "/auth", "destination": "/dashboard/auth.html" },
+    { "source": "/auth.html", "destination": "/dashboard/auth.html" },
+    { "source": "/auth.js", "destination": "/dashboard/auth.js" }
+  ]
 }
