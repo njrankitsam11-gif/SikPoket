@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SikPoket</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div class="sp-shell">
+
+  <!-- ══ UNLOCK SCREEN ════════════════════════ -->
+  <div class="sp-lock-screen" id="unlock-overlay">
+    <div class="sp-lock-card">
+      <div class="sp-lock-glow"></div>
+      <div class="sp-lock-icon">
+        <svg viewBox="0 0 40 40" fill="none" width="40">
+          <rect x="8" y="20" width="24" height="16" rx="4" fill="#6c63f5" opacity=".18"/>
+          <rect x="8" y="20" width="24" height="16" rx="4" stroke="#6c63f5" stroke-width="1.5"/>
+          <path d="M14 20v-5a6 6 0 1112 0v5" stroke="#6c63f5" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="20" cy="28" r="2" fill="#6c63f5"/>
+        </svg>
+      </div>
+      <h1 class="sp-lock-title">SikPoket</h1>
+      <p class="sp-lock-sub">Enter your master password to unlock</p>
+      <input type="password" id="unlock-input" class="sp-lock-input" placeholder="Master password" autofocus>
+      <button id="unlock-btn" class="sp-lock-btn">Unlock</button>
+      <button id="biometric-unlock-btn" class="sp-lock-bio hidden">
+        <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 3C6.13 3 3 6.13 3 10s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 12c-2.76 0-5-2.24-5-5 0-1.01.3-1.96.82-2.74L14.74 15.18C13.96 15.7 13.01 16 12 16H10zm4.18-2.26L5.82 5.26C6.6 4.74 7.55 4.44 8.56 4.44c2.76 0 5 2.24 5 5 0 1.01-.3 1.96-.82 2.74-1.18-.78-2.1-1.74-2.56-2.44z" fill="currentColor"/></svg>
+        Use Touch ID / Face ID
+      </button>
+      <button id="unlock-in-tab-btn" class="sp-lock-bio" style="margin-top:6px;">
+        🔓 Open Full Unlock Page (if biometric fails)
+      </button>
+      <p class="sp-lock-hint">First time? Any password you set becomes your encryption key.</p>
+    </div>
+  </div>
+
+  <!-- ══ READER MODE ═══════════════════════════ -->
+  <div class="sp-reader" id="reader-overlay">
+    <div class="sp-reader-bar">
+      <button class="sp-reader-btn" id="close-reader">← Back</button>
+      <div class="sp-reader-controls">
+        <button class="sp-reader-btn" id="reader-font-toggle">Aa</button>
+        <button class="sp-reader-btn" id="reader-font-smaller">A−</button>
+        <button class="sp-reader-btn" id="reader-font-larger">A+</button>
+        <button class="sp-reader-btn theme-tab theme-dark active" data-theme="dark">🌙</button>
+        <button class="sp-reader-btn theme-tab theme-sepia" data-theme="sepia">☕</button>
+        <button class="sp-reader-btn theme-tab theme-light" data-theme="light">☀</button>
+      </div>
+    </div>
+    <div class="sp-reader-progress-rail">
+      <div class="sp-reader-progress-bar" id="reader-progress"></div>
+    </div>
+    <div class="sp-reader-body" id="reader-content-wrap">
+      <div class="sp-reader-meta">
+        <span id="reader-time"></span>
+        <a href="#" target="_blank" rel="noopener" id="reader-link">Original ↗</a>
+      </div>
+      <h1 id="reader-title-display"></h1>
+      <div id="reader-body-display"></div>
+    </div>
+  </div>
+
+  <!-- ══ HEADER ════════════════════════════════ -->
+  <header class="sp-header">
+    <div class="sp-header-row">
+      <div class="sp-brand">
+        <span class="sp-brand-dot"></span>
+        <span class="sp-brand-name">SikPoket</span>
+      </div>
+      <div class="sp-header-btns">
+        <button class="sp-icon-btn" id="wallpaper-btn" title="Change wallpaper">
+          <svg viewBox="0 0 20 20" fill="none" width="15"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="6.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M2 14l4-4 3 3 3-4 5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="sp-icon-btn" id="help-btn" title="How to Use & Guide">
+          <svg viewBox="0 0 20 20" fill="none" width="15"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 14.5v-.5M10 11.5c0-1.5 2-1.5 2-3a2 2 0 10-4 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </button>
+        <button class="sp-icon-btn" id="select-mode-btn" title="Select multiple items (Ctrl+B)">
+          <svg viewBox="0 0 20 20" fill="none" width="15"><rect x="3" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="11" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="3" y="11" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M11.5 14l1.5 1.5 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="sp-icon-btn" id="settings-btn" title="Settings">
+          <svg viewBox="0 0 20 20" fill="none" width="15"><path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke="currentColor" stroke-width="1.4"/><path d="M16.5 10c0-.34-.03-.67-.08-1l1.6-1.24a.5.5 0 00.12-.63l-1.52-2.63a.5.5 0 00-.61-.22l-1.89.76a7.4 7.4 0 00-1.72-1l-.28-2a.5.5 0 00-.5-.43h-3.04a.5.5 0 00-.5.43l-.28 2a7.4 7.4 0 00-1.72 1L4.1 4.28a.5.5 0 00-.61.22L1.97 7.13a.5.5 0 00.12.63L3.7 9c-.05.33-.08.66-.08 1s.03.67.08 1l-1.6 1.24a.5.5 0 00-.12.63l1.52 2.63c.12.21.37.3.6.22l1.9-.76c.52.39 1.1.72 1.72 1l.28 2c.05.24.27.43.5.43h3.04c.24 0 .45-.19.5-.43l.28-2a7.4 7.4 0 001.72-1l1.89.76c.23.08.48-.01.6-.22l1.52-2.63a.5.5 0 00-.12-.63L16.42 11c.05-.33.08-.66.08-1z" stroke="currentColor" stroke-width="1.4"/></svg>
+        </button>
+        <button class="sp-icon-btn sp-lock-trigger" id="lock-btn" title="Lock vault (Ctrl+L)">
+          <svg viewBox="0 0 20 20" fill="none" width="15"><rect x="4" y="9" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 9V7a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="sp-search-wrap">
+      <svg class="sp-search-icon" viewBox="0 0 18 18" fill="none" width="13">
+        <circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M12.5 12.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="search" class="sp-search" placeholder="Search your vault…">
+    </div>
+
+    <!-- Filter pills -->
+    <div class="sp-pills">
+      <button class="sp-pill sp-pill-active" data-status="active">All</button>
+      <button class="sp-pill" data-status="favorites">★ Favorites</button>
+      <button class="sp-pill" data-status="archived">↓ Archived</button>
+      <div style="flex:1"></div>
+      <button class="sp-pill sp-pill-sort" id="sort-btn" title="Sort: Newest">
+        <svg viewBox="0 0 14 14" fill="none" width="12"><path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- Hidden selects for JS compatibility -->
+    <select id="filter-status" class="sp-hidden"><option value="active">Active</option><option value="archived">Archive</option><option value="favorites">Favorites</option></select>
+    <select id="filter-tag" class="sp-hidden"><option value="">All Tags</option></select>
+    <select id="sort-order" class="sp-hidden"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="name">A–Z</option></select>
+    <div id="sync-status" class="sp-sync"></div>
+  </header>
+
+  <!-- ══ TABS ══════════════════════════════════ -->
+  <nav class="sp-tabs">
+    <button class="sp-tab active" data-tab="urls">
+      <svg viewBox="0 0 16 16" fill="none" width="12"><path d="M6 10l4-4M7.5 6l1-1a2.5 2.5 0 013.54 3.54l-1 1M8.5 10l-1 1a2.5 2.5 0 01-3.54-3.54l1-1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      URLs<span class="sp-badge" id="count-urls">0</span>
+    </button>
+    <button class="sp-tab" data-tab="api-keys">
+      <svg viewBox="0 0 16 16" fill="none" width="12"><circle cx="6.5" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 8H14M12 6.5V9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Keys<span class="sp-badge" id="count-api-keys">0</span>
+    </button>
+    <button class="sp-tab" data-tab="passwords">
+      <svg viewBox="0 0 16 16" fill="none" width="12"><rect x="3" y="7" width="10" height="7" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 7V5.5a2.5 2.5 0 015 0V7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Passwords<span class="sp-badge" id="count-passwords">0</span>
+    </button>
+    <button class="sp-tab" data-tab="notes">
+      <svg viewBox="0 0 16 16" fill="none" width="12"><rect x="3" y="2" width="10" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 5.5h5M5.5 8h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Notes<span class="sp-badge" id="count-notes">0</span>
+    </button>
+  </nav>
+
+  <!-- ══ CONTENT ═══════════════════════════════ -->
+  <main class="sp-main">
+
+    <!-- URLs -->
+    <section class="sp-section active" id="urls-content">
+      <div class="sp-list" id="urls-list"></div>
+      <button class="sp-add-btn" id="show-url-form">+ Add URL</button>
+      <form id="url-form" class="sp-form sp-hidden">
+        <input type="url" id="url-input" class="sp-input" placeholder="https://example.com" required>
+        <input type="text" id="url-title" class="sp-input" placeholder="Title (auto-filled)">
+        <div class="sp-tag-wrap">
+          <input type="text" id="url-tags" class="sp-input" placeholder="Tags: work, ai, tools" autocomplete="off">
+          <div class="sp-tag-suggestions" id="url-tag-suggestions"></div>
+        </div>
+        <div class="sp-form-actions">
+          <button type="submit" class="sp-btn-primary">Save URL</button>
+          <button type="button" id="save-article-btn" class="sp-btn-ghost">Save Article</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- API Keys -->
+    <section class="sp-section" id="api-keys-content">
+      <div class="sp-list" id="api-keys-list"></div>
+      <button class="sp-add-btn" id="show-api-key-form">+ Add API Key</button>
+      <form id="api-key-form" class="sp-form sp-hidden">
+        <input type="text" id="api-key-name" class="sp-input" placeholder="Service name (e.g. OpenAI)" required>
+        <input type="text" id="api-key-value" class="sp-input" placeholder="sk-•••••••••••••••" required autocomplete="off">
+        <div class="sp-tag-wrap">
+          <input type="text" id="api-key-tags" class="sp-input" placeholder="Tags: ai, production" autocomplete="off">
+          <div class="sp-tag-suggestions" id="api-key-tag-suggestions"></div>
+        </div>
+        <button type="submit" class="sp-btn-primary">Save Key</button>
+      </form>
+    </section>
+
+    <!-- Passwords -->
+    <section class="sp-section" id="passwords-content">
+      <div class="sp-list" id="passwords-list"></div>
+      <button class="sp-add-btn" id="show-password-form">+ Add Password</button>
+      <form id="password-form" class="sp-form sp-hidden">
+        <input type="text" id="password-name" class="sp-input" placeholder="Site or app name" required>
+        <input type="text" id="password-username" class="sp-input" placeholder="Email or username">
+        <input type="password" id="password-value" class="sp-input" placeholder="Password" required autocomplete="new-password">
+        <div class="sp-tag-wrap">
+          <input type="text" id="password-tags" class="sp-input" placeholder="Tags: email, work" autocomplete="off">
+          <div class="sp-tag-suggestions" id="password-tag-suggestions"></div>
+        </div>
+        <button type="submit" class="sp-btn-primary">Save Password</button>
+      </form>
+    </section>
+
+    <!-- Notes -->
+    <section class="sp-section" id="notes-content">
+      <div class="sp-list" id="notes-list"></div>
+      <button class="sp-add-btn" id="show-note-form">+ Add Note</button>
+      <form id="note-form" class="sp-form sp-hidden">
+        <input type="text" id="note-title" class="sp-input" placeholder="Title" required>
+        <textarea id="note-content" class="sp-input sp-textarea" placeholder="Write your note…" rows="4" required></textarea>
+        <div class="sp-tag-wrap">
+          <input type="text" id="note-tags" class="sp-input" placeholder="Tags: ideas, snippets" autocomplete="off">
+          <div class="sp-tag-suggestions" id="note-tag-suggestions"></div>
+        </div>
+        <button type="submit" class="sp-btn-primary">Save Note</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- ══ BATCH ACTION BAR ═════════════════════ -->
+  <div class="sp-bulk-bar sp-hidden" id="bulk-bar">
+    <span class="sp-bulk-count" id="bulk-count">0 selected</span>
+    <div class="sp-bulk-actions">
+      <button class="sp-bulk-btn" id="bulk-favorite" title="Favorite all">★</button>
+      <button class="sp-bulk-btn" id="bulk-archive" title="Archive all">↓</button>
+      <button class="sp-bulk-btn sp-bulk-danger" id="bulk-delete" title="Delete all">✕</button>
+    </div>
+    <button class="sp-bulk-cancel" id="bulk-cancel">Done</button>
+  </div>
+
+  <!-- ══ FOOTER ════════════════════════════════ -->
+  <footer class="sp-footer">
+    <button id="guide-footer-btn" class="sp-footer-link" title="Open User Guide">📖 How to Use</button>
+    <button id="export-btn" class="sp-footer-link">Export</button>
+    <button id="dashboard-export-btn" class="sp-footer-link sp-footer-accent">Open Dashboard →</button>
+  </footer>
+
+</div>
+
+<!-- ══ WALLPAPER MODAL ═══════════════════════ -->
+<div class="sp-modal-bg" id="wallpaper-modal">
+  <div class="sp-modal">
+    <div class="sp-modal-head">
+      <span>🖼️ Wallpaper</span>
+      <button class="sp-modal-close close-modal" data-modal="wallpaper-modal">✕</button>
+    </div>
+    <div class="sp-modal-body">
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">Curated Presets</div>
+        <div class="sp-wallpaper-grid" id="wallpaper-preset-grid"></div>
+      </div>
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">Custom Image URL</div>
+        <input type="url" id="wallpaper-custom-url" class="sp-input" placeholder="https://images.unsplash.com/…">
+        <button id="wallpaper-apply-url" class="sp-setting-btn" style="margin-top:6px;">Apply URL</button>
+      </div>
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">Opacity</div>
+        <input type="range" id="wallpaper-opacity" min="5" max="80" value="30" step="1" style="width:100%;accent-color:var(--c-acc);">
+        <div style="font-size:11px;color:var(--c-txt2);margin-top:4px;">Adjust how visible the wallpaper is</div>
+      </div>
+      <div class="sp-setting-block">
+        <button id="wallpaper-clear-btn" class="sp-setting-btn sp-danger">✕ Remove Wallpaper</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS MODAL ════════════════════════ -->
+<div class="sp-modal-bg" id="settings-modal">
+  <div class="sp-modal">
+    <div class="sp-modal-head">
+      <span>Settings</span>
+      <button class="sp-modal-close close-modal" data-modal="settings-modal">✕</button>
+    </div>
+    <div class="sp-modal-body">
+
+      <!-- How to Use Callout in Settings -->
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">📖 User Guide & Tutorials</div>
+        <p class="sp-setting-desc">Quick walkthrough of all 6 SikPoket modules, shortcuts, and privacy features.</p>
+        <button id="open-guide-from-settings" class="sp-setting-btn" style="background:var(--c-acc-dim);color:var(--c-acc);border-color:rgba(108,99,245,.3);font-weight:600;">📚 View Complete How-To Guide</button>
+      </div>
+
+      <!-- Duplicates Section -->
+      <div class="sp-setting-block" id="settings-duplicates-section">
+        <div class="sp-setting-label">🔗 Duplicate URLs</div>
+        <p class="sp-setting-desc">Find and remove URLs you've saved more than once.</p>
+        <button id="find-duplicates-btn" class="sp-setting-btn">🔍 Scan for Duplicates</button>
+        <div id="duplicates-result" class="sp-duplicates-result sp-hidden"></div>
+      </div>
+
+      <div class="sp-setting-block sp-hidden" id="settings-biometric-section">
+        <div class="sp-setting-label">⚡ Fingerprint / Touch ID</div>
+        <p class="sp-setting-desc">Unlock your vault instantly without typing your password.</p>
+        <button id="toggle-biometric-btn" class="sp-setting-btn">👁 Set Up Fingerprint</button>
+      </div>
+
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">☁ Cloud Sync</div>
+        <p class="sp-setting-desc">Paste your Firebase config to sync across devices.</p>
+        <textarea id="firebase-config" class="sp-setting-textarea" placeholder='{"apiKey":"...","authDomain":"..."}' rows="3"></textarea>
+        <div class="sp-setting-actions">
+          <button id="save-firebase-config" class="sp-setting-btn">Save Config</button>
+          <button id="clear-firebase-config" class="sp-setting-btn sp-danger">Clear</button>
+        </div>
+        <div id="sync-account" class="sp-hidden sp-setting-desc">
+          Signed in as <strong id="sync-email"></strong>
+        </div>
+      </div>
+
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">🏷 Tag Manager</div>
+        <div id="tag-manager"></div>
+      </div>
+
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">⌨ Shortcuts</div>
+        <div class="sp-shortcut-list">
+          <div><kbd>Ctrl+1–4</kbd><span>Switch tabs</span></div>
+          <div><kbd>Ctrl+F</kbd><span>Search</span></div>
+          <div><kbd>Ctrl+L</kbd><span>Lock vault</span></div>
+          <div><kbd>Esc</kbd><span>Close / cancel</span></div>
+          <div><kbd>Ctrl+B</kbd><span>Toggle batch select</span></div>
+        </div>
+      </div>
+
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">🔖 Bookmarklet</div>
+        <p class="sp-setting-desc">Drag to your bookmarks bar to save any page in one click.</p>
+        <div style="text-align:center;margin-top:8px">
+          <a class="sp-bookmarklet" href="javascript:(function(){window.dispatchEvent(new CustomEvent('sikpoket-save-request',{detail:{url:window.location.href,title:document.title}}));})();" onclick="return false">＋ Save to SikPoket</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ HOW TO USE / GUIDE MODAL ════════════════ -->
+<div class="sp-modal-bg" id="guide-modal">
+  <div class="sp-modal sp-guide-modal">
+    <div class="sp-modal-head sp-guide-modal-head">
+      <div class="sp-guide-head-title">
+        <span class="sp-guide-head-icon">📖</span>
+        <div>
+          <div class="sp-guide-head-text">SikPoket Guide & Manual</div>
+          <div class="sp-guide-head-sub">Learn all features & keyboard shortcuts</div>
+        </div>
+      </div>
+      <button class="sp-modal-close close-modal" data-modal="guide-modal" title="Close Guide (Esc)">✕</button>
+    </div>
+    
+    <!-- Guide Navigation Tabs -->
+    <div class="sp-guide-nav" id="guide-nav">
+      <button class="sp-guide-tab active" data-guide="start">🚀 Quick Start</button>
+      <button class="sp-guide-tab" data-guide="saving">🔗 5 Ways to Save</button>
+      <button class="sp-guide-tab" data-guide="vault">🔒 Encrypted Vault</button>
+      <button class="sp-guide-tab" data-guide="batch">⚡ Pro Tools</button>
+      <button class="sp-guide-tab" data-guide="dashboard">🌐 Dashboard</button>
+      <button class="sp-guide-tab" data-guide="keys">⌨️ Shortcuts</button>
+    </div>
+
+    <div class="sp-modal-body sp-guide-body">
+      
+      <!-- Section 1: Quick Start -->
+      <div class="sp-guide-section active" id="guide-sec-start">
+        <div class="sp-guide-card sp-guide-card-accent">
+          <div class="sp-guide-badge sp-badge-purple">STEP 1 &bull; VAULT SETUP</div>
+          <div class="sp-guide-title">Set Your Master Password</div>
+          <p class="sp-guide-p">On your first use, enter your master password. It is held securely in <code>sessionStorage</code> only and derives a <strong>256-bit AES-GCM</strong> key via <strong>PBKDF2 (100,000 rounds)</strong>.</p>
+          <div class="sp-guide-tip">💡 Tip: Your master password is never stored on disk in plaintext.</div>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-amber">STEP 2 &bull; INSTANT LOCK</div>
+          <div class="sp-guide-title">Lock & Unlock Instantly (<kbd>Ctrl+L</kbd>)</div>
+          <p class="sp-guide-p">Click the 🔒 lock icon in the top header or press <kbd>Ctrl+L</kbd> to lock your vault immediately. The encryption key is instantly wiped from memory.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-green">STEP 3 &bull; BIOMETRICS</div>
+          <div class="sp-guide-title">Touch ID & Windows Hello</div>
+          <p class="sp-guide-p">Open <strong>Settings ⚙️</strong> &rarr; Click <strong>"Set Up Fingerprint"</strong>. Once configured, you can unlock your entire vault with platform biometrics in 1 second.</p>
+        </div>
+      </div>
+
+      <!-- Section 2: 5 Ways to Save -->
+      <div class="sp-guide-section" id="guide-sec-saving">
+        <div class="sp-guide-card sp-guide-card-accent">
+          <div class="sp-guide-badge sp-badge-blue">METHOD 1 &bull; CONTEXT MENU</div>
+          <div class="sp-guide-title">Right-Click Anywhere on the Web</div>
+          <p class="sp-guide-p">Right-click any link, selected text, or page background to save instantly:</p>
+          <ul class="sp-guide-list">
+            <li><strong>Save Page to SikPoket</strong> &mdash; Saves current tab URL, page title, and favicon.</li>
+            <li><strong>Save Link to SikPoket</strong> &mdash; Saves the right-clicked hyperlinked URL.</li>
+            <li><strong>Save Highlight to SikPoket</strong> &mdash; Captures selected text as a color-accented quote card.</li>
+          </ul>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-purple">METHOD 2 &bull; IN-POPUP QUICK ADD</div>
+          <div class="sp-guide-title">Dedicated Forms with Custom Tags</div>
+          <p class="sp-guide-p">Click <strong>"+ Add URL"</strong>, <strong>"+ Add API Key"</strong>, <strong>"+ Add Password"</strong>, or <strong>"+ Add Note"</strong> in any tab. Add comma-separated tags for auto-complete and instant filtering.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-amber">METHOD 3 &bull; ARTICLE READER</div>
+          <div class="sp-guide-title">Save Article & Distraction-Free Reader</div>
+          <p class="sp-guide-p">Click <strong>"📄 Save Article"</strong> in the Notes tab. SikPoket extracts article text cleanly, removes ads/clutter, and allows full-screen reading with Sepia, Dark, and Light themes plus typography scaling.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-pink">METHOD 4 &bull; 1-CLICK BOOKMARKLET</div>
+          <div class="sp-guide-title">Drag-and-Drop Bookmarklet</div>
+          <p class="sp-guide-p">In <strong>Settings ⚙️</strong>, drag the <code>＋ Save to SikPoket</code> button into your bookmarks bar. Click it on any webpage to save in a single click.</p>
+        </div>
+      </div>
+
+      <!-- Section 3: Encrypted Vault -->
+      <div class="sp-guide-section" id="guide-sec-vault">
+        <div class="sp-guide-card sp-guide-card-accent">
+          <div class="sp-guide-badge sp-badge-green">ZERO-KNOWLEDGE SECURITY</div>
+          <div class="sp-guide-title">Client-Side AES-GCM 256 Encryption</div>
+          <p class="sp-guide-p">Your API keys and passwords never touch storage unencrypted. All encryption & decryption happens locally inside your browser with the Web Crypto API.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-purple">CLICK-TO-COPY</div>
+          <div class="sp-guide-title">Masked Secrets with Visual Feedback</div>
+          <p class="sp-guide-p">In the <strong>Keys 🔑</strong> and <strong>Passwords 🔒</strong> tabs, secrets remain masked (<code>•••••••• copy</code>). Click on any masked secret to decrypt and copy it straight to your clipboard with a green checkmark confirmation.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-blue">TAG MANAGEMENT</div>
+          <div class="sp-guide-title">Interactive Filter Pills & Global Renaming</div>
+          <p class="sp-guide-p">Click any tag pill on a card to instantly filter your vault. Open <strong>Settings ⚙️ &rarr; Tag Manager</strong> to view tag item counts, rename tags across all items, or bulk delete tags.</p>
+        </div>
+      </div>
+
+      <!-- Section 4: Pro Tools (Batch, Reminders, Duplicates) -->
+      <div class="sp-guide-section" id="guide-sec-batch">
+        <div class="sp-guide-card sp-guide-card-accent">
+          <div class="sp-guide-badge sp-badge-purple">BATCH WORKFLOWS &bull; <kbd>Ctrl+B</kbd></div>
+          <div class="sp-guide-title">Multi-Select & Floating Action Bar</div>
+          <p class="sp-guide-p">Click the <strong>Select icon</strong> in the header or press <kbd>Ctrl+B</kbd>. Click card checkboxes to select multiple items, then bulk-favorite (★), bulk-archive (↓), or bulk-delete (✕) simultaneously.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-amber">REMINDERS &bull; CHROME ALARMS</div>
+          <div class="sp-guide-title">Set Due Dates with Native Notifications (🔔)</div>
+          <p class="sp-guide-p">Click the 🔔 bell icon on any card action row to schedule a reminder. Chrome Alarms will automatically trigger a native desktop notification when due.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-pink">DUPLICATE CLEANER</div>
+          <div class="sp-guide-title">Duplicate URL Scanner & "Keep Newest"</div>
+          <p class="sp-guide-p">Open <strong>Settings ⚙️ &rarr; "Scan for Duplicates"</strong>. SikPoket groups matching links, displays copy counts, and allows one-click <em>"Keep Newest"</em> cleanup.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-blue">HIGHLIGHTS</div>
+          <div class="sp-guide-title">Color Swatch Categorization</div>
+          <p class="sp-guide-p">Highlights feature color accent strips. Switch between purple, yellow, green, blue, and pink color swatches on the card to categorize quotes visually.</p>
+        </div>
+      </div>
+
+      <!-- Section 5: Full Dashboard & Wallpapers -->
+      <div class="sp-guide-section" id="guide-sec-dashboard">
+        <div class="sp-guide-card sp-guide-card-accent">
+          <div class="sp-guide-badge sp-badge-purple">SPACE & WALLPAPER STUDIO</div>
+          <div class="sp-guide-title">Curated Mood Presets & Local Computer Uploads</div>
+          <p class="sp-guide-p">Click the topbar <strong>"🖼️ Wallpaper"</strong> button to open the Wallpaper Studio. Choose from curated presets (<em>Cyberpunk Neon</em>, <em>Cozy Lo-Fi</em>, <em>Deep Nebula</em>, <em>Nordic Forest</em>, <em>Sunset Dunes</em>, <em>Deep Ocean</em>) or click <strong>"📁 Upload Image from Computer"</strong> to load your own photos offline!</p>
+          <div class="sp-guide-tip">🎛️ Adjust live <strong>Opacity (5%–65%)</strong> and <strong>Depth Blur (0px–16px)</strong> sliders for a custom aesthetic.</div>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-blue">LAYOUT SWITCHING</div>
+          <div class="sp-guide-title">Grid, List & Pinterest-Style Masonry</div>
+          <p class="sp-guide-p">Switch seamlessly between standard <strong>Grid</strong>, compact <strong>List</strong>, and dynamic multi-column <strong>Masonry</strong> using the topbar layout switcher.</p>
+        </div>
+
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-amber">DIAGNOSTICS & BACKUPS</div>
+          <div class="sp-guide-title">Broken Link Detector & JSON Export</div>
+          <p class="sp-guide-p">Click <strong>"Broken Links"</strong> in the sidebar to run background health checks against all saved links. Export full encrypted backups anytime via the <strong>"Export"</strong> button.</p>
+        </div>
+      </div>
+
+      <!-- Section 6: Keyboard Shortcuts -->
+      <div class="sp-guide-section" id="guide-sec-keys">
+        <div class="sp-guide-card">
+          <div class="sp-guide-badge sp-badge-purple">KEYBOARD EFFICIENCY</div>
+          <div class="sp-guide-title" style="margin-bottom:8px;">Power-User Cheat Sheet</div>
+          <div class="sp-shortcut-list sp-guide-shortcut-table">
+            <div class="sp-shortcut-row"><kbd>Ctrl+1</kbd><span>Switch to URLs tab</span></div>
+            <div class="sp-shortcut-row"><kbd>Ctrl+2</kbd><span>Switch to API Keys tab</span></div>
+            <div class="sp-shortcut-row"><kbd>Ctrl+3</kbd><span>Switch to Passwords tab</span></div>
+            <div class="sp-shortcut-row"><kbd>Ctrl+4</kbd><span>Switch to Notes & Highlights tab</span></div>
+            <div class="sp-shortcut-row"><kbd>Ctrl+F</kbd><span>Focus live vault search</span></div>
+            <div class="sp-shortcut-row"><kbd>Ctrl+B</kbd><span>Toggle batch multi-select mode</span></div>
+            <div class="sp-shortcut-row"><kbd>Ctrl+L</kbd><span>Lock vault immediately</span></div>
+            <div class="sp-shortcut-row"><kbd>Ctrl+H</kbd> / <kbd>?</kbd><span>Open this interactive User Guide</span></div>
+            <div class="sp-shortcut-row"><kbd>Esc</kbd><span>Close modals / reader / exit select</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Guide Footer with Quick Actions -->
+    <div class="sp-guide-footer">
+      <span class="sp-guide-footer-tag">🔒 100% Local-First & Encrypted</span>
+      <button class="sp-guide-footer-btn" id="guide-open-dash-btn">Open Dashboard &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script src="crypto-helper.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

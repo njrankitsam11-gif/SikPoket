@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SikPoket — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <!-- Wallpaper background -->
+  <div class="wallpaper-bg" id="wallpaper-bg"></div>
+
+  <div id="app" class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">🔐</div>
+        <span class="brand-name">SikPoket</span>
+      </div>
+
+      <!-- Space switcher -->
+      <div class="space-switcher">
+        <div class="nav-section-label">Spaces</div>
+        <div class="space-list" id="space-list"></div>
+        <button class="add-space-btn" id="add-space-btn">
+          <span>+</span> New Space
+        </button>
+      </div>
+
+      <div class="sidebar-search">
+        <div class="sidebar-search-inner">
+          <svg class="search-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M15 15l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <input id="global-search" type="text" placeholder="Search...">
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Library</div>
+        <button class="nav-item active" data-collection="all">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>All Items</span>
+          <span class="nav-badge" id="badge-all">0</span>
+        </button>
+        <button class="nav-item" data-collection="favorites">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 5.1 5.6.5-4.2 3.8 1.3 5.5L10 14.3l-5.1 2.6 1.3-5.5L2 7.6l5.6-.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span>Favorites</span>
+          <span class="nav-badge" id="badge-favorites">0</span>
+        </button>
+        <button class="nav-item" data-collection="archived">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 7v8a2 2 0 002 2h8a2 2 0 002-2V7" stroke="currentColor" stroke-width="1.5"/><path d="M8 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Archive</span>
+          <span class="nav-badge" id="badge-archived">0</span>
+        </button>
+        <div class="nav-section-label" style="margin-top:16px;">Categories</div>
+        <button class="nav-item" data-collection="urls">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>URLs</span><span class="nav-badge" id="badge-urls">0</span>
+        </button>
+        <button class="nav-item" data-collection="notes">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M6 2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Notes</span><span class="nav-badge" id="badge-notes">0</span>
+        </button>
+        <button class="nav-item" data-collection="keys">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M12 10h6M16 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>API Keys</span><span class="nav-badge" id="badge-keys">0</span>
+        </button>
+        <button class="nav-item" data-collection="passwords">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 9V7a2 2 0 114 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Passwords</span><span class="nav-badge" id="badge-passwords">0</span>
+        </button>
+        <div class="nav-section-label" style="margin-top:16px;">Tools</div>
+        <button class="nav-item" data-collection="highlights">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 14l2-5 8-7 2 2-8 7-4 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 14l-1 3 3-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Highlights</span><span class="nav-badge" id="badge-highlights">0</span>
+        </button>
+        <button class="nav-item" data-collection="broken">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3l14 14" stroke="#f04a4a" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Broken Links</span><span class="nav-badge nav-badge-danger" id="badge-broken">-</span>
+        </button>
+        <button class="nav-item" data-collection="guide">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 4.5A2.5 2.5 0 016.5 2H16v14.5a.5.5 0 01-.5.5H6.5A2.5 2.5 0 004 19.5V4.5z" stroke="currentColor" stroke-width="1.5"/><path d="M4 17a2.5 2.5 0 012.5-2.5H16" stroke="currentColor" stroke-width="1.5"/><path d="M8 6h5M8 9h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>How to Use</span><span class="nav-badge" style="background:rgba(107,124,240,0.15);color:var(--primary);font-size:10px;font-weight:600;">Guide</span>
+        </button>
+        <div class="nav-section-label" style="margin-top:16px;">Tags</div>
+        <div id="sidebar-tags" class="sidebar-tags"></div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-footer-btn" id="import-btn">
+          <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 3v10M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Import
+        </button>
+        <button class="sidebar-footer-btn" id="export-btn">
+          <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 13V3M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Export
+        </button>
+        <button class="sidebar-footer-btn" id="logout-btn" style="background: transparent; border-color: rgba(224,83,83,0.2); color: #e05353;" title="Logout">
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle" id="sidebar-toggle">
+            <svg viewBox="0 0 20 20" fill="none" width="18"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <h1 id="view-title">All Items</h1>
+          <span class="view-count" id="view-count">0 items</span>
+        </div>
+        <div class="topbar-right">
+          <select id="sort-select" class="topbar-select">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="name">Name A–Z</option>
+          </select>
+          <div class="view-toggle">
+            <button class="view-toggle-btn active" id="view-grid" title="Grid view"><svg viewBox="0 0 20 20" fill="none" width="15"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></button>
+            <button class="view-toggle-btn" id="view-list" title="List view"><svg viewBox="0 0 20 20" fill="none" width="15"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+            <button class="view-toggle-btn" id="view-masonry" title="Masonry view"><svg viewBox="0 0 20 20" fill="none" width="15"><rect x="2" y="2" width="7" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="9" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="14" width="7" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          </div>
+          <button class="topbar-wallpaper-btn" id="topbar-wallpaper-btn" title="Change space wallpaper & mood">
+            <svg viewBox="0 0 20 20" fill="none" width="14"><rect x="2" y="2" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 15l4.5-4.5 4 4 3-3 2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Wallpaper</span>
+          </button>
+          <button class="add-btn-topbar" id="topbar-add-btn">
+            <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Add
+          </button>
+        </div>
+      </header>
+      <div class="tag-strip hidden" id="tag-strip">
+        <span class="tag-strip-label">Tag:</span>
+        <span class="tag-strip-value" id="tag-strip-value"></span>
+        <button class="tag-strip-clear" id="tag-strip-clear">✕ Clear</button>
+      </div>
+      <div class="content" id="content-area"></div>
+    </main>
+  </div>
+
+  <div class="modal-overlay hidden" id="item-modal">
+    <div class="modal">
+      <div class="modal-header"><h3 id="modal-title">Add Item</h3><button class="modal-close" id="modal-close">✕</button></div>
+      <div class="modal-type-pills" id="modal-type-pills">
+        <button class="type-pill active" data-type="url">🔗 URL</button>
+        <button class="type-pill" data-type="note">📝 Note</button>
+        <button class="type-pill" data-type="key">🔑 API Key</button>
+        <button class="type-pill" data-type="password">🔒 Password</button>
+      </div>
+      <div class="modal-body">
+        <form id="item-form">
+          <input type="hidden" id="item-id"><input type="hidden" id="item-type" value="url">
+          <div class="form-group hidden" id="field-url"><label>URL</label><input type="url" id="form-url" placeholder="https://example.com"></div>
+          <div class="form-group hidden" id="field-name"><label>Name</label><input type="text" id="form-name" placeholder="e.g. OpenAI, Gmail"></div>
+          <div class="form-group hidden" id="field-title"><label>Title</label><input type="text" id="form-title" placeholder="Title"></div>
+          <div class="form-group hidden" id="field-username"><label>Username / Email</label><input type="text" id="form-username" placeholder="user@email.com"></div>
+          <div class="form-group hidden" id="field-value"><label>Value</label><input type="text" id="form-value" placeholder="Secret value" autocomplete="off"></div>
+          <div class="form-group hidden" id="field-content"><label>Content</label><textarea id="form-content" placeholder="Write your note here…" rows="5"></textarea></div>
+          <div class="form-group"><label>Tags <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(comma separated)</span></label><input type="text" id="form-tags" placeholder="design, reading, tools"></div>
+          <div class="form-actions-modal">
+            <button type="button" class="btn-cancel" id="modal-cancel">Cancel</button>
+            <button type="submit" class="btn-save" id="form-submit">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SPACE & WALLPAPER STUDIO MODAL ═══════ -->
+  <div class="modal-overlay hidden" id="space-modal">
+    <div class="modal space-studio-modal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h3 id="space-modal-title">Space & Wallpaper Studio</h3>
+          <p class="modal-subtitle">Pick a mood wallpaper, upload a local image, or paste a custom link</p>
+        </div>
+        <button class="modal-close" onclick="closeSpaceModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="space-form" onsubmit="handleSpaceSubmit(event)">
+          <input type="hidden" id="space-edit-id">
+          <input type="hidden" id="space-wallpaper">
+          
+          <div class="form-group">
+            <label>Space Name</label>
+            <input type="text" id="space-name" placeholder="e.g. Startups, Research, Lo-Fi Workspace" required autofocus>
+          </div>
+
+          <!-- Mood Presets Gallery -->
+          <div class="form-group">
+            <div class="space-section-header">
+              <label>Curated Mood Presets (38+ Wallpapers)</label>
+              <span class="space-section-sub">Filter by theme bundle & click to apply</span>
+            </div>
+            
+            <!-- Category Bundle Tabs -->
+            <div class="wallpaper-bundle-tabs" id="wallpaper-bundle-tabs">
+              <button type="button" class="bundle-tab active" data-bundle="all">All (38)</button>
+              <button type="button" class="bundle-tab" data-bundle="anime">🌸 Anime</button>
+              <button type="button" class="bundle-tab" data-bundle="nature">🌲 Nature</button>
+              <button type="button" class="bundle-tab" data-bundle="cosmos">🌌 Space</button>
+              <button type="button" class="bundle-tab" data-bundle="city">🏙️ City</button>
+              <button type="button" class="bundle-tab" data-bundle="cozy">☕ Lo-Fi</button>
+              <button type="button" class="bundle-tab" data-bundle="minimal">🖤 Minimal</button>
+            </div>
+
+            <div class="wallpaper-preset-grid" id="wallpaper-preset-grid"></div>
+          </div>
+
+          <!-- Local File Upload or Custom URL -->
+          <div class="form-group">
+            <div class="space-section-header">
+              <label>Local Image or Custom Link</label>
+            </div>
+            <div class="wallpaper-custom-row">
+              <input type="file" id="space-wallpaper-file" accept="image/*" style="display:none;">
+              <button type="button" class="btn-upload-local" id="btn-browse-local" onclick="document.getElementById('space-wallpaper-file').click()">
+                <svg viewBox="0 0 20 20" fill="none" width="15"><path d="M4 14l4-4 3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+                <span>📁 Upload Image from Computer</span>
+              </button>
+              <span class="upload-hint" id="local-file-name">Supports JPG, PNG, WEBP, GIF (stored locally)</span>
+            </div>
+            <div style="margin-top:8px;">
+              <input type="url" id="space-wallpaper-url-input" placeholder="Or paste custom image link (Unsplash, etc.)">
+            </div>
+          </div>
+
+          <!-- Live Atmosphere & Opacity Controls -->
+          <div class="wallpaper-controls-box">
+            <div class="wallpaper-preview-strip" id="wallpaper-live-preview">
+              <div class="preview-mock-card"></div>
+              <div class="preview-mock-card"></div>
+              <span class="preview-tag" id="preview-tag-label">Atmosphere Live Preview</span>
+            </div>
+            <div class="wallpaper-sliders">
+              <div class="slider-row">
+                <div class="slider-label-row">
+                  <span>Wallpaper Opacity</span>
+                  <span class="slider-val" id="opacity-val">30%</span>
+                </div>
+                <input type="range" id="space-wallpaper-opacity" min="5" max="90" value="30" step="1">
+              </div>
+              <div class="slider-row">
+                <div class="slider-label-row">
+                  <span>Depth Blur</span>
+                  <span class="slider-val" id="blur-val">0px</span>
+                </div>
+                <input type="range" id="space-wallpaper-blur" min="0" max="16" value="0" step="1">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions-modal">
+            <button type="button" class="btn-cancel" onclick="closeSpaceModal()">Cancel</button>
+            <button type="submit" class="btn-save">Apply & Save Space</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="import-file" accept=".json" style="display:none">
+  <div class="toast hidden" id="toast"></div>
+  <script src="dashboard-init.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

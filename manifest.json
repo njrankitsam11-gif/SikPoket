@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "SikPoket - Secure Bookmark Manager",
+  "description": "Save URLs, API keys, passwords, and articles securely",
+  "version": "1.1",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "downloads",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S"
+      }
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dashboard/index.html",
+        "dashboard/app.js",
+        "dashboard/app.css",
+        "dashboard/dashboard-init.js",
+        "unlock.html",
+        "unlock.js",
+        "popup.css",
+        "crypto-helper.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

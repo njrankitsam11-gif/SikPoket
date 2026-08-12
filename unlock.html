@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>SikPoket — Unlock</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body style="background:#141418;">
+<div class="sp-shell" style="max-width: 420px; margin: 60px auto; min-height: auto;">
+  <div class="sp-lock-card" style="display:block;">
+    <div class="sp-lock-glow"></div>
+    <div class="sp-lock-icon">
+      <svg viewBox="0 0 40 40" fill="none" width="40">
+        <rect x="8" y="20" width="24" height="16" rx="4" fill="#6c63f5" opacity=".18"/>
+        <rect x="8" y="20" width="24" height="16" rx="4" stroke="#6c63f5" stroke-width="1.5"/>
+        <path d="M14 20v-5a6 6 0 1112 0v5" stroke="#6c63f5" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="20" cy="28" r="2" fill="#6c63f5"/>
+      </svg>
+    </div>
+    <h1 class="sp-lock-title">SikPoket</h1>
+    <p class="sp-lock-sub" id="status">Tap below to unlock with Touch ID</p>
+    <button id="unlock-btn" class="sp-lock-btn" style="margin-top:12px;">🔐 Unlock with Touch ID</button>
+    <button id="register-btn" class="sp-lock-bio" style="margin-top:6px;">👆 Register Touch ID for This Device</button>
+    <input type="password" id="master-pw-input" class="sp-lock-input" placeholder="Enter master password first" style="display:none;">
+    <p class="sp-lock-hint" id="hint">No biometric set up? Use the extension popup normally first, then come back here.</p>
+  </div>
+</div>
+<script src="crypto-helper.js"></script>
+<script src="unlock.js"></script>
+</body>
+</html>
