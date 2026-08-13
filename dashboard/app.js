@@ -3,8 +3,7 @@
    ===================================================== */
 
 // Use user-scoped storage key + add logout 
-const CURRENT_USER = sessionStorage.getItem('sikpoket_user') || 'guest';
-const STORAGE_KEY = 'sikpoket_' + CURRENT_USER;
+
 const TYPE_META = {
   url:{icon:'🔗',label:'URL',placeholder:'🔗'},
   note:{icon:'📝',label:'Note',placeholder:'📝'},
@@ -27,9 +26,15 @@ function getActiveSpace() {
   return state.spaces.find(s => s.id === state.activeSpace) || state.spaces[0] || null;
 }
 
-function load() {
+async function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = null;
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      const res = await chrome.storage.local.get(['sikpoketDashboardData']);
+      if (res.sikpoketDashboardData) raw = JSON.stringify(res.sikpoketDashboardData);
+    } else {
+      raw = localStorage.getItem('sikpoketDashboardData');
+    }
     const data = raw ? JSON.parse(raw) : null;
     if (data && data.spaces) {
       state.spaces = data.spaces.map(s => ({ ...s, items: (s.items||[]).filter(i => !i._removed) }));
@@ -67,7 +72,14 @@ function load() {
   }
 }
 
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify({ spaces: state.spaces, activeSpace: state.activeSpace })); }
+async function save() {
+  const data = { spaces: state.spaces, activeSpace: state.activeSpace };
+  if (typeof chrome !== 'undefined' && chrome.storage) {
+    await chrome.storage.local.set({ sikpoketDashboardData: data });
+  } else {
+    localStorage.setItem('sikpoketDashboardData', JSON.stringify(data));
+  }
+}
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 const WALLPAPER_PRESETS = [
   // Minimal & Abstract
@@ -619,8 +631,8 @@ function seedDemo() {
 }
 
 /* ── INIT ──────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  load();
+document.addEventListener('DOMContentLoaded', async () => {
+  await load();
   updateSpaceList();
   setupWallpaperStudioControls();
 
