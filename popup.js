@@ -1228,8 +1228,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Biometric availability check (after unlock + after function definition)
+
+
+  function syncTheme() {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get(['sikpoketDashboardData'], (res) => {
+        const data = res.sikpoketDashboardData;
+        if (data && data.spaces && data.activeSpace) {
+          const activeSpace = data.spaces.find(s => s.id === data.activeSpace);
+          if (activeSpace && activeSpace.theme) {
+            document.documentElement.setAttribute('data-theme', activeSpace.theme);
+          }
+        }
+      });
+    }
+  }
   syncTheme();
+
+  // Biometric availability check (after unlock + after function definition)
+
     checkBiometricAvailability();
 
   /* =========================================================

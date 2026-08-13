@@ -62,10 +62,22 @@ async function load() {
     });
   }
   if (typeof chrome !== 'undefined' && chrome.storage) {
-    chrome.storage.local.get(['sikpoketDashboardData'], (r) => {
-      if (r.sikpoketDashboardData?.length) {
-        const space = getActiveSpace(); if (space) space.items = [...r.sikpoketDashboardData, ...space.items];
-        chrome.storage.local.remove('sikpoketDashboardData');
+    chrome.storage.local.get(['sikpoketData'], (r) => {
+
+      // The popup stores data as { urls: [...], apiKeys: [...], passwords: [...], notes: [...] }
+      if (r.sikpoketData) {
+        let newItems = [];
+        const typeMap = { 'urls': 'url', 'apiKeys': 'key', 'passwords': 'password', 'notes': 'note' };
+        for (const [pluralKey, singularType] of Object.entries(typeMap)) {
+          if (r.sikpoketData[pluralKey]) {
+            newItems = newItems.concat(r.sikpoketData[pluralKey].map(item => ({...item, type: singularType})));
+          }
+        }
+        if (newItems.length > 0) {
+
+        const space = getActiveSpace(); if (space) space.items = [...newItems, ...space.items];
+        chrome.storage.local.remove('sikpoketData');
+        }
         save(); render(); updateBadges(); renderSidebarTags();
       }
     });
@@ -568,6 +580,7 @@ function openAddSpace() {
 window.handleSpaceSubmit = function(e) {
   e.preventDefault();
   const name = document.getElementById('space-name').value.trim();
+  const theme = document.getElementById('space-theme').value;
   if (!name) return;
   const wallpaper = document.getElementById('space-wallpaper').value.trim();
   const opacity = parseInt(document.getElementById('space-wallpaper-opacity').value) || 35;
@@ -578,6 +591,7 @@ window.handleSpaceSubmit = function(e) {
     const s = state.spaces.find(x => x.id === editId);
     if (s) {
       s.name = name;
+      s.theme = theme;
       s.wallpaper = wallpaper;
       s.wallpaperOpacity = opacity;
       s.wallpaperBlur = blur;
@@ -587,6 +601,7 @@ window.handleSpaceSubmit = function(e) {
     const ns = {
       id: genId(),
       name,
+      theme,
       wallpaper,
       wallpaperOpacity: opacity,
       wallpaperBlur: blur,
