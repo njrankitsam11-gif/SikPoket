@@ -34,8 +34,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "commands": {
@@ -51,18 +55,17 @@
         "dashboard/index.html",
         "dashboard/app.js",
         "dashboard/app.css",
-        "dashboard/dashboard-init.js",
-        "dashboard/auth.html",
-        "dashboard/auth.js",
-        "unlock.html",
-        "unlock.js",
         "popup.css",
         "crypto-helper.js",
         "icons/icon16.png",
         "icons/icon48.png",
-        "icons/icon128.png"
+        "icons/icon128.png",
+        "unlock.html",
+        "unlock.js"
       ],
-      "matches": ["<all_urls>"]
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
