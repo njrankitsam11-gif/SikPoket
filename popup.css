@@ -26,6 +26,75 @@
   /* Wallpaper support */
   --wallpaper-url: none;
 }
+
+[data-theme="cyberpunk"] {
+  --c-base: #0b0510;
+  --c-surface: #140b2e;
+  --c-raise: #24144b;
+  --c-border: #382075;
+  --c-border2: #4d2b9e;
+  --c-acc: #f82796;
+  --c-acc-dim: rgba(248, 39, 150, .14);
+  --c-acc-glow: rgba(248, 39, 150, .28);
+  --c-txt: #ffffff;
+  --c-txt2: #b0a8d6;
+  --c-txt3: #7567a3;
+  --c-danger: #ff2a2a;
+  --c-warn: #ffb800;
+  --c-ok: #00ffcc;
+}
+
+[data-theme="lofi"] {
+  --c-base: #f4eee1;
+  --c-surface: #ffffff;
+  --c-raise: #faf7f0;
+  --c-border: #e3d9c8;
+  --c-border2: #d1c5b0;
+  --c-acc: #d68c70;
+  --c-acc-dim: rgba(214, 140, 112, .14);
+  --c-acc-glow: rgba(214, 140, 112, .28);
+  --c-txt: #4a453f;
+  --c-txt2: #8c857b;
+  --c-txt3: #b0a89d;
+  --c-danger: #d97777;
+  --c-warn: #e0b472;
+  --c-ok: #8cb398;
+}
+
+[data-theme="nord"] {
+  --c-base: #2e3440;
+  --c-surface: #3b4252;
+  --c-raise: #434c5e;
+  --c-border: #4c566a;
+  --c-border2: #81a1c1;
+  --c-acc: #88c0d0;
+  --c-acc-dim: rgba(136, 192, 208, .14);
+  --c-acc-glow: rgba(136, 192, 208, .28);
+  --c-txt: #eceff4;
+  --c-txt2: #d8dee9;
+  --c-txt3: #8fbcbb;
+  --c-danger: #bf616a;
+  --c-warn: #ebcb8b;
+  --c-ok: #a3be8c;
+}
+
+[data-theme="lavender"] {
+  --c-base: #f5f3ff;
+  --c-surface: #ffffff;
+  --c-raise: #ede9fe;
+  --c-border: #ddd6fe;
+  --c-border2: #c4b5fd;
+  --c-acc: #8b5cf6;
+  --c-acc-dim: rgba(139, 92, 246, .14);
+  --c-acc-glow: rgba(139, 92, 246, .28);
+  --c-txt: #4c1d95;
+  --c-txt2: #6d28d9;
+  --c-txt3: #8b5cf6;
+  --c-danger: #ef4444;
+  --c-warn: #f59e0b;
+  --c-ok: #10b981;
+}
+
   /* Ground — char & wax-resist cloth */
   --c-base:     #0d0b0a;
   --c-surface:  #161210;

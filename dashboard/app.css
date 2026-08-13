@@ -44,10 +44,75 @@
   --sidebar-w: 230px;
 }
 
+/* New Age Themes mapping to SikPoket properties */
+[data-theme="cyberpunk"] {
+  --bg: #0b0510;
+  --surface: rgba(20, 11, 46, 0.7);
+  --surface-2: #24144b;
+  --primary: #f82796;
+  --primary-2: #b51c6c;
+  --brand-soft: #ff85c6;
+  --green: #00ffcc;
+  --danger: #ff2a2a;
+  --warning: #ffb800;
+  --success: #00ffcc;
+  --on-surface: #ffffff;
+  --on-variant: #b0a8d6;
+  --outline: rgba(56, 32, 117, 0.5);
+}
+
+[data-theme="lofi"] {
+  --bg: #f4eee1;
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-2: #faf7f0;
+  --primary: #d68c70;
+  --primary-2: #bd7b62;
+  --brand-soft: #e5b09d;
+  --green: #8cb398;
+  --danger: #d97777;
+  --warning: #e0b472;
+  --success: #8cb398;
+  --on-surface: #4a453f;
+  --on-variant: #8c857b;
+  --outline: rgba(227, 217, 200, 0.5);
+}
+
+[data-theme="nord"] {
+  --bg: #2e3440;
+  --surface: rgba(59, 66, 82, 0.7);
+  --surface-2: #434c5e;
+  --primary: #88c0d0;
+  --primary-2: #81a1c1;
+  --brand-soft: #8fbcbb;
+  --green: #a3be8c;
+  --danger: #bf616a;
+  --warning: #ebcb8b;
+  --success: #a3be8c;
+  --on-surface: #eceff4;
+  --on-variant: #d8dee9;
+  --outline: rgba(76, 86, 106, 0.5);
+}
+
+[data-theme="lavender"] {
+  --bg: #f5f3ff;
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-2: #ede9fe;
+  --primary: #8b5cf6;
+  --primary-2: #7c3aed;
+  --brand-soft: #a78bfa;
+  --green: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --on-surface: #4c1d95;
+  --on-variant: #6d28d9;
+  --outline: rgba(221, 214, 254, 0.5);
+}
+
 html, body { height: 100%; }
 body {
   font-family: var(--font);
-  background: radial-gradient(ellipse at 18% 0%, #1a1208 0%, #0d0b0a 65%);
+  background: var(--bg);
   color: var(--on-surface);
   font-size: 13px; line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -621,6 +686,71 @@ a.card-title:hover { color: var(--brand-soft); }
 .toast.hidden { display: none; }
 .toast.success { border-color: var(--green); color: var(--green); }
 .toast.error   { border-color: var(--danger); color: var(--danger); }
+
+/* New Age Themes mapping to SikPoket properties */
+[data-theme="cyberpunk"] {
+  --bg: #0b0510;
+  --surface: #140b2e;
+  --surface-2: #24144b;
+  --primary: #f82796;
+  --primary-2: #b51c6c;
+  --brand-soft: #ff85c6;
+  --green: #00ffcc;
+  --danger: #ff2a2a;
+  --warning: #ffb800;
+  --success: #00ffcc;
+  --on-surface: #ffffff;
+  --on-variant: #b0a8d6;
+  --outline: #382075;
+}
+
+[data-theme="lofi"] {
+  --bg: #f4eee1;
+  --surface: #ffffff;
+  --surface-2: #faf7f0;
+  --primary: #d68c70;
+  --primary-2: #bd7b62;
+  --brand-soft: #e5b09d;
+  --green: #8cb398;
+  --danger: #d97777;
+  --warning: #e0b472;
+  --success: #8cb398;
+  --on-surface: #4a453f;
+  --on-variant: #8c857b;
+  --outline: #e3d9c8;
+}
+
+[data-theme="nord"] {
+  --bg: #2e3440;
+  --surface: #3b4252;
+  --surface-2: #434c5e;
+  --primary: #88c0d0;
+  --primary-2: #81a1c1;
+  --brand-soft: #8fbcbb;
+  --green: #a3be8c;
+  --danger: #bf616a;
+  --warning: #ebcb8b;
+  --success: #a3be8c;
+  --on-surface: #eceff4;
+  --on-variant: #d8dee9;
+  --outline: #4c566a;
+}
+
+[data-theme="lavender"] {
+  --bg: #f5f3ff;
+  --surface: #ffffff;
+  --surface-2: #ede9fe;
+  --primary: #8b5cf6;
+  --primary-2: #7c3aed;
+  --brand-soft: #a78bfa;
+  --green: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --on-surface: #4c1d95;
+  --on-variant: #6d28d9;
+  --outline: #ddd6fe;
+}
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }

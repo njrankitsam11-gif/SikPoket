@@ -1229,7 +1229,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Biometric availability check (after unlock + after function definition)
-  checkBiometricAvailability();
+  syncTheme();
+    checkBiometricAvailability();
 
   /* =========================================================
      MODULE: BATCH SELECT

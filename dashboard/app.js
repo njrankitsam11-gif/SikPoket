@@ -37,7 +37,7 @@ async function load() {
     }
     const data = raw ? JSON.parse(raw) : null;
     if (data && data.spaces) {
-      state.spaces = data.spaces.map(s => ({ ...s, items: (s.items||[]).filter(i => !i._removed) }));
+      state.spaces = data.spaces.map(s => ({ ...s, theme: s.theme || 'default', items: (s.items||[]).filter(i => !i._removed) }));
       state.activeSpace = data.activeSpace || (state.spaces[0]?.id || null);
     } else if (data && Array.isArray(data)) {
       // migrate old flat items format
@@ -133,7 +133,14 @@ const WALLPAPER_PRESETS = [
   { id: 'lofi-coding', name: 'Midnight Coding Desk', mood: 'Hacker', category: 'cozy', thumb: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=80', url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80' }
 ];
 
-function setWallpaper() {
+async function setWallpaper() {
+  const activeSpaceObj = getActiveSpace();
+  if(activeSpaceObj && activeSpaceObj.theme) {
+    document.documentElement.setAttribute('data-theme', activeSpaceObj.theme);
+    if(typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.set({ sikpoketActiveTheme: activeSpaceObj.theme });
+    }
+  }
   const el = document.getElementById('wallpaper-bg');
   const space = getActiveSpace();
   if (!el) return;
@@ -512,6 +519,7 @@ window.openSpaceSettings = function(id) {
   const space = state.spaces.find(s => s.id === id); if (!space) return;
   document.getElementById('space-edit-id').value = id;
   document.getElementById('space-name').value = space.name;
+  if(document.getElementById('space-theme')) document.getElementById('space-theme').value = space.theme || 'default';
   const currentWp = space.wallpaper || '';
   document.getElementById('space-wallpaper').value = currentWp;
   document.getElementById('space-wallpaper-url-input').value = currentWp.startsWith('data:') ? 'Local Image Attached' : currentWp;
