@@ -147,6 +147,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('show-url-form')?.addEventListener('click', () => toggleForm('url'));
   $('show-api-key-form')?.addEventListener('click', () => toggleForm('api-key'));
   $('show-password-form')?.addEventListener('click', () => toggleForm('password'));
+
+  $('password-generate-btn')?.addEventListener('click', () => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~|}{[]:;?><,./-=';
+    let pass = '';
+    const array = new Uint32Array(16);
+    window.crypto.getRandomValues(array);
+    for (let i = 0; i < 16; i++) {
+      pass += chars[array[i] % chars.length];
+    }
+    const input = $('password-value');
+    if (input) {
+      input.value = pass;
+      input.type = 'text';
+      setTimeout(() => { input.type = 'password'; }, 3000);
+    }
+  });
+
   $('show-note-form')?.addEventListener('click', () => toggleForm('note'));
 
   /* --- Search & filters --- */
@@ -1238,6 +1255,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           const activeSpace = data.spaces.find(s => s.id === data.activeSpace);
           if (activeSpace && activeSpace.theme) {
             document.documentElement.setAttribute('data-theme', activeSpace.theme);
+            if (activeSpace.theme === 'custom') {
+              document.documentElement.style.setProperty('--c-acc', activeSpace.customAccent || '#7c6af7');
+              document.documentElement.style.setProperty('--c-base', activeSpace.customBg || '#0c0e12');
+              document.documentElement.style.setProperty('--c-surface', activeSpace.customBg || '#0c0e12');
+            } else {
+              document.documentElement.style.removeProperty('--c-acc');
+              document.documentElement.style.removeProperty('--c-base');
+              document.documentElement.style.removeProperty('--c-surface');
+            }
           }
         }
       });

@@ -177,7 +177,10 @@
       <form id="password-form" class="sp-form sp-hidden">
         <input type="text" id="password-name" class="sp-input" placeholder="Site or app name" required>
         <input type="text" id="password-username" class="sp-input" placeholder="Email or username">
-        <input type="password" id="password-value" class="sp-input" placeholder="Password" required autocomplete="new-password">
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="password-value" class="sp-input" placeholder="Password" required autocomplete="new-password" style="flex: 1;">
+          <button type="button" id="password-generate-btn" class="sp-btn-secondary" style="padding: 0 10px; border-radius: 6px; font-size: 11px;">Generate</button>
+        </div>
         <div class="sp-tag-wrap">
           <input type="text" id="password-tags" class="sp-input" placeholder="Tags: email, work" autocomplete="off">
           <div class="sp-tag-suggestions" id="password-tag-suggestions"></div>

@@ -22,6 +22,12 @@ let state = {
   editId: null
 };
 
+
+document.getElementById('global-search')?.addEventListener('input', (e) => {
+  state.search = e.target.value.trim().toLowerCase();
+  render();
+});
+
 function getActiveSpace() {
   return state.spaces.find(s => s.id === state.activeSpace) || state.spaces[0] || null;
 }
@@ -149,6 +155,15 @@ async function setWallpaper() {
   const activeSpaceObj = getActiveSpace();
   if(activeSpaceObj && activeSpaceObj.theme) {
     document.documentElement.setAttribute('data-theme', activeSpaceObj.theme);
+    if (activeSpaceObj.theme === 'custom') {
+      document.documentElement.style.setProperty('--primary', activeSpaceObj.customAccent || '#7c6af7');
+      document.documentElement.style.setProperty('--bg', activeSpaceObj.customBg || '#0c0e12');
+      document.documentElement.style.setProperty('--panel-bg', activeSpaceObj.customBg || '#0c0e12');
+    } else {
+      document.documentElement.style.removeProperty('--primary');
+      document.documentElement.style.removeProperty('--bg');
+      document.documentElement.style.removeProperty('--panel-bg');
+    }
     if(typeof chrome !== 'undefined' && chrome.storage) {
       chrome.storage.local.set({ sikpoketActiveTheme: activeSpaceObj.theme });
     }
@@ -171,8 +186,18 @@ async function setWallpaper() {
 }
 
 function getFiltered() {
-  const space = getActiveSpace(); if (!space) return [];
-  let items = [...space.items];
+  let items = [];
+  if (state.search.trim()) {
+    // Search across ALL spaces
+    state.spaces.forEach(sp => {
+      items = items.concat(sp.items.map(i => ({...i, _spaceName: sp.name})));
+    });
+  } else {
+    // Only current space
+    const space = getActiveSpace();
+    if (!space) return [];
+    items = [...space.items];
+  }
   if (state.collection === 'highlights') items = items.filter(i => (i.tags||[]).includes('highlight') && !i.archived);
   else if (state.collection === 'broken') {
     // Broken items are stored in state.brokenIds (populated by scanBrokenLinks)
@@ -263,13 +288,34 @@ function faviconEl(item) {
   return `<div class="card-favicon"><span class="card-favicon-placeholder">${m.icon}</span></div>`;
 }
 
+
+function parseMarkdown(text) {
+  if (!text) return '';
+  let html = esc(text);
+  // Bold
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Italic
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  // Headers (H1, H2, H3)
+  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  // Lists
+  html = html.replace(/^\- (.*$)/gim, '<ul><li>$1</li></ul>');
+  html = html.replace(/<\/ul>\n<ul>/g, '\n');
+  return html;
+}
+
 function cardHtml(item, lm) {
   const date = new Date(item.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+
+  const spaceBadge = item._spaceName ? `<div style="font-size: 10px; opacity: 0.7; margin-bottom: 4px; color: var(--accent);">In Space: ${esc(item._spaceName)}</div>` : '';
+
   let th = item.type==='url'&&item.url ? `<a class="card-title" href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title||item.url)}</a>` : `<span class="card-title">${esc(item.title||item.name||'Untitled')}</span>`;
   let dh = ''; if(item.type==='url'&&item.url) try{dh=`<span class="card-domain">${new URL(item.url).hostname}</span>`}catch{} else if((item.type==='key'||item.type==='password')&&item.username)dh=`<span class="card-domain">${esc(item.username)}</span>`;
-  let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt">${esc(item.content)}</div>`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" data-action="copy-secret" title="Click to copy secret">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
+  let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt markdown-content">${parseMarkdown(item.content)}</div>`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" data-action="copy-secret" title="Click to copy secret">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
   const thtml = (item.tags||[]).length?`<div class="card-tags">${item.tags.map(t=>`<span class="card-tag" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>`:'';
-  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions"><button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
+  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body">${spaceBadge}<div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions"><button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
 }
 
 function attachCardEventDelegation() {
@@ -581,6 +627,8 @@ window.handleSpaceSubmit = function(e) {
   e.preventDefault();
   const name = document.getElementById('space-name').value.trim();
   const theme = document.getElementById('space-theme').value;
+  const customAccent = document.getElementById('theme-accent-color').value;
+  const customBg = document.getElementById('theme-bg-color').value;
   if (!name) return;
   const wallpaper = document.getElementById('space-wallpaper').value.trim();
   const opacity = parseInt(document.getElementById('space-wallpaper-opacity').value) || 35;
@@ -592,6 +640,10 @@ window.handleSpaceSubmit = function(e) {
     if (s) {
       s.name = name;
       s.theme = theme;
+      if (theme === 'custom') {
+        s.customAccent = customAccent;
+        s.customBg = customBg;
+      }
       s.wallpaper = wallpaper;
       s.wallpaperOpacity = opacity;
       s.wallpaperBlur = blur;
@@ -599,6 +651,8 @@ window.handleSpaceSubmit = function(e) {
     state.activeSpace = editId;
   } else {
     const ns = {
+      customAccent: theme === 'custom' ? customAccent : undefined,
+      customBg: theme === 'custom' ? customBg : undefined,
       id: genId(),
       name,
       theme,
@@ -626,18 +680,71 @@ function deleteActiveSpace() {
 }
 
 /* ── EXPORT/IMPORT ───────────────────── */
+
+/* ── EXPORT/IMPORT ───────────────────── */
 function exportItems() {
-  const blob=new Blob([JSON.stringify({version:2,spaces:state.spaces,activeSpace:state.activeSpace},null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`sikpoket-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);toast('Exported!','success');
+  const dataToExport = { version: 2, spaces: state.spaces, activeSpace: state.activeSpace };
+
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['sikpoketData'], (res) => {
+      dataToExport.popupData = res.sikpoketData || {};
+      downloadJson(dataToExport);
+    });
+  } else {
+    downloadJson(dataToExport);
+  }
 }
+
+function downloadJson(data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sikpoket-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported!', 'success');
+}
+
 function importFile(e) {
-  const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=function(ev){try{const d=JSON.parse(ev.target.result);
-  if(d.spaces){d.spaces.forEach(ns=>{const ex=state.spaces.find(s=>s.id===ns.id);if(ex){ex.items=[...ns.items,...ex.items];ex.name=ns.name||ex.name;ex.wallpaper=ns.wallpaper||ex.wallpaper;ex.wallpaperOpacity=ns.wallpaperOpacity;ex.wallpaperBlur=ns.wallpaperBlur;}else state.spaces.push(ns);});}
-  else if(d.items||Array.isArray(d)){const s=getActiveSpace();if(s)s.items=[...(d.items||d),...s.items];}
-  if(d.activeSpace)state.activeSpace=d.activeSpace;
-  save();updateSpaceList();setWallpaper();render();updateBadges();toast('Imported!','success');}catch{toast('Invalid file','error');}};r.readAsText(f);e.target.value='';
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = async function(ev) {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (d.spaces) {
+        d.spaces.forEach(ns => {
+          const ex = state.spaces.find(s => s.id === ns.id);
+          if (ex) {
+            ex.items = [...ns.items, ...ex.items];
+            ex.name = ns.name || ex.name;
+            ex.wallpaper = ns.wallpaper || ex.wallpaper;
+            ex.wallpaperOpacity = ns.wallpaperOpacity;
+            ex.wallpaperBlur = ns.wallpaperBlur;
+          } else state.spaces.push(ns);
+        });
+      }
+      else if (d.items || Array.isArray(d)) {
+        const s = getActiveSpace();
+        if (s) s.items = [...(d.items || d), ...s.items];
+      }
+
+      if (d.activeSpace) state.activeSpace = d.activeSpace;
+
+      if (d.popupData && typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        await chrome.storage.local.set({ sikpoketData: d.popupData });
+      }
+
+      save(); updateSpaceList(); setWallpaper(); render(); updateBadges(); toast('Imported!', 'success');
+    } catch {
+      toast('Invalid file', 'error');
+    }
+  };
+  r.readAsText(f);
+  e.target.value = '';
 }
+
 function toast(m,t){const el=document.getElementById('toast');if(!el)return;el.textContent=m;el.className=`toast show ${t||''}`;clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
@@ -686,6 +793,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('space-modal-close')?.addEventListener('click', closeSpaceModal);
   document.getElementById('space-modal-cancel')?.addEventListener('click', closeSpaceModal);
   document.getElementById('space-form')?.addEventListener('submit', handleSpaceSubmit);
+
+document.getElementById('space-theme')?.addEventListener('change', (e) => {
+  const customOpts = document.getElementById('custom-theme-options');
+  if (e.target.value === 'custom') {
+    customOpts.classList.remove('hidden');
+  } else {
+    customOpts.classList.add('hidden');
+  }
+});
+
   document.getElementById('btn-browse-local')?.addEventListener('click', () => {
     document.getElementById('space-wallpaper-file')?.click();
   });

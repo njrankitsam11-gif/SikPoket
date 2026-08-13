@@ -191,14 +191,28 @@
 
           <div class="form-group">
             <label>Space Theme</label>
+
             <select id="space-theme" class="form-select">
               <option value="default">Default Dark</option>
               <option value="cyberpunk">Cyberpunk Neon</option>
               <option value="lofi">Lo-Fi Cozy (Light)</option>
               <option value="nord">Nord Arctic</option>
               <option value="lavender">Lavender Glass</option>
+              <option value="custom">🎨 Custom Theme Builder</option>
             </select>
           </div>
+
+          <div class="form-group hidden" id="custom-theme-options" style="display: flex; gap: 10px; margin-top: -10px;">
+            <div style="flex: 1;">
+              <label>Accent Color</label>
+              <input type="color" id="theme-accent-color" value="#7c6af7" style="width: 100%; height: 36px; border: none; border-radius: 6px; background: transparent; cursor: pointer;">
+            </div>
+            <div style="flex: 1;">
+              <label>Background Color</label>
+              <input type="color" id="theme-bg-color" value="#0c0e12" style="width: 100%; height: 36px; border: none; border-radius: 6px; background: transparent; cursor: pointer;">
+            </div>
+          </div>
+
 
 
           <!-- Mood Presets Gallery -->

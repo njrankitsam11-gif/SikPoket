@@ -19,3 +19,10 @@ It features two main interfaces:
 
 ## Biometric / Auth
 - For additional security, there is an authentication layer (`unlock.html` / `unlock.js`).
+
+## New Features
+1. **Password Generator:** Integrated directly into the popup. Uses cryptographically secure \`window.crypto.getRandomValues\` to generate strong passwords instantly.
+2. **Global Search:** The dashboard sidebar search now aggregates and searches across all spaces, returning results mapped to their respective spaces.
+3. **Right-Click Integration (Context Menu):** Users can right click links, selections, and pages to save them instantly to SikPoket from any page.
+4. **Markdown Support:** Notes in the dashboard are now parsed via a lightweight regex-based Markdown engine, supporting bold, italics, lists, and headings.
+5. **Custom Theme Builder:** Users can choose "Custom Theme Builder" in Space Settings and define custom Accent and Background colors utilizing native HTML5 color pickers.

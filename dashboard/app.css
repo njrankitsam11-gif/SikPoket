@@ -1121,3 +1121,13 @@ kbd {
   letter-spacing: .03em;
   flex-shrink: 0;
 }
+
+
+.markdown-content strong { font-weight: bold; color: var(--text-primary); }
+.markdown-content em { font-style: italic; }
+.markdown-content h1, .markdown-content h2, .markdown-content h3 { color: var(--text-primary); font-weight: 600; margin-bottom: 4px; margin-top: 8px; }
+.markdown-content h1 { font-size: 1.2em; }
+.markdown-content h2 { font-size: 1.1em; }
+.markdown-content h3 { font-size: 1.05em; }
+.markdown-content ul { padding-left: 20px; list-style-type: disc; margin-top: 4px; }
+.markdown-content li { margin-bottom: 2px; }
