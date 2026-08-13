@@ -144,7 +144,8 @@ body {
 
 /* ── SIDEBAR ─────────────────────────── */
 .sidebar {
-  width: var(--sidebar-w); background: rgba(22,18,16,0.95);
+  width: var(--sidebar-w);
+  background: var(--surface);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-right: 1px solid var(--divider);
   display: flex; flex-direction: column; flex-shrink: 0;
@@ -304,7 +305,7 @@ body {
 
 /* ── CARD ────────────────────────────── */
 .item-card {
-  background: rgba(27, 29, 35, 0.88); backdrop-filter: blur(8px);
+  background: var(--surface); backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--outline); border-radius: var(--r-lg);
   overflow: hidden; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
