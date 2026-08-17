@@ -401,6 +401,18 @@ a.card-title:hover { color: var(--accent-gold); }
           <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="15" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 6.5l2.5 6m4.5-6l-2.5 6M7.5 5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           <span>Knowledge Graph</span><span class="nav-badge" style="background:rgba(144,184,0,0.18);color:#e1e100;font-size:10px;font-weight:700;">2D Mindmap</span>
         </button>
+        <button class="nav-item" data-collection="rss">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 11a7 7 0 017 7M4 6a12 12 0 0112 12M5 17a1 1 0 11-2 0 1 1 0 012 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>RSS Feeds</span><span class="nav-badge" style="background:rgba(247,127,0,0.18);color:#f77f00;font-size:10px;font-weight:700;">Watcher</span>
+        </button>
+        <button class="nav-item" id="btn-dedup-clean">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 6h14M8 6V4a1 1 0 011-1h2a1 1 0 011 1v2M5 6v10a2 2 0 002 2h6a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5"/><path d="M8 10v4M12 10v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Clean Duplicates</span><span class="nav-badge" id="badge-dedup">Auto</span>
+        </button>
+        <button class="nav-item" id="btn-shortcuts-help">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8.5 8a1.5 1.5 0 013 0c0 1-1.5 1.5-1.5 2.5m0 2.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Shortcuts (?)</span><span class="nav-badge" style="font-family:var(--font-mono);font-size:10px;">VIM</span>
+        </button>
         <button class="nav-item" data-collection="guide">
           <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 4.5A2.5 2.5 0 016.5 2H16v14.5a.5.5 0 01-.5.5H6.5A2.5 2.5 0 004 19.5V4.5z" stroke="currentColor" stroke-width="1.5"/><path d="M4 17a2.5 2.5 0 012.5-2.5H16" stroke="currentColor" stroke-width="1.5"/><path d="M8 6h5M8 9h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span>How to Use</span><span class="nav-badge" style="background:rgba(144,184,0,0.18);color:#90b800;font-size:10px;font-weight:600;">Guide</span>
@@ -671,11 +683,101 @@ a.card-title:hover { color: var(--accent-gold); }
     </div>
   </div>
 
+  <!-- ══ KEYBOARD SHORTCUTS MODAL (?) ════════════════════ -->
+  <div class="modal-overlay hidden" id="shortcuts-modal">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header">
+        <h3>⌨️ Keyboard Shortcuts &amp; Vim Navigation</h3>
+        <button class="modal-close" id="shortcuts-modal-close">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12.5px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Next Card</span> <kbd>J</kbd> or <kbd>↓</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Prev Card</span> <kbd>K</kbd> or <kbd>↑</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Open / Reader Mode</span> <kbd>O</kbd> or <kbd>↵</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Toggle Favorite</span> <kbd>F</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Copy URL / Secret</span> <kbd>C</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Edit Item</span> <kbd>E</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Delete / Archive</span> <kbd>D</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Command Palette</span> <kbd>⌘ K</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>New Bookmark</span> <kbd>N</kbd>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface-2);border-radius:8px;">
+            <span>Help Cheat Sheet</span> <kbd>?</kbd>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding:14px 24px;border-top:1px solid var(--divider);display:flex;justify-content:flex-end;">
+        <button class="btn-save" id="shortcuts-modal-ok">Got it!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DUPLICATE CLEANER MODAL ════════════════════════════ -->
+  <div class="modal-overlay hidden" id="dedup-modal">
+    <div class="modal" style="width:580px;">
+      <div class="modal-header">
+        <h3>🧹 Smart Duplicate Cleaner</h3>
+        <button class="modal-close" id="dedup-modal-close">✕</button>
+      </div>
+      <div class="modal-body" style="padding:18px 24px;max-height:60vh;overflow-y:auto;" id="dedup-results-container">
+        <!-- Dynamically rendered duplicates -->
+      </div>
+      <div class="modal-footer" style="padding:14px 24px;border-top:1px solid var(--divider);display:flex;justify-content:space-between;align-items:center;">
+        <span id="dedup-summary-text" style="font-size:12px;color:var(--muted);font-family:var(--font-mono);">0 duplicate clusters found</span>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-cancel" id="dedup-modal-cancel">Close</button>
+          <button class="btn-save" id="dedup-merge-all-btn">⚡ Merge All Duplicates</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RSS FEED SUBSCRIPTION MODAL ════════════════════════ -->
+  <div class="modal-overlay hidden" id="rss-modal">
+    <div class="modal" style="width:500px;">
+      <div class="modal-header">
+        <h3>📡 Subscribe to RSS / Atom Feed</h3>
+        <button class="modal-close" id="rss-modal-close">✕</button>
+      </div>
+      <div class="modal-body" style="padding:18px 24px;">
+        <div class="form-group">
+          <label>Feed URL (RSS, Atom, Substack, Medium, GitHub)</label>
+          <input type="url" id="rss-feed-url-input" placeholder="https://news.ycombinator.com/rss or Substack feed" required autofocus>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5;">
+          💡 SikPoket parses feeds 100% locally with zero tracking servers. Click any post to read distraction-free in Reader Mode.
+        </div>
+      </div>
+      <div class="modal-footer" style="padding:14px 24px;border-top:1px solid var(--divider);display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn-cancel" id="rss-modal-cancel">Cancel</button>
+        <button class="btn-save" id="rss-subscribe-btn">📡 Add Feed</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ COMMAND PALETTE (CMD + K) ════════════════════════ -->
   <div class="cmd-palette-backdrop hidden" id="cmd-palette-backdrop">
     <div class="cmd-palette-modal" id="cmd-palette-modal">
       <div class="cmd-palette-header">
-        <svg viewBox="0 0 20 20" fill="none" width="18" style="color:#90b800;"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 20 20" fill="none" width="18" style="color:var(--primary);"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <input type="text" id="cmd-palette-input" class="cmd-palette-input" placeholder="Type a command or search your vault..." autocomplete="off">
         <kbd style="font-size:11px;">ESC</kbd>
       </div>
@@ -684,7 +786,7 @@ a.card-title:hover { color: var(--accent-gold); }
       </div>
       <div class="cmd-palette-footer">
         <span>Navigation: <kbd>↑</kbd> <kbd>↓</kbd> to select, <kbd>↵</kbd> to run</span>
-        <span style="color:#e1e100;font-weight:600;">SikPoket Spotlight</span>
+        <span style="color:var(--accent-gold);font-weight:600;">SikPoket Spotlight</span>
       </div>
     </div>
   </div>
@@ -701,6 +803,8 @@ a.card-title:hover { color: var(--accent-gold); }
   <script src="../wikilink-helper.js"></script>
   <script src="../tagger-helper.js"></script>
   <script src="../archive-helper.js"></script>
+  <script src="../dedup-helper.js"></script>
+  <script src="../feed-helper.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

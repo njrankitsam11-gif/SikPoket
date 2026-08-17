@@ -139,6 +139,16 @@ const jsFilesToCheck = [
   'ai-helper.js',
   'audio-helper.js',
   'sync-helper.js',
+  'search-helper.js',
+  'health-helper.js',
+  'chat-helper.js',
+  'graph-helper.js',
+  'reader-helper.js',
+  'wikilink-helper.js',
+  'tagger-helper.js',
+  'archive-helper.js',
+  'dedup-helper.js',
+  'feed-helper.js',
   'dashboard/app.js',
   'unlock.js'
 ];

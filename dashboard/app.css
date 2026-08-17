@@ -490,6 +490,11 @@ body {
   border-color: var(--outline-hover);
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 25px var(--glow-lime);
 }
+.item-card.focused {
+  border-color: var(--outline-hover) !important;
+  box-shadow: 0 0 0 2px var(--primary), 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 30px var(--glow-lime) !important;
+  transform: translateY(-4px) scale(1.01) !important;
+}
 
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(12px) scale(0.98); }
