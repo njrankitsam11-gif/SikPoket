@@ -25,6 +25,14 @@ function showToast(type, item) {
   // Stylesheet
   const style = document.createElement('style');
   style.textContent = `
+    :host {
+      --c-base: #161210;
+      --c-base2: #1e1916;
+      --c-border: rgba(237, 232, 225, 0.11);
+      --c-txt: #ede8e1;
+      --c-txt2: #9b9188;
+      --c-acc: #9098d4;
+    }
     .toast-card {
       background: var(--c-base);
       border: 1px solid var(--c-border);

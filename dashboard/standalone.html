@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SikPoket — Secure Vault Dashboard</title>
+  <meta name="description" content="SikPoket — Save URLs, API keys, passwords, and articles securely. Zero-knowledge, AES-256 encrypted, fully offline.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ============================================================
+   SikPoket Standalone — Bandha Silence Theme
+   Full self-contained dashboard with auth, spaces, wallpapers
+   ============================================================ */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+.hidden { display: none !important; }
+
+:root {
+  --bg:         #0d0b0a;
+  --surface:    #161210;
+  --surface-2:  #1e1916;
+  --primary:    #4a4f8a;
+  --primary-2:  #3e4278;
+  --brand-soft: #9098d4;
+  --green:      #5a7a5f;
+  --danger:     #8b3a2a;
+  --warning:    #b8882a;
+  --success:    #5a7a5f;
+  --on-surface: #ede8e1;
+  --on-variant: #9b9188;
+  --muted:      #5c5349;
+  --outline:    rgba(237, 232, 225, 0.06);
+  --outline-hover: rgba(237, 232, 225, 0.11);
+  --divider:    rgba(237, 232, 225, 0.05);
+  --r-sm: 0.35rem;
+  --r-md: 0.5rem;
+  --r-lg: 0.65rem;
+  --font: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --sidebar-w: 230px;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: radial-gradient(ellipse at 18% 0%, #1a1208 0%, #0d0b0a 65%);
+  color: var(--on-surface);
+  font-size: 13px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ── AUTH SCREEN ──────────────────────── */
+.auth-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: radial-gradient(ellipse at 50% 0%, #1a1208 0%, #0d0b0a 70%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font);
+}
+.login-card {
+  width: 400px; background: var(--surface); border: 1px solid var(--outline);
+  border-radius: 6px; padding: 40px 32px; text-align: center;
+}
+.login-icon { font-size: 40px; margin-bottom: 12px; }
+.login-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.02em; }
+.login-sub { font-size: 13px; color: var(--on-variant); margin-bottom: 28px; }
+.tab-switch {
+  display: flex; background: var(--bg); border: 1px solid var(--outline);
+  border-radius: 4px; margin-bottom: 24px; overflow: hidden;
+}
+.tab-btn {
+  flex: 1; padding: 10px; border: none; background: transparent;
+  color: var(--on-variant); font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: var(--font); transition: all 0.15s;
+}
+.tab-btn.active { background: var(--primary); color: var(--on-surface); }
+.auth-overlay .form-group { margin-bottom: 16px; text-align: left; }
+.auth-overlay .form-group label {
+  display: block; font-size: 11px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+}
+.auth-overlay .form-group input {
+  width: 100%; padding: 11px 14px; background: var(--bg);
+  border: 1px solid var(--outline); border-radius: 5px;
+  color: var(--on-surface); font-size: 14px; font-family: var(--font);
+  transition: border-color 0.2s;
+}
+.auth-overlay .form-group input:focus { outline: none; border-color: var(--primary); }
+.auth-overlay .form-group input::placeholder { color: var(--muted); }
+.btn-primary {
+  width: 100%; padding: 12px; margin-top: 8px;
+  background: var(--primary); border: none; border-radius: 4px;
+  color: var(--on-surface); font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: var(--font); transition: all 0.15s;
+}
+.btn-primary:hover { background: var(--primary-2); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.error-msg { color: var(--danger); font-size: 12px; margin-top: 10px; min-height: 18px; }
+.success-msg { color: var(--green); }
+
+/* ── APP LAYOUT ──────────────────────── */
+.app {
+  display: flex; height: 100vh; overflow: hidden; position: relative;
+  background: transparent; z-index: 1;
+}
+.app::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* ── WALLPAPER OVERLAY ────────────────── */
+.wallpaper-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background-size: cover; background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: background-image 0.6s ease, opacity 0.6s ease, filter 0.4s ease;
+  pointer-events: none;
+}
+
+/* ── SIDEBAR ─────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w); background: rgba(22,18,16,0.95);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-right: 1px solid var(--divider);
+  display: flex; flex-direction: column; flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  z-index: 10; position: relative;
+}
+.sidebar.collapsed {
+  transform: translateX(calc(-1 * var(--sidebar-w)));
+  position: absolute; height: 100%;
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 20px 16px 16px; border-bottom: 1px solid var(--divider); flex-shrink: 0;
+}
+.brand-icon { font-size: 20px; }
+.brand-name { font-size: 16px; font-weight: 700; color: var(--on-surface); letter-spacing: -0.01em; }
+
+/* ── SPACE SWITCHER ─────────────────── */
+.space-switcher { padding: 10px 14px 6px; flex-shrink: 0; }
+.space-list { display: flex; flex-direction: column; gap: 2px; }
+.space-item {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 8px 10px;
+  background: transparent; border: none; border-radius: var(--r-md);
+  color: var(--on-variant); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; text-align: left; font-family: var(--font);
+}
+.space-item:hover { background: var(--surface-2); color: var(--on-surface); }
+.space-item.active { background: rgba(74,79,138,0.14); color: var(--brand-soft); font-weight: 600; }
+.space-dot { width: 6px; height: 6px; border-radius: 1px; flex-shrink: 0; background: var(--primary); transform: rotate(45deg); }
+.space-count { margin-left: auto; font-size: 10px; color: var(--muted); }
+.space-item.active .space-count { color: var(--brand-soft); }
+.add-space-btn {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; padding: 6px 10px; margin-top: 4px;
+  background: transparent; border: 1px dashed var(--outline);
+  border-radius: var(--r-md); color: var(--muted); font-size: 11px;
+  cursor: pointer; font-family: var(--font); transition: all 0.15s;
+}
+.add-space-btn:hover { border-color: var(--primary); color: var(--brand-soft); background: rgba(74,79,138,0.06); }
+.space-wallpaper-btn {
+  margin-left: auto; background: transparent; border: none; color: var(--muted);
+  cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 4px;
+  opacity: 0; transition: all 0.15s;
+}
+.space-item:hover .space-wallpaper-btn { opacity: 1; }
+.space-wallpaper-btn:hover { color: var(--brand-soft); background: rgba(74,79,138,0.1); }
+
+/* ── SIDEBAR SEARCH & NAV ────────────── */
+.sidebar-search { padding: 10px 14px 8px; flex-shrink: 0; }
+.sidebar-search-inner {
+  display: flex; align-items: center;
+  background: var(--surface-2); border: 1px solid var(--outline);
+  border-radius: var(--r-md); padding: 0 10px; gap: 8px; transition: border-color 0.15s;
+}
+.sidebar-search-inner:focus-within { border-color: var(--primary); }
+.search-icon-svg { width: 14px; color: var(--muted); flex-shrink: 0; }
+#global-search {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--on-surface); font-size: 12px; padding: 9px 0; font-family: var(--font);
+}
+#global-search::placeholder { color: var(--muted); }
+
+.sidebar-nav { flex: 1; padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; }
+.nav-section-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); padding: 8px 10px 6px;
+}
+.nav-item, .sidebar-tag-btn {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 7px 10px;
+  background: transparent; border: none; border-radius: var(--r-md);
+  color: var(--on-variant); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; text-align: left; font-family: var(--font);
+}
+.nav-item:hover, .sidebar-tag-btn:hover { background: var(--surface-2); color: var(--on-surface); }
+.nav-item.active, .sidebar-tag-btn.active { background: rgba(74,79,138,0.14); color: var(--brand-soft); font-weight: 600; }
+.nav-icon-svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+.nav-item.active .nav-icon-svg { opacity: 1; }
+.nav-badge { margin-left: auto; font-size: 10px; background: var(--surface-2); color: var(--muted); padding: 1px 4px 1px 6px; border-radius: 3px; min-width: 20px; text-align: center; }
+.nav-item.active .nav-badge { background: rgba(74,79,138,0.2); color: var(--brand-soft); }
+.nav-badge-danger { background: rgba(139,58,42,0.15) !important; color: var(--danger) !important; }
+.sidebar-tag-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.sidebar-tag-count { margin-left: auto; font-size: 10px; color: var(--muted); }
+
+.sidebar-footer {
+  display: flex; gap: 6px; padding: 10px 14px;
+  border-top: 1px solid var(--divider); flex-shrink: 0;
+}
+.sidebar-footer-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 7px 10px; background: var(--surface-2); border: 1px solid var(--outline);
+  border-radius: var(--r-md); color: var(--on-variant); font-size: 11px;
+  font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: var(--font);
+}
+.sidebar-footer-btn:hover { background: #262932; color: var(--on-surface); border-color: var(--outline-hover); }
+
+/* ── MAIN ────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; position: relative; z-index: 1; }
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 22px; background: rgba(22,18,16,0.95);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--divider); flex-shrink: 0; gap: 12px;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sidebar-toggle {
+  background: transparent; border: none; color: var(--muted);
+  cursor: pointer; padding: 5px; border-radius: 6px; display: flex; transition: all 0.15s;
+}
+.sidebar-toggle:hover { color: var(--on-surface); background: var(--surface-2); }
+.topbar h1 { font-size: 17px; font-weight: 600; color: var(--on-surface); white-space: nowrap; letter-spacing: -0.01em; }
+.view-count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.topbar-select {
+  padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--outline);
+  border-radius: var(--r-md); color: var(--on-variant); font-size: 11px;
+  font-family: var(--font); cursor: pointer; appearance: none; -webkit-appearance: none;
+}
+.topbar-select:focus { outline: none; border-color: var(--primary); }
+.view-toggle { display: flex; background: var(--surface-2); border: 1px solid var(--outline); border-radius: var(--r-md); overflow: hidden; }
+.view-toggle-btn { background: transparent; border: none; color: var(--muted); padding: 6px 9px; cursor: pointer; display: flex; align-items: center; transition: all 0.15s; }
+.view-toggle-btn:hover { color: var(--on-variant); }
+.view-toggle-btn.active { background: rgba(74,79,138,0.18); color: var(--brand-soft); }
+.topbar-wallpaper-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+  background: var(--surface-2); border: 1px solid var(--outline); border-radius: var(--r-sm);
+  color: var(--on-variant); font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: var(--font); transition: all 0.15s ease;
+}
+.topbar-wallpaper-btn:hover { background: rgba(74,79,138,0.12); border-color: var(--primary); color: var(--brand-soft); transform: translateY(-1px); }
+.add-btn-topbar {
+  display: flex; align-items: center; gap: 5px; padding: 7px 16px;
+  background: var(--primary); border: none; border-radius: 4px;
+  color: var(--on-surface); font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s, transform 0.1s; font-family: var(--font); letter-spacing: 0.01em;
+}
+.add-btn-topbar:hover { background: var(--primary-2); transform: translateY(-1px); }
+.tag-strip {
+  display: flex; align-items: center; gap: 8px; padding: 8px 22px;
+  background: rgba(74,79,138,0.07); border-bottom: 1px solid rgba(74,79,138,0.12);
+  flex-shrink: 0; font-size: 12px;
+}
+.tag-strip.hidden { display: none; }
+.tag-strip-label { color: var(--muted); }
+.tag-strip-value { color: var(--brand-soft); font-weight: 600; }
+.tag-strip-clear { margin-left: auto; background: transparent; border: none; color: var(--muted); font-size: 11px; cursor: pointer; padding: 3px 8px; border-radius: 6px; transition: all 0.15s; font-family: var(--font); }
+.tag-strip-clear:hover { color: var(--danger); background: rgba(224,83,83,0.08); }
+
+/* ── CONTENT & CARDS ─────────────────── */
+.content { flex: 1; overflow-y: auto; padding: 24px; position: relative; z-index: 1; }
+.items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.items-list { display: flex; flex-direction: column; gap: 6px; }
+.items-masonry { column-count: 3; column-gap: 16px; padding: 0; }
+.items-masonry .item-card { break-inside: avoid; margin-bottom: 16px; display: block; }
+@media (max-width: 1100px) { .items-masonry { column-count: 2; } }
+@media (max-width: 640px) { .items-masonry { column-count: 1; } }
+
+.item-card {
+  background: rgba(27, 29, 35, 0.88); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--outline); border-radius: var(--r-lg);
+  overflow: hidden; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  animation: cardIn 0.2s ease;
+}
+.item-card:hover {
+  border-color: var(--outline-hover); background: rgba(32,35,43,0.92);
+  transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.item-card[data-type="url"]      { border-left: 2px solid var(--primary); }
+.item-card[data-type="note"]     { border-left: 2px solid var(--green); }
+.item-card[data-type="key"]      { border-left: 2px solid var(--warning); }
+.item-card[data-type="password"] { border-left: 2px solid var(--danger); }
+.card-body { padding: 14px 14px 10px; }
+.card-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.card-favicon { width: 34px; height: 34px; border-radius: var(--r-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; overflow: hidden; border: 1px solid var(--outline); }
+.card-favicon img { width: 20px; height: 20px; object-fit: contain; border-radius: 3px; }
+.card-favicon-placeholder { font-size: 15px; }
+.card-title { font-size: 13px; font-weight: 600; color: var(--on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; text-decoration: none; display: block; transition: color 0.12s; }
+a.card-title:hover { color: var(--brand-soft); }
+.card-domain { font-size: 10px; color: var(--muted); display: block; margin-top: 1px; }
+.card-excerpt { font-size: 11px; color: var(--on-variant); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 6px; }
+.card-secret {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface-2); border: 1px solid var(--outline); border-radius: 6px;
+  padding: 3px 9px; font-size: 11px; color: var(--brand-soft);
+  cursor: pointer; font-family: 'SF Mono', monospace; letter-spacing: 0.04em; transition: all 0.15s; margin-bottom: 4px;
+}
+.card-secret:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.card-tag { background: rgba(74,79,138,0.1); color: var(--brand-soft); padding: 2px 7px; border-radius: 3px; font-size: 10px; font-weight: 500; cursor: pointer; border: 1px solid rgba(74,79,138,0.18); transition: all 0.12s; }
+.card-tag:hover { background: var(--primary); color: var(--on-surface); border-color: var(--primary); }
+.card-footer { display: flex; align-items: center; justify-content: space-between; padding: 6px 14px 10px; opacity: 0; transition: opacity 0.15s; }
+.item-card:hover .card-footer { opacity: 1; }
+.card-date { font-size: 10px; color: var(--muted); }
+.card-actions { display: flex; gap: 2px; }
+.card-action-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 3px 5px; border-radius: 5px; font-size: 12px; transition: all 0.12s; }
+.card-action-btn:hover { background: var(--surface-2); color: var(--on-surface); }
+.card-action-btn.fav-active { color: var(--warning); }
+.card-action-btn.delete-btn:hover { background: rgba(224,83,83,0.1); color: var(--danger); }
+
+/* List mode */
+.item-card.list-mode { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--r-sm); }
+.item-card.list-mode:hover { transform: translateX(3px); }
+.item-card.list-mode .card-body { padding: 0; flex: 1; min-width: 0; }
+.item-card.list-mode .card-title-row { margin-bottom: 2px; }
+.item-card.list-mode .card-excerpt { display: none; }
+.item-card.list-mode .card-tags { margin-top: 3px; }
+.item-card.list-mode .card-footer { border-top: none; padding: 0; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; opacity: 0; }
+.item-card.list-mode:hover .card-footer { opacity: 1; }
+.item-card.list-mode .card-favicon { width: 26px; height: 26px; }
+
+/* ── EMPTY STATE ─────────────────────── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 80px 24px;
+  color: var(--muted); text-align: center; min-height: 300px;
+}
+.empty-icon { font-size: 48px; margin-bottom: 18px; opacity: 0.4; }
+.empty-title { font-size: 17px; font-weight: 600; color: var(--on-variant); margin-bottom: 8px; }
+.empty-desc { font-size: 13px; line-height: 1.5; max-width: 300px; }
+
+/* ── MODAL ───────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: var(--surface); border: 1px solid var(--outline-hover); border-radius: var(--r-lg);
+  width: 480px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5); animation: modalIn 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--divider); }
+.modal-header h3 { font-size: 16px; font-weight: 600; color: var(--on-surface); }
+.modal-close { background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px 6px; border-radius: 5px; transition: all 0.15s; }
+.modal-close:hover { color: var(--on-surface); background: var(--surface-2); }
+.modal-type-pills { display: flex; gap: 6px; padding: 14px 22px; border-bottom: 1px solid var(--divider); flex-wrap: wrap; }
+.type-pill {
+  padding: 5px 13px; border: 1px solid var(--outline); border-radius: 3px;
+  background: transparent; color: var(--on-variant); font-size: 12px; font-weight: 500;
+  cursor: pointer; font-family: var(--font); transition: all 0.15s;
+}
+.type-pill:hover { background: var(--surface-2); color: var(--on-surface); border-color: var(--outline-hover); }
+.type-pill.active { background: rgba(74,79,138,0.14); border-color: var(--primary); color: var(--brand-soft); font-weight: 600; }
+.modal-body { padding: 18px 22px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.form-group input, .form-group textarea {
+  width: 100%; padding: 9px 12px; background: var(--bg); border: 1px solid var(--outline); border-radius: var(--r-md);
+  color: var(--on-surface); font-size: 13px; font-family: var(--font); transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+.form-group input::placeholder, .form-group textarea::placeholder { color: var(--muted); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group.hidden { display: none; }
+.form-actions-modal { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+.btn-cancel { padding: 9px 20px; background: var(--surface-2); border: 1px solid var(--outline); border-radius: 4px; color: var(--on-variant); font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.btn-cancel:hover { background: var(--surface-2); color: var(--on-surface); border-color: var(--outline-hover); }
+.btn-save { padding: 9px 24px; background: var(--primary); border: none; border-radius: 4px; color: var(--on-surface); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.15s; letter-spacing: 0.01em; }
+.btn-save:hover { background: var(--primary-2); transform: translateY(-1px); }
+
+/* ── WALLPAPER STUDIO MODAL ──────────── */
+.space-studio-modal { width: 580px; max-width: 95vw; }
+.modal-title-wrap { display: flex; flex-direction: column; gap: 2px; }
+.modal-subtitle { font-size: 11.5px; color: var(--on-variant); font-weight: 400; }
+.space-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.space-section-sub { font-size: 10.5px; color: var(--muted); }
+.wallpaper-bundle-tabs { display: flex; gap: 5px; margin-bottom: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.wallpaper-bundle-tabs::-webkit-scrollbar { display: none; }
+.bundle-tab {
+  background: var(--bg); border: 1px solid var(--outline); border-radius: 999px;
+  padding: 4px 10px; color: var(--on-variant); font-size: 11px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; font-family: var(--font); transition: all 0.15s ease;
+}
+.bundle-tab:hover { background: var(--surface-2); color: var(--on-surface); border-color: var(--outline-hover); }
+.bundle-tab.active { background: rgba(74,79,138,0.18); border-color: var(--primary); color: var(--brand-soft); box-shadow: 0 2px 8px rgba(74,79,138,0.2); }
+.wallpaper-preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; max-height: 190px; overflow-y: auto; padding: 2px; border-radius: var(--r-sm); }
+.wallpaper-preset-card {
+  background: var(--bg); border: 2px solid var(--outline); border-radius: var(--r-sm);
+  overflow: hidden; cursor: pointer; transition: all 0.16s ease; display: flex; flex-direction: column; position: relative;
+}
+.wallpaper-preset-card:hover { border-color: var(--outline-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.wallpaper-preset-card.selected { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(74,79,138,0.3), 0 4px 14px rgba(0,0,0,0.4); }
+.wallpaper-preset-card.selected::after {
+  content: '✓'; position: absolute; top: 4px; right: 4px;
+  background: var(--primary); color: #fff; font-size: 9px; font-weight: 800;
+  width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+.preset-thumb { height: 56px; background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #121318; display: flex; align-items: center; justify-content: center; }
+.preset-none-icon { font-size: 18px; opacity: 0.6; }
+.preset-info { padding: 5px 7px; display: flex; justify-content: space-between; align-items: center; background: var(--surface); }
+.preset-name { font-size: 10px; font-weight: 600; color: var(--on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65px; }
+.preset-mood { font-size: 8.5px; color: var(--brand-soft); background: rgba(74,79,138,0.12); padding: 1px 4px; border-radius: 2px; font-weight: 600; }
+.wallpaper-custom-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-upload-local {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px;
+  background: var(--surface-2); border: 1px dashed var(--primary); border-radius: var(--r-sm);
+  color: var(--brand-soft); font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.15s;
+}
+.btn-upload-local:hover { background: rgba(107,124,240,0.15); border-style: solid; }
+.upload-hint { font-size: 10.5px; color: var(--on-variant); }
+.wallpaper-controls-box { background: var(--bg); border: 1px solid var(--outline); border-radius: var(--r-md); padding: 12px 14px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+.wallpaper-preview-strip { height: 64px; border-radius: var(--r-sm); background-size: cover; background-position: center; border: 1px solid var(--outline); position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; overflow: hidden; transition: all 0.2s ease; }
+.preview-mock-card { width: 40px; height: 34px; background: rgba(27,29,35,0.85); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; }
+.preview-tag { position: absolute; bottom: 4px; right: 6px; font-size: 9px; font-weight: 600; color: #fff; background: rgba(0,0,0,0.6); padding: 1px 6px; border-radius: 3px; }
+.wallpaper-sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.slider-row { display: flex; flex-direction: column; gap: 4px; }
+.slider-label-row { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--on-variant); }
+.slider-val { color: var(--brand-soft); font-weight: 600; font-family: monospace; }
+.slider-row input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+/* ── TOAST ───────────────────────────── */
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--surface); border: 1px solid var(--outline-hover); border-radius: 999px; padding: 10px 22px; font-size: 13px; color: var(--on-surface); box-shadow: 0 12px 40px rgba(0,0,0,0.5); z-index: 2000; opacity: 0; transition: all 0.25s cubic-bezier(0.16,1,0.3,1); white-space: nowrap; font-weight: 500; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.hidden { display: none; }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error   { border-color: var(--danger); color: var(--danger); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--outline-hover); border-radius: 3px; }
+
+@media (max-width: 860px) { :root { --sidebar-w: 200px; } .items-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
+@media (max-width: 640px) { .sidebar { position: absolute; height: 100%; z-index: 20; } .items-grid { grid-template-columns: 1fr; } .topbar h1 { font-size: 14px; } }
+
+/* ── GUIDE STYLES ────────────────────── */
+.dash-guide-container { max-width: 1080px; margin: 0 auto; padding: 8px 4px 56px; display: flex; flex-direction: column; gap: 28px; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.dash-guide-hero { position: relative; overflow: hidden; border-radius: 10px; padding: 40px 44px 36px; background: linear-gradient(160deg, #1a1208 0%, #0d0b0a 55%, #111009 100%); border: 1px solid rgba(237,232,225,0.06); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(237,232,225,0.02) inset; }
+.dash-guide-hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #4a4f8a 0%, #9098d4 35%, #b8882a 65%, #5a7a5f 100%); }
+.dash-guide-hero::after { content: ''; position: absolute; top: -80px; right: -60px; width: 340px; height: 340px; background: radial-gradient(circle, rgba(74,79,138,0.1) 0%, transparent 70%); pointer-events: none; }
+.dash-guide-hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(74,79,138,0.14); color: var(--brand-soft); border: 1px solid rgba(74,79,138,0.28); font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; padding: 3px 11px; border-radius: 3px; margin-bottom: 16px; }
+.dash-guide-hero-title { font-size: 26px; font-weight: 700; color: var(--on-surface); margin: 0 0 10px; letter-spacing: -0.03em; line-height: 1.2; }
+.dash-guide-hero-sub { font-size: 14px; color: var(--on-variant); line-height: 1.65; max-width: 680px; margin: 0; }
+.dash-guide-hero-stats { display: flex; gap: 24px; margin-top: 24px; flex-wrap: wrap; }
+.dash-guide-stat { display: flex; flex-direction: column; gap: 2px; }
+.dash-guide-stat-num { font-size: 22px; font-weight: 700; color: var(--brand-soft); letter-spacing: -0.04em; }
+.dash-guide-stat-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+.dash-guide-flow { display: flex; align-items: center; gap: 0; background: rgba(237,232,225,0.02); border: 1px solid var(--divider); border-radius: 8px; padding: 20px 24px; overflow-x: auto; scrollbar-width: none; }
+.dash-guide-flow::-webkit-scrollbar { display: none; }
+.dash-guide-flow-step { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; min-width: 100px; padding: 6px 12px; text-align: center; }
+.dash-guide-flow-icon { width: 44px; height: 44px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.dash-guide-flow-label { font-size: 11.5px; font-weight: 500; color: var(--on-variant); line-height: 1.3; }
+.dash-guide-flow-arrow { color: var(--muted); font-size: 18px; flex-shrink: 0; padding: 0 4px; }
+.flow-purple { background: rgba(74,79,138,0.18); }
+.flow-green { background: rgba(90,122,95,0.18); }
+.flow-amber { background: rgba(184,136,42,0.18); }
+.flow-blue { background: rgba(74,79,138,0.14); }
+.flow-pink { background: rgba(139,58,42,0.16); }
+.dash-guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; }
+.dash-guide-card { background: rgba(237,232,225,0.025); border: 1px solid var(--divider); border-radius: 8px; padding: 24px 26px; transition: transform .2s cubic-bezier(0.16,1,0.3,1), box-shadow .2s, border-color .2s; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 0; }
+.dash-guide-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 0; opacity: .7; }
+.dash-guide-card:nth-child(1)::before { background: linear-gradient(90deg,#4a4f8a,#9098d4); }
+.dash-guide-card:nth-child(2)::before { background: linear-gradient(90deg,#5a7a5f,#7aaa7f); }
+.dash-guide-card:nth-child(3)::before { background: linear-gradient(90deg,#b8882a,#d4a84a); }
+.dash-guide-card:nth-child(4)::before { background: linear-gradient(90deg,#4a4f8a,#6a6ab0); }
+.dash-guide-card:nth-child(5)::before { background: linear-gradient(90deg,#8b3a2a,#aa5a4a); }
+.dash-guide-card:nth-child(6)::before { background: linear-gradient(90deg,#5c5349,#9b9188); }
+.dash-guide-card:hover { transform: translateY(-2px); border-color: var(--outline-hover); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+.dash-guide-card-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.dash-guide-card-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.icon-purple { background: rgba(74,79,138,0.16); }
+.icon-green { background: rgba(90,122,95,0.16); }
+.icon-amber { background: rgba(184,136,42,0.16); }
+.icon-blue { background: rgba(74,79,138,0.12); }
+.icon-pink { background: rgba(139,58,42,0.16); }
+.icon-violet { background: rgba(74,79,138,0.18); }
+.dash-guide-card-meta { flex: 1; }
+.dash-guide-icon-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: 2px 9px; border-radius: 6px; margin-bottom: 6px; }
+.pill-purple { background: rgba(74,79,138,0.15); color: var(--brand-soft); border: 1px solid rgba(74,79,138,0.28); border-radius: 3px; }
+.pill-green { background: rgba(90,122,95,0.15); color: #7aaa7f; border: 1px solid rgba(90,122,95,0.28); border-radius: 3px; }
+.pill-amber { background: rgba(184,136,42,0.15); color: #d4a84a; border: 1px solid rgba(184,136,42,0.28); border-radius: 3px; }
+.pill-blue { background: rgba(74,79,138,0.12); color: #8a90cc; border: 1px solid rgba(74,79,138,0.25); border-radius: 3px; }
+.pill-pink { background: rgba(139,58,42,0.15); color: #c4806a; border: 1px solid rgba(139,58,42,0.28); border-radius: 3px; }
+.pill-violet { background: rgba(74,79,138,0.18); color: var(--brand-soft); border: 1px solid rgba(74,79,138,0.3); border-radius: 3px; }
+.dash-guide-card-title { font-size: 15px; font-weight: 700; color: var(--on-surface); margin: 0; letter-spacing: -0.01em; line-height: 1.3; }
+.dash-guide-points { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.dash-guide-points li { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: var(--on-variant); line-height: 1.55; }
+.dash-guide-points li::before { content: ''; width: 5px; height: 5px; border-radius: 0; background: var(--primary); flex-shrink: 0; margin-top: 7px; transform: rotate(45deg); }
+.dash-guide-points li strong { color: var(--on-surface); font-weight: 600; }
+.dash-guide-points li code { background: rgba(74,79,138,0.12); color: var(--brand-soft); font-size: 11px; padding: 1px 5px; border-radius: 3px; font-family: monospace; }
+.dash-guide-hotkeys-wrap { background: rgba(237,232,225,0.02); border: 1px solid var(--divider); border-radius: 8px; padding: 26px 28px; }
+.dash-guide-hotkeys-title { font-size: 14px; font-weight: 700; color: var(--on-surface); margin: 0 0 18px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.dash-guide-hotkeys-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 20px; }
+.dash-guide-hotkey-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 5px; background: rgba(237,232,225,0.025); border: 1px solid var(--divider); transition: background .15s; }
+.dash-guide-hotkey-row:hover { background: rgba(74,79,138,0.07); border-color: rgba(74,79,138,0.18); }
+.dash-guide-hotkey-desc { font-size: 12px; color: var(--on-variant); flex: 1; }
+kbd { display: inline-flex; align-items: center; justify-content: center; background: rgba(74,79,138,0.12); border: 1px solid rgba(74,79,138,0.28); border-bottom-width: 2px; border-radius: 3px; padding: 2px 8px; font-size: 10.5px; font-family: 'Plus Jakarta Sans', ui-monospace, monospace; font-weight: 600; color: var(--brand-soft); white-space: nowrap; letter-spacing: .03em; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     AUTH SCREEN (shown if not logged in)
+     ══════════════════════════════════════════ -->
+<div id="auth-screen" class="auth-overlay" style="display:none;">
+  <div class="login-card">
+    <div class="login-icon">🔐</div>
+    <h1 class="login-title">SikPoket</h1>
+    <p class="login-sub">Your secure vault — login or create an account</p>
+    <div class="tab-switch">
+      <button class="tab-btn active" data-mode="login">Login</button>
+      <button class="tab-btn" data-mode="register">Register</button>
+    </div>
+    <form id="auth-form">
+      <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="your-username" required autofocus></div>
+      <div class="form-group"><label>Master Password</label><input type="password" id="password" placeholder="Your secret password" required></div>
+      <div class="form-group" id="confirm-group" style="display:none;"><label>Confirm Password</label><input type="password" id="confirm-password" placeholder="Type it again"></div>
+      <button type="submit" class="btn-primary" id="submit-btn">Login</button>
+      <button type="button" class="btn-primary" id="guest-btn" style="margin-top:10px;background:var(--surface);border:1px solid var(--outline);color:var(--on-variant);">⚡ Quick Guest / Demo Vault</button>
+      <div class="error-msg" id="msg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN DASHBOARD
+     ══════════════════════════════════════════ -->
+<div class="wallpaper-bg" id="wallpaper-bg"></div>
+
+<div id="app" class="app" style="display:none;">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🔐</div>
+      <span class="brand-name">SikPoket</span>
+    </div>
+
+    <!-- Space switcher -->
+    <div class="space-switcher">
+      <div class="nav-section-label">Spaces</div>
+      <div class="space-list" id="space-list"></div>
+      <button class="add-space-btn" id="add-space-btn"><span>+</span> New Space</button>
+    </div>
+
+    <div class="sidebar-search">
+      <div class="sidebar-search-inner">
+        <svg class="search-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M15 15l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input id="global-search" type="text" placeholder="Search...">
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Library</div>
+      <button class="nav-item active" data-collection="all">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>All Items</span><span class="nav-badge" id="badge-all">0</span>
+      </button>
+      <button class="nav-item" data-collection="favorites">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 5.1 5.6.5-4.2 3.8 1.3 5.5L10 14.3l-5.1 2.6 1.3-5.5L2 7.6l5.6-.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <span>Favorites</span><span class="nav-badge" id="badge-favorites">0</span>
+      </button>
+      <button class="nav-item" data-collection="archived">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 7v8a2 2 0 002 2h8a2 2 0 002-2V7" stroke="currentColor" stroke-width="1.5"/><path d="M8 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Archive</span><span class="nav-badge" id="badge-archived">0</span>
+      </button>
+      <div class="nav-section-label" style="margin-top:16px;">Categories</div>
+      <button class="nav-item" data-collection="urls">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>URLs</span><span class="nav-badge" id="badge-urls">0</span>
+      </button>
+      <button class="nav-item" data-collection="notes">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M6 2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Notes</span><span class="nav-badge" id="badge-notes">0</span>
+      </button>
+      <button class="nav-item" data-collection="keys">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M12 10h6M16 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>API Keys</span><span class="nav-badge" id="badge-keys">0</span>
+      </button>
+      <button class="nav-item" data-collection="passwords">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 9V7a2 2 0 114 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Passwords</span><span class="nav-badge" id="badge-passwords">0</span>
+      </button>
+      <div class="nav-section-label" style="margin-top:16px;">Tools</div>
+      <button class="nav-item" data-collection="highlights">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 14l2-5 8-7 2 2-8 7-4 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 14l-1 3 3-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Highlights</span><span class="nav-badge" id="badge-highlights">0</span>
+      </button>
+      <button class="nav-item" data-collection="broken">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3l14 14" stroke="#f04a4a" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Broken Links</span><span class="nav-badge nav-badge-danger" id="badge-broken">—</span>
+      </button>
+      <button class="nav-item" data-collection="guide">
+        <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 4.5A2.5 2.5 0 016.5 2H16v14.5a.5.5 0 01-.5.5H6.5A2.5 2.5 0 004 19.5V4.5z" stroke="currentColor" stroke-width="1.5"/><path d="M4 17a2.5 2.5 0 012.5-2.5H16" stroke="currentColor" stroke-width="1.5"/><path d="M8 6h5M8 9h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>How to Use</span><span class="nav-badge" style="background:rgba(74,79,138,0.15);color:var(--primary);font-size:10px;font-weight:600;">Guide</span>
+      </button>
+      <div class="nav-section-label" style="margin-top:16px;">Tags</div>
+      <div id="sidebar-tags" class="sidebar-tags"></div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" id="import-btn">
+        <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 3v10M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Import
+      </button>
+      <button class="sidebar-footer-btn" id="export-btn">
+        <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 13V3M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Export
+      </button>
+      <button class="sidebar-footer-btn" id="logout-btn" style="background:transparent;border-color:rgba(139,58,42,0.2);color:var(--danger);" title="Logout">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <svg viewBox="0 0 20 20" fill="none" width="18"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <h1 id="view-title">All Items</h1>
+        <span class="view-count" id="view-count">0 items</span>
+      </div>
+      <div class="topbar-right">
+        <select id="sort-select" class="topbar-select">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="name">Name A–Z</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" id="view-grid" title="Grid view"><svg viewBox="0 0 20 20" fill="none" width="15"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></button>
+          <button class="view-toggle-btn" id="view-list" title="List view"><svg viewBox="0 0 20 20" fill="none" width="15"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button class="view-toggle-btn" id="view-masonry" title="Masonry view"><svg viewBox="0 0 20 20" fill="none" width="15"><rect x="2" y="2" width="7" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="5" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="9" width="7" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="14" width="7" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></button>
+        </div>
+        <button class="topbar-wallpaper-btn" id="topbar-wallpaper-btn" title="Change space wallpaper & mood">
+          <svg viewBox="0 0 20 20" fill="none" width="14"><rect x="2" y="2" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="7" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 15l4.5-4.5 4 4 3-3 2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Wallpaper</span>
+        </button>
+        <button class="add-btn-topbar" id="topbar-add-btn">
+          <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Add
+        </button>
+      </div>
+    </header>
+    <div class="tag-strip hidden" id="tag-strip">
+      <span class="tag-strip-label">Tag:</span>
+      <span class="tag-strip-value" id="tag-strip-value"></span>
+      <button class="tag-strip-clear" id="tag-strip-clear">✕ Clear</button>
+    </div>
+    <div class="content" id="content-area"></div>
+  </main>
+</div>
+
+<!-- ══ ITEM MODAL ═══════════════════════ -->
+<div class="modal-overlay hidden" id="item-modal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modal-title">Add Item</h3><button class="modal-close" id="modal-close">✕</button></div>
+    <div class="modal-type-pills" id="modal-type-pills">
+      <button class="type-pill active" data-type="url">🔗 URL</button>
+      <button class="type-pill" data-type="note">📝 Note</button>
+      <button class="type-pill" data-type="key">🔑 API Key</button>
+      <button class="type-pill" data-type="password">🔒 Password</button>
+    </div>
+    <div class="modal-body">
+      <form id="item-form">
+        <input type="hidden" id="item-id"><input type="hidden" id="item-type" value="url">
+        <div class="form-group hidden" id="field-url"><label>URL</label><input type="url" id="form-url" placeholder="https://example.com"></div>
+        <div class="form-group hidden" id="field-name"><label>Name</label><input type="text" id="form-name" placeholder="e.g. OpenAI, Gmail"></div>
+        <div class="form-group hidden" id="field-title"><label>Title</label><input type="text" id="form-title" placeholder="Title"></div>
+        <div class="form-group hidden" id="field-username"><label>Username / Email</label><input type="text" id="form-username" placeholder="user@email.com"></div>
+        <div class="form-group hidden" id="field-value"><label>Value</label><input type="text" id="form-value" placeholder="Secret value" autocomplete="off"></div>
+        <div class="form-group hidden" id="field-content"><label>Content</label><textarea id="form-content" placeholder="Write your note here…" rows="5"></textarea></div>
+        <div class="form-group"><label>Tags <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">(comma separated)</span></label><input type="text" id="form-tags" placeholder="design, reading, tools"></div>
+        <div class="form-actions-modal">
+          <button type="button" class="btn-cancel" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn-save" id="form-submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SPACE & WALLPAPER STUDIO MODAL ═══ -->
+<div class="modal-overlay hidden" id="space-modal">
+  <div class="modal space-studio-modal">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <h3 id="space-modal-title">Space & Wallpaper Studio</h3>
+        <p class="modal-subtitle">Pick a mood wallpaper, upload a local image, or paste a custom link</p>
+      </div>
+      <button class="modal-close" id="space-modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="space-form">
+        <input type="hidden" id="space-edit-id">
+        <input type="hidden" id="space-wallpaper">
+        <div class="form-group"><label>Space Name</label><input type="text" id="space-name" placeholder="e.g. Startups, Research, Lo-Fi Workspace" required autofocus></div>
+        <div class="form-group">
+          <div class="space-section-header"><label>Curated Mood Presets (38+ Wallpapers)</label><span class="space-section-sub">Filter by theme bundle & click to apply</span></div>
+          <div class="wallpaper-bundle-tabs" id="wallpaper-bundle-tabs">
+            <button type="button" class="bundle-tab active" data-bundle="all">All (38)</button>
+            <button type="button" class="bundle-tab" data-bundle="anime">🌸 Anime</button>
+            <button type="button" class="bundle-tab" data-bundle="nature">🌲 Nature</button>
+            <button type="button" class="bundle-tab" data-bundle="cosmos">🌌 Space</button>
+            <button type="button" class="bundle-tab" data-bundle="city">🏙️ City</button>
+            <button type="button" class="bundle-tab" data-bundle="cozy">☕ Lo-Fi</button>
+            <button type="button" class="bundle-tab" data-bundle="minimal">🖤 Minimal</button>
+          </div>
+          <div class="wallpaper-preset-grid" id="wallpaper-preset-grid"></div>
+        </div>
+        <div class="form-group">
+          <div class="space-section-header"><label>Local Image or Custom Link</label></div>
+          <div class="wallpaper-custom-row">
+            <input type="file" id="space-wallpaper-file" accept="image/*" style="display:none;">
+            <button type="button" class="btn-upload-local" id="btn-browse-local">
+              <svg viewBox="0 0 20 20" fill="none" width="15"><path d="M4 14l4-4 3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+              <span>📁 Upload Image from Computer</span>
+            </button>
+            <span class="upload-hint" id="local-file-name">Supports JPG, PNG, WEBP, GIF (stored locally)</span>
+          </div>
+          <div style="margin-top:8px;"><input type="url" id="space-wallpaper-url-input" placeholder="Or paste custom image link (Unsplash, etc.)"></div>
+        </div>
+        <div class="wallpaper-controls-box">
+          <div class="wallpaper-preview-strip" id="wallpaper-live-preview">
+            <div class="preview-mock-card"></div>
+            <div class="preview-mock-card"></div>
+            <span class="preview-tag" id="preview-tag-label">Atmosphere Live Preview</span>
+          </div>
+          <div class="wallpaper-sliders">
+            <div class="slider-row">
+              <div class="slider-label-row"><span>Wallpaper Opacity</span><span class="slider-val" id="opacity-val">30%</span></div>
+              <input type="range" id="space-wallpaper-opacity" min="5" max="90" value="30" step="1">
+            </div>
+            <div class="slider-row">
+              <div class="slider-label-row"><span>Depth Blur</span><span class="slider-val" id="blur-val">0px</span></div>
+              <input type="range" id="space-wallpaper-blur" min="0" max="16" value="0" step="1">
+            </div>
+          </div>
+        </div>
+        <div class="form-actions-modal">
+          <button type="button" class="btn-cancel" id="space-modal-cancel">Cancel</button>
+          <button type="submit" class="btn-save">Apply & Save Space</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="import-file" accept=".json" style="display:none">
+<div class="toast hidden" id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT — Auth + Full Dashboard
+     ══════════════════════════════════════════ -->
+<script>
+/* ── AUTH SYSTEM ────────────────────────── */
+const AUTH_DB_KEY = 'sikpoket_users_db';
+let authMode = 'login';
+
+function sha256(str) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
+    .then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join(''));
+}
+function genSalt() { return Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join(''); }
+async function hashPw(p, s) { return sha256(p + s); }
+function getDb() { try { return JSON.parse(localStorage.getItem(AUTH_DB_KEY)) || {}; } catch { return {}; } }
+
+function showMsg(text, ok) {
+  const e = document.getElementById('msg');
+  e.textContent = text; e.className = 'error-msg' + (ok ? ' success-msg' : '');
+}
+
+function showAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+
+  document.querySelectorAll('#auth-screen .tab-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#auth-screen .tab-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    authMode = b.dataset.mode || 'login';
+    document.getElementById('confirm-group').style.display = authMode === 'register' ? 'block' : 'none';
+    document.getElementById('submit-btn').textContent = authMode === 'login' ? 'Login' : 'Create Account';
+    if (document.getElementById('confirm-password')) document.getElementById('confirm-password').required = authMode === 'register';
+    showMsg('');
+  }));
+
+  document.getElementById('auth-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const user = document.getElementById('username').value.trim().toLowerCase();
+    const pass = document.getElementById('password').value;
+    if (!user || !pass) { showMsg('Fill in all fields'); return; }
+    if (user.length < 3) { showMsg('Username: 3+ characters'); return; }
+    if (pass.length < 4) { showMsg('Password: 4+ characters'); return; }
+    const btn = document.getElementById('submit-btn'); btn.disabled = true;
+    if (authMode === 'register') {
+      const confirm = document.getElementById('confirm-password').value;
+      if (pass !== confirm) { showMsg('Passwords do not match'); btn.disabled = false; return; }
+      await doRegister(user, pass);
+    } else {
+      await doLogin(user, pass);
+    }
+    btn.disabled = false;
+  });
+
+  document.getElementById('guest-btn')?.addEventListener('click', () => {
+    seedUserData('guest');
+    sessionStorage.setItem('sikpoket_user', 'guest');
+    location.reload();
+  });
+}
+
+async function doRegister(username, password) {
+  const db = getDb();
+  if (db[username]) { showMsg('Username already taken'); return; }
+  const salt = genSalt();
+  const hash = await hashPw(password, salt);
+  db[username] = { hash, salt, createdAt: Date.now() };
+  localStorage.setItem(AUTH_DB_KEY, JSON.stringify(db));
+  seedUserData(username);
+  showMsg('Account created!', true);
+  setTimeout(() => { sessionStorage.setItem('sikpoket_user', username); location.reload(); }, 600);
+}
+
+async function doLogin(username, password) {
+  const db = getDb();
+  const u = db[username];
+  if (!u) { showMsg('User not found. Register first.'); return; }
+  const hash = await hashPw(password, u.salt);
+  if (hash !== u.hash) { showMsg('Wrong password'); return; }
+  showMsg('Welcome!', true);
+  setTimeout(() => { sessionStorage.setItem('sikpoket_user', username); location.reload(); }, 300);
+}
+
+function seedUserData(user) {
+  const ukey = 'sikpoket_' + user;
+  if (localStorage.getItem(ukey)) return;
+  const s1 = _genId(), s2 = _genId(), s3 = _genId();
+  localStorage.setItem(ukey, JSON.stringify({
+    spaces: [
+      { id: s1, name: 'Startups', wallpaper: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1600&q=80', wallpaperOpacity: 20, wallpaperBlur: 0,
+        items: [
+          { id: _genId(), type: 'url', createdAt: Date.now()-432000000, title: 'Raindrop.io', url: 'https://raindrop.io', tags: ['tools','productivity'], favorite: true, archived: false },
+          { id: _genId(), type: 'url', createdAt: Date.now()-259200000, title: 'MDN Web Docs', url: 'https://developer.mozilla.org', tags: ['dev','reference'], favorite: false, archived: false },
+          { id: _genId(), type: 'note', createdAt: Date.now()-86400000, title: 'Q3 Review', content: 'Key takeaways from the quarterly review — increase retention and ship by August.', tags: ['work'], favorite: true, archived: false }
+        ]
+      },
+      { id: s2, name: 'Research', wallpaper: 'https://images.unsplash.com/photo-1507693769325-4b6d49b0ba76?w=1600&q=80', wallpaperOpacity: 18, wallpaperBlur: 2,
+        items: [
+          { id: _genId(), type: 'url', createdAt: Date.now()-36000000, title: 'arXiv: ML Papers', url: 'https://arxiv.org/list/cs.LG/recent', tags: ['papers','ai'], favorite: false, archived: false },
+          { id: _genId(), type: 'note', createdAt: Date.now()-7200000, title: 'Research Ideas', content: 'Explore transformer architectures for edge devices.', tags: ['ideas','ai'], favorite: false, archived: false }
+        ]
+      },
+      { id: s3, name: 'Personal', wallpaper: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80', wallpaperOpacity: 22, wallpaperBlur: 0,
+        items: [
+          { id: _genId(), type: 'url', createdAt: Date.now()-60000, title: 'Netflix', url: 'https://netflix.com', tags: ['entertainment'], favorite: false, archived: false },
+          { id: _genId(), type: 'password', createdAt: Date.now()-3600000, name: 'GitHub', username: 'sam@example.com', value: 'my-secret-password', tags: ['dev'], favorite: false, archived: false }
+        ]
+      }
+    ],
+    activeSpace: s1
+  }));
+}
+function _genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+/* ── INIT AUTH CHECK ───────────────────── */
+(function() {
+  const u = sessionStorage.getItem('sikpoket_user');
+  if (!u) { showAuthScreen(); } else { initDashboard(); }
+})();
+
+/* =====================================================
+   SikPoket Dashboard — Full Feature Set
+   ===================================================== */
+function initDashboard() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+const CURRENT_USER = sessionStorage.getItem('sikpoket_user') || 'guest';
+const STORAGE_KEY = 'sikpoket_' + CURRENT_USER;
+const TYPE_META = {
+  url:{icon:'🔗',label:'URL',placeholder:'🔗'},
+  note:{icon:'📝',label:'Note',placeholder:'📝'},
+  key:{icon:'🔑',label:'API Key',placeholder:'🔑'},
+  password:{icon:'🔒',label:'Password',placeholder:'🔒'}
+};
+
+let state = {
+  spaces: [], activeSpace: null, collection: 'all',
+  tag: null, search: '', sort: 'newest', viewMode: 'grid', editId: null
+};
+
+function getActiveSpace() { return state.spaces.find(s => s.id === state.activeSpace) || state.spaces[0] || null; }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify({ spaces: state.spaces, activeSpace: state.activeSpace })); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+const WALLPAPER_PRESETS = [
+  { id:'none', name:'Pure Dark', mood:'Minimal', category:'minimal', thumb:'', url:'' },
+  { id:'minimal-obsidian', name:'Matte Obsidian', mood:'Dark', category:'minimal', thumb:'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80', url:'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1920&q=80' },
+  { id:'minimal-prism', name:'Dark Prism', mood:'Prism', category:'minimal', thumb:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80', url:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80' },
+  { id:'minimal-silk', name:'Liquid Silk', mood:'Smooth', category:'minimal', thumb:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80', url:'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80' },
+  { id:'minimal-studio', name:'Modern Studio', mood:'Studio', category:'minimal', thumb:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&q=80', url:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1920&q=80' },
+  { id:'anime-ghibli', name:'Ghibli Meadow', mood:'Dreamy', category:'anime', thumb:'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=400&q=80', url:'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=1920&q=80' },
+  { id:'anime-synthwave', name:'Synthwave Sunset', mood:'Retro', category:'anime', thumb:'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=400&q=80', url:'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1920&q=80' },
+  { id:'anime-sakura', name:'Kyoto Sakura', mood:'Peaceful', category:'anime', thumb:'https://images.unsplash.com/photo-1528164344705-475426879c0d?w=400&q=80', url:'https://images.unsplash.com/photo-1528164344705-475426879c0d?w=1920&q=80' },
+  { id:'anime-neonstreet', name:'Akihabara Neon', mood:'Electric', category:'anime', thumb:'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=400&q=80', url:'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1920&q=80' },
+  { id:'anime-fuji', name:'Mount Fuji Dusk', mood:'Zen', category:'anime', thumb:'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=400&q=80', url:'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&q=80' },
+  { id:'anime-pixelroom', name:'Twilight Room', mood:'Vibe', category:'anime', thumb:'https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?w=400&q=80', url:'https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?w=1920&q=80' },
+  { id:'anime-rainy', name:'Anime Rain', mood:'Moody', category:'anime', thumb:'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=400&q=80', url:'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=1920&q=80' },
+  { id:'nature-alpine', name:'Nordic Alpine', mood:'Majestic', category:'nature', thumb:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80', url:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80' },
+  { id:'nature-forest', name:'Misty Pines', mood:'Calm', category:'nature', thumb:'https://images.unsplash.com/photo-1507693769325-4b6d49b0ba76?w=400&q=80', url:'https://images.unsplash.com/photo-1507693769325-4b6d49b0ba76?w=1920&q=80' },
+  { id:'nature-ocean', name:'Emerald Breaker', mood:'Serene', category:'nature', thumb:'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&q=80', url:'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1920&q=80' },
+  { id:'nature-sunset-dunes', name:'Golden Dunes', mood:'Warm', category:'nature', thumb:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80', url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80' },
+  { id:'nature-aurora', name:'Aurora Borealis', mood:'Ethereal', category:'nature', thumb:'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=400&q=80', url:'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80' },
+  { id:'nature-autumn', name:'Autumn Maple', mood:'Cozy', category:'nature', thumb:'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=400&q=80', url:'https://images.unsplash.com/photo-1508873696983-2df5293cb32f?w=1920&q=80' },
+  { id:'nature-waterfall', name:'Black Waterfall', mood:'Dramatic', category:'nature', thumb:'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=400&q=80', url:'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=1920&q=80' },
+  { id:'nature-bigsur', name:'Pacific Coast Fog', mood:'Atmospheric', category:'nature', thumb:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&q=80', url:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1920&q=80' },
+  { id:'space-nebula', name:'Cosmic Nebula', mood:'Deep', category:'cosmos', thumb:'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=400&q=80', url:'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=1920&q=80' },
+  { id:'space-milkyway', name:'Milky Way Sky', mood:'Stargaze', category:'cosmos', thumb:'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&q=80', url:'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80' },
+  { id:'space-moon', name:'Supermoon Eclipse', mood:'Lunar', category:'cosmos', thumb:'https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=400&q=80', url:'https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=1920&q=80' },
+  { id:'space-earth', name:'Earth Orbit', mood:'Orbit', category:'cosmos', thumb:'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=400&q=80', url:'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=1920&q=80' },
+  { id:'space-starlight', name:'Andromeda Stars', mood:'Infinity', category:'cosmos', thumb:'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&q=80', url:'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1920&q=80' },
+  { id:'space-mars', name:'Martian Horizon', mood:'Alien', category:'cosmos', thumb:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80', url:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80' },
+  { id:'city-cyberpunk', name:'Cyberpunk 2077', mood:'Cyber', category:'city', thumb:'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&q=80', url:'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1920&q=80' },
+  { id:'city-hongkong', name:'Hong Kong Neon', mood:'Neon', category:'city', thumb:'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=400&q=80', url:'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80' },
+  { id:'city-nyc', name:'Manhattan Dusk', mood:'Metro', category:'city', thumb:'https://images.unsplash.com/photo-1496868834840-5f4c98840aaa?w=400&q=80', url:'https://images.unsplash.com/photo-1496868834840-5f4c98840aaa?w=1920&q=80' },
+  { id:'city-seoul', name:'Seoul Night Market', mood:'Vibrant', category:'city', thumb:'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=400&q=80', url:'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=1920&q=80' },
+  { id:'city-london', name:'London Fog Bridge', mood:'Classic', category:'city', thumb:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&q=80', url:'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80' },
+  { id:'city-sf', name:'Bay Bridge Lights', mood:'Coastal', category:'city', thumb:'https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?w=400&q=80', url:'https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?w=1920&q=80' },
+  { id:'lofi-study', name:'Lo-Fi Desk & Plants', mood:'Focus', category:'cozy', thumb:'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=400&q=80', url:'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=1920&q=80' },
+  { id:'lofi-coffee', name:'Warm Espresso', mood:'Cozy', category:'cozy', thumb:'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80', url:'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1920&q=80' },
+  { id:'lofi-library', name:'Vintage Library', mood:'Books', category:'cozy', thumb:'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&q=80', url:'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80' },
+  { id:'lofi-vinyl', name:'Vinyl Player & Lamp', mood:'Acoustic', category:'cozy', thumb:'https://images.unsplash.com/photo-1539185441755-769473a23570?w=400&q=80', url:'https://images.unsplash.com/photo-1539185441755-769473a23570?w=1920&q=80' },
+  { id:'lofi-fireplace', name:'Cabin Fireplace', mood:'Warmth', category:'cozy', thumb:'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&q=80', url:'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1920&q=80' },
+  { id:'lofi-coding', name:'Midnight Coding Desk', mood:'Hacker', category:'cozy', thumb:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&q=80', url:'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80' }
+];
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : null;
+    if (data && data.spaces) {
+      state.spaces = data.spaces.map(s => ({ ...s, items: (s.items||[]).filter(i => !i._removed) }));
+      state.activeSpace = data.activeSpace || (state.spaces[0]?.id || null);
+    } else if (data && Array.isArray(data)) {
+      state.spaces = [{ id: genId(), name: 'Default', wallpaper: '', items: data }];
+      state.activeSpace = state.spaces[0].id;
+    }
+  } catch { state.spaces = []; state.activeSpace = null; }
+  if (!state.spaces.length) seedDemo();
+}
+
+function seedDemo() {
+  state.spaces = [
+    {id:genId(),name:'Startups',wallpaper:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1600&q=80',wallpaperOpacity:20,wallpaperBlur:0,items:[{id:genId(),type:'url',createdAt:Date.now()-432000000,title:'Raindrop.io',url:'https://raindrop.io',tags:['tools','productivity'],favorite:true,archived:false},{id:genId(),type:'url',createdAt:Date.now()-259200000,title:'MDN Web Docs',url:'https://developer.mozilla.org',tags:['dev','reference']},{id:genId(),type:'note',createdAt:Date.now()-86400000,title:'Q3 Review',content:'Key takeaways from the quarterly review — increase retention and ship by August.',tags:['work'],favorite:true}]},
+    {id:genId(),name:'Research',wallpaper:'https://images.unsplash.com/photo-1507693769325-4b6d49b0ba76?w=1600&q=80',wallpaperOpacity:18,wallpaperBlur:2,items:[{id:genId(),type:'url',createdAt:Date.now()-36000000,title:'arXiv: ML Papers',url:'https://arxiv.org/list/cs.LG/recent',tags:['papers','ai']},{id:genId(),type:'note',createdAt:Date.now()-7200000,title:'Research Ideas',content:'Explore transformer architectures for edge devices.',tags:['ideas','ai']}]},
+    {id:genId(),name:'Personal',wallpaper:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80',wallpaperOpacity:22,wallpaperBlur:0,items:[{id:genId(),type:'url',createdAt:Date.now()-60000,title:'Netflix',url:'https://netflix.com',tags:['entertainment']},{id:genId(),type:'password',createdAt:Date.now()-3600000,name:'GitHub',username:'sam@example.com',value:'my-secret-password',tags:['dev']}]}
+  ];
+  state.activeSpace = state.spaces[0].id;
+  save();
+}
+
+function setWallpaper() {
+  const el = document.getElementById('wallpaper-bg');
+  const space = getActiveSpace();
+  if (!el) return;
+  if (space?.wallpaper) {
+    const opacity = space.wallpaperOpacity !== undefined ? (space.wallpaperOpacity / 100) : 0.25;
+    const blur = space.wallpaperBlur !== undefined ? space.wallpaperBlur : 0;
+    el.style.backgroundImage = `url("${space.wallpaper}")`;
+    el.style.opacity = String(opacity);
+    el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none';
+  } else {
+    el.style.opacity = '0'; el.style.filter = 'none'; el.style.backgroundImage = '';
+  }
+}
+
+function getFiltered() {
+  const space = getActiveSpace(); if (!space) return [];
+  let items = [...space.items];
+  if (state.collection === 'highlights') items = items.filter(i => (i.tags||[]).includes('highlight') && !i.archived);
+  else if (state.collection === 'broken') { const brokenIds = state.brokenIds || new Set(); items = items.filter(i => i.type === 'url' && brokenIds.has(i.id)); }
+  else if (state.collection === 'favorites') items = items.filter(i => i.favorite && !i.archived);
+  else if (state.collection === 'archived') items = items.filter(i => i.archived);
+  else if (['urls','notes','keys','passwords'].includes(state.collection)) {
+    const m = { urls:'url', notes:'note', keys:'key', passwords:'password' };
+    items = items.filter(i => i.type === m[state.collection] && !i.archived);
+  } else items = items.filter(i => !i.archived);
+  if (state.tag) items = items.filter(i => i.tags && i.tags.includes(state.tag));
+  if (state.search.trim()) {
+    const q = state.search.trim().toLowerCase();
+    items = items.filter(i => (i.title||'').toLowerCase().includes(q) || (i.url||'').toLowerCase().includes(q) || (i.name||'').toLowerCase().includes(q) || (i.content||'').toLowerCase().includes(q) || (i.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  }
+  if (state.sort === 'newest') items.sort((a,b)=>b.createdAt-a.createdAt);
+  else if (state.sort === 'oldest') items.sort((a,b)=>a.createdAt-b.createdAt);
+  else if (state.sort === 'name') items.sort((a,b)=>(a.title||a.name||'').localeCompare(b.title||b.name||''));
+  return items;
+}
+
+function updateBadges() {
+  const space = getActiveSpace(); if (!space) return;
+  const a = space.items.filter(i => !i.archived);
+  setBdg('badge-all', a.length);
+  setBdg('badge-favorites', a.filter(i=>i.favorite).length);
+  setBdg('badge-archived', space.items.filter(i=>i.archived).length);
+  setBdg('badge-urls', a.filter(i=>i.type==='url').length);
+  setBdg('badge-notes', a.filter(i=>i.type==='note').length);
+  setBdg('badge-keys', a.filter(i=>i.type==='key').length);
+  setBdg('badge-passwords', a.filter(i=>i.type==='password').length);
+  setBdg('badge-highlights', a.filter(i=>(i.tags||[]).includes('highlight')).length);
+  const bc = state.brokenIds?.size ?? '—';
+  setBdg('badge-broken', bc === '—' ? '—' : bc);
+  renderSidebarTags();
+}
+function setBdg(id, n) { const e = document.getElementById(id); if(e) e.textContent = n; }
+
+function updateSpaceList() {
+  const c = document.getElementById('space-list'); if (!c) return;
+  c.innerHTML = state.spaces.map(s => `
+    <div class="space-item ${s.id===state.activeSpace?'active':''}" data-space="${s.id}">
+      <span class="space-dot"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(s.name)}</span>
+      <span class="space-count">${(s.items||[]).filter(i=>!i.archived).length}</span>
+      <button class="space-wallpaper-btn" data-space-id="${s.id}" title="Change space atmosphere">🖼</button>
+    </div>
+  `).join('');
+  c.querySelectorAll('.space-item').forEach(b => b.addEventListener('click', (e) => {
+    if (e.target.closest('.space-wallpaper-btn')) return;
+    state.activeSpace = b.dataset.space; state.collection = 'all'; state.tag = null; updateTagStrip();
+    save(); setWallpaper(); render(); updateSpaceList(); updateBadges();
+  }));
+  c.querySelectorAll('.space-wallpaper-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); openSpaceSettings(btn.dataset.spaceId); });
+  });
+}
+
+function renderSidebarTags() {
+  const c = document.getElementById('sidebar-tags'); if (!c) return;
+  const space = getActiveSpace(); if (!space) return;
+  const t = {}; space.items.filter(i=>!i.archived).forEach(i=>(i.tags||[]).forEach(tg=>t[tg]=(t[tg]||0)+1));
+  const tags = Object.entries(t).sort((a,b)=>b[1]-a[1]);
+  if (!tags.length) { c.innerHTML = '<div style="padding:6px 10px;font-size:11px;color:var(--muted);">No tags yet</div>'; return; }
+  c.innerHTML = tags.map(([tag,n]) => `<button class="sidebar-tag-btn ${state.tag===tag?'active':''}" data-tag="${esc(tag)}"><span class="sidebar-tag-dot"></span><span>${esc(tag)}</span><span class="sidebar-tag-count">${n}</span></button>`).join('');
+  c.querySelectorAll('.sidebar-tag-btn').forEach(b => b.addEventListener('click', () => { state.tag = state.tag===b.dataset.tag?null:b.dataset.tag; updateTagStrip(); render(); }));
+}
+
+function updateTagStrip() {
+  const s = document.getElementById('tag-strip'), v = document.getElementById('tag-strip-value');
+  if (state.tag) { s.classList.remove('hidden'); if(v) v.textContent = state.tag; } else s.classList.add('hidden');
+}
+
+function getFaviconUrl(url) { try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`; } catch { return null; } }
+function faviconEl(item) {
+  const m = TYPE_META[item.type]||TYPE_META.url;
+  if (item.type==='url'&&item.url) { const s = getFaviconUrl(item.url); if (s) return `<div class="card-favicon"><img src="${esc(s)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<span class=card-favicon-placeholder>${m.placeholder}</span>'"></div>`; }
+  return `<div class="card-favicon"><span class="card-favicon-placeholder">${m.icon}</span></div>`;
+}
+
+function cardHtml(item, lm) {
+  const date = new Date(item.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+  let th = item.type==='url'&&item.url ? `<a class="card-title" href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title||item.url)}</a>` : `<span class="card-title">${esc(item.title||item.name||'Untitled')}</span>`;
+  let dh = ''; if(item.type==='url'&&item.url) try{dh=`<span class="card-domain">${new URL(item.url).hostname}</span>`}catch{} else if((item.type==='key'||item.type==='password')&&item.username)dh=`<span class="card-domain">${esc(item.username)}</span>`;
+  let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt">${esc(item.content)}</div>`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" data-action="copy-secret" title="Click to copy secret">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
+  const thtml = (item.tags||[]).length?`<div class="card-tags">${item.tags.map(t=>`<span class="card-tag" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>`:'';
+  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions"><button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
+}
+
+function attachCardEventDelegation() {
+  const area = document.getElementById('content-area');
+  if (!area || area._hasDelegation) return;
+  area._hasDelegation = true;
+  area.addEventListener('click', (e) => {
+    const actBtn = e.target.closest('[data-action]');
+    if (actBtn) { e.stopPropagation(); const action = actBtn.dataset.action, id = actBtn.dataset.id;
+      if (action==='fav') toggleFav(id); else if (action==='archive') toggleArchive(id);
+      else if (action==='edit') openEdit(id); else if (action==='delete') confirmDelete(id);
+      else if (action==='copy-secret') copySecret(id); return;
+    }
+    const tagEl = e.target.closest('.card-tag');
+    if (tagEl) { e.stopPropagation(); filterTag(tagEl.dataset.tag); }
+  });
+}
+
+function render() {
+  const a = document.getElementById('content-area'), vt = document.getElementById('view-title'), vc = document.getElementById('view-count');
+  if (!a) return; const space = getActiveSpace(); if (!space) return;
+  attachCardEventDelegation();
+  const items = getFiltered(), lm = state.viewMode==='list', mm = state.viewMode==='masonry';
+  const titles = {all:'All Items',favorites:'Favorites',archived:'Archive',urls:'URLs',notes:'Notes',keys:'API Keys',passwords:'Passwords',highlights:'Highlights',broken:'Broken Links',guide:'How to Use SikPoket'};
+  if(vt) vt.textContent = state.tag?`#${state.tag}`:(titles[state.collection]||'All Items');
+  if(vc) vc.textContent = state.collection==='guide' ? '6 Modules Guide' : `${items.length} item${items.length!==1?'s':''}`;
+
+  if (state.collection === 'guide') { renderDashboardGuide(a); document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.collection===state.collection)); renderSidebarTags(); updateBadges(); setWallpaper(); return; }
+  if (state.collection === 'broken' && !state.brokenScanDone) { a.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Scanning links…</div><div class="empty-desc">Checking all URLs for broken links. This may take a moment.</div></div>'; scanBrokenLinks(); return; }
+
+  if(!items.length) { a.innerHTML = `<div class="empty-state"><div class="empty-icon">${state.search?'🔍':state.collection==='broken'?'✅':'🗂️'}</div><div class="empty-title">${state.search?'No results':state.collection==='broken'?'No broken links found!':'Nothing here yet'}</div><div class="empty-desc">${state.search?`Nothing matches "${esc(state.search)}"`:state.collection==='broken'?'All your saved URLs appear to be working.':'Add your first item with + Add above.'}</div></div>`; return; }
+  const layoutClass = lm ? 'items-list' : mm ? 'items-masonry' : 'items-grid';
+  a.innerHTML = `<div class="${layoutClass}">${items.map(i=>cardHtml(i,lm)).join('')}</div>`;
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.collection===state.collection));
+  renderSidebarTags(); updateBadges(); setWallpaper();
+}
+
+function toggleFav(id) { const s=getActiveSpace(); if(!s)return; const i=s.items.find(x=>x.id===id); if(i){i.favorite=!i.favorite;save();render();} }
+function toggleArchive(id) { const s=getActiveSpace(); if(!s)return; const i=s.items.find(x=>x.id===id); if(i){i.archived=!i.archived;save();render();toast(i.archived?'Archived':'Restored','success');} }
+function confirmDelete(id) { const s=getActiveSpace(); if(!s)return; const i=s.items.find(x=>x.id===id); if(!i)return; if(confirm(`Delete "${i.title||i.name}"?`)){s.items=s.items.filter(x=>x.id!==id);save();render();toast('Deleted','error');} }
+function copySecret(id) { const s=getActiveSpace(); if(!s)return; const i=s.items.find(x=>x.id===id); if(!i||!i.value)return; navigator.clipboard.writeText(i.value).then(()=>toast('Copied!','success')).catch(()=>toast('Copy failed','error')); }
+function filterTag(t) { state.tag=state.tag===t?null:t; updateTagStrip(); render(); }
+
+function openAdd() {
+  state.editId=null; document.getElementById('item-id').value=''; document.getElementById('item-form').reset();
+  document.getElementById('item-type').value='url'; document.getElementById('modal-title').textContent='Add Item';
+  document.getElementById('modal-type-pills').style.display='flex';
+  document.querySelectorAll('.type-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.type-pill[data-type="url"]').classList.add('active');
+  showTypeFields('url'); document.getElementById('item-modal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('form-url')?.focus(),100);
+}
+function openEdit(id) { const s=getActiveSpace(); if(!s)return; const i=s.items.find(x=>x.id===id); if(!i)return; state.editId=id;
+  document.getElementById('modal-title').textContent='Edit Item'; document.getElementById('modal-type-pills').style.display='none';
+  document.getElementById('item-id').value=id; document.getElementById('item-type').value=i.type; showTypeFields(i.type);
+  if(i.type==='url'){document.getElementById('form-url').value=i.url||'';document.getElementById('form-title').value=i.title||'';}
+  else if(i.type==='note'){document.getElementById('form-title').value=i.title||'';document.getElementById('form-content').value=i.content||'';}
+  else if(i.type==='key'){document.getElementById('form-name').value=i.name||'';document.getElementById('form-value').value=i.value||'';}
+  else if(i.type==='password'){document.getElementById('form-name').value=i.name||'';document.getElementById('form-username').value=i.username||'';document.getElementById('form-value').value=i.value||'';}
+  document.getElementById('form-tags').value=(i.tags||[]).join(', '); document.getElementById('item-modal').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('item-modal').classList.add('hidden'); state.editId=null; }
+function showTypeFields(type) {
+  ['url','name','title','username','value','content'].forEach(f=>document.getElementById(`field-${f}`)?.classList.add('hidden'));
+  if(type==='url')['url','title'].forEach(f=>document.getElementById(`field-${f}`)?.classList.remove('hidden'));
+  else if(type==='note')['title','content'].forEach(f=>document.getElementById(`field-${f}`)?.classList.remove('hidden'));
+  else if(type==='key')['name','value'].forEach(f=>document.getElementById(`field-${f}`)?.classList.remove('hidden'));
+  else if(type==='password')['name','username','value'].forEach(f=>document.getElementById(`field-${f}`)?.classList.remove('hidden'));
+}
+function handleFormSubmit(e) {
+  e.preventDefault(); const s=getActiveSpace(); if(!s)return;
+  const type=document.getElementById('item-type').value;
+  const tags=document.getElementById('form-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  let i = state.editId?s.items.find(x=>x.id===state.editId):null;
+  if(!i){i={id:genId(),type,createdAt:Date.now(),favorite:false,archived:false};s.items.unshift(i);}
+  i.tags=tags;i.type=type;
+  if(type==='url'){i.url=document.getElementById('form-url').value.trim();i.title=document.getElementById('form-title').value.trim()||i.url;}
+  else if(type==='note'){i.title=document.getElementById('form-title').value.trim()||'Untitled Note';i.content=document.getElementById('form-content').value.trim();}
+  else if(type==='key'){i.name=document.getElementById('form-name').value.trim();i.value=document.getElementById('form-value').value.trim();}
+  else if(type==='password'){i.name=document.getElementById('form-name').value.trim();i.username=document.getElementById('form-username').value.trim();i.value=document.getElementById('form-value').value.trim();}
+  save();closeModal();render();toast(state.editId?'Updated!':'Saved!','success');
+}
+
+/* ── WALLPAPER STUDIO ─────────────────── */
+function renderWallpaperPresets(currentUrl, activeCategory = 'all') {
+  const grid = document.getElementById('wallpaper-preset-grid'); if (!grid) return;
+  const filtered = activeCategory === 'all' ? WALLPAPER_PRESETS : WALLPAPER_PRESETS.filter(p => p.category === activeCategory);
+  grid.innerHTML = filtered.map(p => {
+    const isSelected = p.url === currentUrl || (!p.url && !currentUrl);
+    const bgStyle = p.thumb ? `style="background-image:url('${p.thumb}')"` : '';
+    return `<div class="wallpaper-preset-card ${isSelected ? 'selected' : ''}" data-url="${esc(p.url)}" data-name="${esc(p.name)}" data-category="${esc(p.category)}"><div class="preset-thumb" ${bgStyle}>${!p.thumb ? '<span class="preset-none-icon">🚫</span>' : ''}</div><div class="preset-info"><span class="preset-name" title="${esc(p.name)}">${esc(p.name)}</span><span class="preset-mood">${esc(p.mood)}</span></div></div>`;
+  }).join('');
+  grid.querySelectorAll('.wallpaper-preset-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.wallpaper-preset-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      const url = card.dataset.url || '';
+      document.getElementById('space-wallpaper').value = url;
+      document.getElementById('space-wallpaper-url-input').value = url;
+      document.getElementById('local-file-name').textContent = 'Supports JPG, PNG, WEBP, GIF (stored locally)';
+      updateWallpaperLivePreview(url);
+      const el = document.getElementById('wallpaper-bg');
+      if (el) {
+        const opacityVal = (parseInt(document.getElementById('space-wallpaper-opacity')?.value || '30')) / 100;
+        const blurVal = parseInt(document.getElementById('space-wallpaper-blur')?.value || '0');
+        if (url) { el.style.backgroundImage = `url("${url}")`; el.style.opacity = String(opacityVal); el.style.filter = blurVal > 0 ? `blur(${blurVal}px)` : 'none'; }
+        else { el.style.opacity = '0'; el.style.backgroundImage = ''; }
+      }
+    });
+  });
+}
+
+function updateWallpaperLivePreview(customUrl) {
+  const preview = document.getElementById('wallpaper-live-preview'); if (!preview) return;
+  const url = customUrl !== undefined ? customUrl : (document.getElementById('space-wallpaper')?.value || '');
+  const opacityVal = (parseInt(document.getElementById('space-wallpaper-opacity')?.value || '30')) / 100;
+  const blurVal = parseInt(document.getElementById('space-wallpaper-blur')?.value || '0');
+  if (url) { preview.style.backgroundImage = `linear-gradient(rgba(12,14,18,${1 - opacityVal}), rgba(12,14,18,${1 - opacityVal})), url("${url}")`; preview.style.filter = blurVal > 0 ? `blur(${blurVal}px)` : 'none'; }
+  else { preview.style.backgroundImage = 'none'; preview.style.filter = 'none'; }
+}
+
+function setupWallpaperStudioControls() {
+  document.getElementById('space-wallpaper-file')?.addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const dataUrl = evt.target.result;
+      document.getElementById('space-wallpaper').value = dataUrl;
+      document.getElementById('space-wallpaper-url-input').value = `Local: ${file.name}`;
+      document.getElementById('local-file-name').textContent = `✅ Loaded: ${file.name} (${Math.round(file.size/1024)} KB)`;
+      document.querySelectorAll('.wallpaper-preset-card').forEach(c => c.classList.remove('selected'));
+      updateWallpaperLivePreview(dataUrl);
+      const el = document.getElementById('wallpaper-bg');
+      if (el) { el.style.backgroundImage = `url("${dataUrl}")`; el.style.opacity = String((parseInt(document.getElementById('space-wallpaper-opacity')?.value || '30')) / 100); }
+      toast('Local image loaded!', 'success');
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('space-wallpaper-url-input')?.addEventListener('input', (e) => {
+    const val = e.target.value.trim();
+    if (!val.startsWith('Local:')) {
+      document.getElementById('space-wallpaper').value = val;
+      document.querySelectorAll('.wallpaper-preset-card').forEach(c => c.classList.toggle('selected', c.dataset.url === val));
+      updateWallpaperLivePreview(val);
+      const el = document.getElementById('wallpaper-bg');
+      if (el) { const opacityVal = (parseInt(document.getElementById('space-wallpaper-opacity')?.value || '30')) / 100; if (val) { el.style.backgroundImage = `url("${val}")`; el.style.opacity = String(opacityVal); } else { el.style.opacity = '0'; } }
+    }
+  });
+  document.getElementById('space-wallpaper-opacity')?.addEventListener('input', (e) => {
+    document.getElementById('opacity-val').textContent = e.target.value + '%';
+    updateWallpaperLivePreview();
+    const url = document.getElementById('space-wallpaper')?.value || '';
+    const el = document.getElementById('wallpaper-bg');
+    if (el && url) el.style.opacity = String(parseInt(e.target.value) / 100);
+  });
+  document.getElementById('space-wallpaper-blur')?.addEventListener('input', (e) => {
+    document.getElementById('blur-val').textContent = e.target.value + 'px';
+    updateWallpaperLivePreview();
+    const url = document.getElementById('space-wallpaper')?.value || '';
+    const el = document.getElementById('wallpaper-bg');
+    if (el && url) el.style.filter = parseInt(e.target.value) > 0 ? `blur(${e.target.value}px)` : 'none';
+  });
+  document.querySelectorAll('.bundle-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.bundle-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderWallpaperPresets(document.getElementById('space-wallpaper')?.value || '', tab.dataset.bundle || 'all');
+    });
+  });
+}
+
+function openSpaceSettings(id) {
+  const space = state.spaces.find(s => s.id === id); if (!space) return;
+  document.getElementById('space-edit-id').value = id;
+  document.getElementById('space-name').value = space.name;
+  const currentWp = space.wallpaper || '';
+  document.getElementById('space-wallpaper').value = currentWp;
+  document.getElementById('space-wallpaper-url-input').value = currentWp.startsWith('data:') ? 'Local Image Attached' : currentWp;
+  const opacity = space.wallpaperOpacity !== undefined ? space.wallpaperOpacity : 35;
+  const blur = space.wallpaperBlur !== undefined ? space.wallpaperBlur : 0;
+  document.getElementById('space-wallpaper-opacity').value = opacity;
+  document.getElementById('opacity-val').textContent = opacity + '%';
+  document.getElementById('space-wallpaper-blur').value = blur;
+  document.getElementById('blur-val').textContent = blur + 'px';
+  document.getElementById('local-file-name').textContent = currentWp.startsWith('data:') ? '✅ Custom Local Image Stored' : 'Supports JPG, PNG, WEBP, GIF (stored locally)';
+  document.getElementById('space-modal-title').textContent = `Edit "${space.name}" Atmosphere`;
+  renderWallpaperPresets(currentWp);
+  updateWallpaperLivePreview(currentWp);
+  document.getElementById('space-modal').classList.remove('hidden');
+  document.getElementById('space-name').focus();
+}
+function closeSpaceModal() { const m = document.getElementById('space-modal'); if (m) m.classList.add('hidden'); setWallpaper(); }
+function openAddSpace() {
+  document.getElementById('space-edit-id').value = '';
+  document.getElementById('space-name').value = '';
+  document.getElementById('space-wallpaper').value = '';
+  document.getElementById('space-wallpaper-url-input').value = '';
+  document.getElementById('space-wallpaper-opacity').value = 35;
+  document.getElementById('opacity-val').textContent = '35%';
+  document.getElementById('space-wallpaper-blur').value = 0;
+  document.getElementById('blur-val').textContent = '0px';
+  document.getElementById('local-file-name').textContent = 'Supports JPG, PNG, WEBP, GIF (stored locally)';
+  document.getElementById('space-form').reset();
+  document.getElementById('space-modal-title').textContent = 'Create Space with Mood Wallpaper';
+  renderWallpaperPresets('');
+  updateWallpaperLivePreview('');
+  document.getElementById('space-modal').classList.remove('hidden');
+  document.getElementById('space-name').focus();
+}
+function handleSpaceSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('space-name').value.trim(); if (!name) return;
+  const wallpaper = document.getElementById('space-wallpaper').value.trim();
+  const opacity = parseInt(document.getElementById('space-wallpaper-opacity').value) || 35;
+  const blur = parseInt(document.getElementById('space-wallpaper-blur').value) || 0;
+  const editId = document.getElementById('space-edit-id').value;
+  if (editId) { const s = state.spaces.find(x => x.id === editId); if (s) { s.name = name; s.wallpaper = wallpaper; s.wallpaperOpacity = opacity; s.wallpaperBlur = blur; } state.activeSpace = editId; }
+  else { const ns = { id: genId(), name, wallpaper, wallpaperOpacity: opacity, wallpaperBlur: blur, items: [] }; state.spaces.push(ns); state.activeSpace = ns.id; }
+  save(); updateSpaceList(); setWallpaper(); render(); updateBadges();
+  closeSpaceModal();
+  toast(editId ? 'Space & wallpaper updated!' : 'Space created with wallpaper!', 'success');
+}
+function deleteActiveSpace() {
+  if (state.spaces.length <= 1) { toast('Cannot delete only space', 'error'); return; }
+  const idx = state.spaces.findIndex(s=>s.id===state.activeSpace);
+  if (!confirm(`Delete "${state.spaces[idx].name}" and all its items?`)) return;
+  state.spaces.splice(idx,1); state.activeSpace = state.spaces[0].id;
+  save(); updateSpaceList(); setWallpaper(); render(); updateBadges(); toast('Space deleted','error');
+}
+
+/* ── EXPORT/IMPORT ───────────────────── */
+function exportItems() {
+  const blob=new Blob([JSON.stringify({version:2,spaces:state.spaces,activeSpace:state.activeSpace},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`sikpoket-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);toast('Exported!','success');
+}
+function importFile(e) {
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=function(ev){try{const d=JSON.parse(ev.target.result);
+  if(d.spaces){d.spaces.forEach(ns=>{const ex=state.spaces.find(s=>s.id===ns.id);if(ex){ex.items=[...ns.items,...ex.items];ex.name=ns.name||ex.name;ex.wallpaper=ns.wallpaper||ex.wallpaper;ex.wallpaperOpacity=ns.wallpaperOpacity;ex.wallpaperBlur=ns.wallpaperBlur;}else state.spaces.push(ns);});}
+  else if(d.items||Array.isArray(d)){const s=getActiveSpace();if(s)s.items=[...(d.items||d),...s.items];}
+  if(d.activeSpace)state.activeSpace=d.activeSpace;
+  save();updateSpaceList();setWallpaper();render();updateBadges();toast('Imported!','success');}catch{toast('Invalid file','error');}};r.readAsText(f);e.target.value='';
+}
+
+function toast(m,t){const el=document.getElementById('toast');if(!el)return;el.textContent=m;el.className=`toast show ${t||''}`;clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);}
+
+/* ── BROKEN LINK SCANNER ──────────────── */
+async function scanBrokenLinks() {
+  const space = getActiveSpace(); if (!space) return;
+  const urlItems = space.items.filter(i => i.type === 'url' && i.url && !i.archived);
+  state.brokenIds = new Set(); state.brokenScanDone = false;
+  const checks = urlItems.map(async (item) => {
+    try { const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 8000); await fetch(item.url, { method: 'HEAD', mode: 'no-cors', signal: ctrl.signal }); clearTimeout(t); }
+    catch (e) { if (e.name === 'AbortError' || !navigator.onLine) state.brokenIds.add(item.id); }
+  });
+  await Promise.all(checks);
+  state.brokenScanDone = true; setBdg('badge-broken', state.brokenIds.size); render();
+}
+
+/* ── INTERACTIVE USER GUIDE ───────────── */
+function renderDashboardGuide(container) {
+  container.innerHTML = `<div class="dash-guide-container"><div class="dash-guide-hero"><div class="dash-guide-hero-badge">📖 Interactive User Manual</div><h2 class="dash-guide-hero-title">Mastering SikPoket —<br>Fast, Private & Encrypted</h2><p class="dash-guide-hero-sub">Everything you need to know about capturing links, AES-256 encrypted secrets, batch workflows, multi-space dashboards, mood wallpapers, and keyboard efficiency.</p><div class="dash-guide-hero-stats"><div class="dash-guide-stat"><span class="dash-guide-stat-num">38+</span><span class="dash-guide-stat-label">Mood Wallpapers</span></div><div class="dash-guide-stat"><span class="dash-guide-stat-num">AES-256</span><span class="dash-guide-stat-label">Encryption Standard</span></div><div class="dash-guide-stat"><span class="dash-guide-stat-num">5</span><span class="dash-guide-stat-label">Ways to Save</span></div><div class="dash-guide-stat"><span class="dash-guide-stat-num">10</span><span class="dash-guide-stat-label">Keyboard Shortcuts</span></div></div></div><div class="dash-guide-flow"><div class="dash-guide-flow-step"><div class="dash-guide-flow-icon flow-purple">🔌</div><div class="dash-guide-flow-label">Load Extension<br>in Chrome</div></div><div class="dash-guide-flow-arrow">›</div><div class="dash-guide-flow-step"><div class="dash-guide-flow-icon flow-blue">🔑</div><div class="dash-guide-flow-label">Set Master<br>Password</div></div><div class="dash-guide-flow-arrow">›</div><div class="dash-guide-flow-step"><div class="dash-guide-flow-icon flow-green">🔗</div><div class="dash-guide-flow-label">Save URLs<br>& Secrets</div></div><div class="dash-guide-flow-arrow">›</div><div class="dash-guide-flow-step"><div class="dash-guide-flow-icon flow-amber">🖼️</div><div class="dash-guide-flow-label">Set Mood<br>Wallpaper</div></div><div class="dash-guide-flow-arrow">›</div><div class="dash-guide-flow-step"><div class="dash-guide-flow-icon flow-pink">🔒</div><div class="dash-guide-flow-label">Lock with<br>Ctrl+L</div></div></div><div class="dash-guide-grid"><div class="dash-guide-card"><div class="dash-guide-card-header"><div class="dash-guide-card-icon icon-purple">🔗</div><div class="dash-guide-card-meta"><div class="dash-guide-icon-pill pill-purple">Capture &amp; Save</div><h3 class="dash-guide-card-title">5 Ways to Save Content</h3></div></div><ul class="dash-guide-points"><li><strong>Right-Click Menu</strong> — Right-click any link, selected text, or page → <em>"Save to SikPoket"</em>.</li><li><strong>Text Highlights</strong> — Select text → right-click → <em>"Save Highlight"</em> for quote cards.</li><li><strong>Article Reader</strong> — Click <em>"📄 Save Article"</em> for distraction-free offline reading.</li><li><strong>Keyboard Shortcut</strong> — Press <code>Ctrl+Shift+S</code> to instantly open SikPoket.</li><li><strong>Quick Add (+)</strong> — Press <code>N</code> or click <em>"+ Add"</em> to save URLs, keys, passwords, notes.</li></ul></div><div class="dash-guide-card"><div class="dash-guide-card-header"><div class="dash-guide-card-icon icon-green">🔒</div><div class="dash-guide-card-meta"><div class="dash-guide-icon-pill pill-green">Zero-Knowledge Vault</div><h3 class="dash-guide-card-title">AES-256 GCM Military-Grade Crypto</h3></div></div><ul class="dash-guide-points"><li><strong>PBKDF2 — 100,000 Iterations</strong> — Key derived with unique cryptographic salt per secret.</li><li><strong>Click-to-Copy</strong> — Secrets stay masked (<code>••••••••</code>). Click to copy decrypted value.</li><li><strong>Instant Lock</strong> — Press <code>Ctrl+L</code> to wipe master password from memory.</li><li><strong>Touch ID / WebAuthn</strong> — Set up fingerprint unlock on supported devices.</li><li><strong>Zero-Server Architecture</strong> — Everything stays in local browser storage.</li></ul></div><div class="dash-guide-card"><div class="dash-guide-card-header"><div class="dash-guide-card-icon icon-amber">⚡</div><div class="dash-guide-card-meta"><div class="dash-guide-icon-pill pill-amber">Pro Productivity</div><h3 class="dash-guide-card-title">Batch Selection &amp; Organization</h3></div></div><ul class="dash-guide-points"><li><strong>Batch Mode (<code>Ctrl+B</code>)</strong> — Toggle select mode for bulk favorite, archive, or delete.</li><li><strong>Duplicate URL Cleaner</strong> — Settings → <em>"Scan for Duplicates"</em> → <em>"Keep Newest"</em>.</li><li><strong>Reminders 🔔</strong> — Click the bell icon for due dates and Chrome notifications.</li><li><strong>Hierarchical Tags</strong> — Click tags to filter, rename/delete tags globally in Tag Manager.</li><li><strong>Archive vs Delete</strong> — Archive to hide without losing; hard-delete with ✕ button.</li></ul></div><div class="dash-guide-card"><div class="dash-guide-card-header"><div class="dash-guide-card-icon icon-blue">🖼️</div><div class="dash-guide-card-meta"><div class="dash-guide-icon-pill pill-blue">Wallpaper Studio</div><h3 class="dash-guide-card-title">Mood Wallpapers, Local Uploads &amp; Layouts</h3></div></div><ul class="dash-guide-points"><li><strong>38+ Curated Presets</strong> — Browse Anime, Nature, Cosmos, City, Lo-Fi & Minimal bundles.</li><li><strong>Upload Local Images</strong> — Upload personal photos stored offline via Base64.</li><li><strong>Paste Custom URL</strong> — Drop any Unsplash link to preview and apply instantly.</li><li><strong>Live Atmosphere Sliders</strong> — Adjust <strong>Opacity</strong> and <strong>Depth Blur</strong> with live preview.</li><li><strong>3 View Modes</strong> — Toggle <strong>Grid</strong>, <strong>List</strong>, and <strong>Masonry</strong> layouts.</li></ul></div><div class="dash-guide-card"><div class="dash-guide-card-header"><div class="dash-guide-card-icon icon-pink">🌐</div><div class="dash-guide-card-meta"><div class="dash-guide-icon-pill pill-pink">Multi-Space</div><h3 class="dash-guide-card-title">Workspaces &amp; Spaces</h3></div></div><ul class="dash-guide-points"><li><strong>Create New Space</strong> — Click <em>"+ New Space"</em> in the sidebar for dedicated workspaces.</li><li><strong>Switch Spaces</strong> — Click any space in the sidebar to instantly switch context.</li><li><strong>Edit Space Wallpaper</strong> — Click 🖼 on any space row to open the Wallpaper Studio.</li><li><strong>Import / Export</strong> — Back up or migrate your full library as JSON.</li><li><strong>Broken Links Scan</strong> — Click <em>"Broken Links"</em> to verify URL reachability.</li></ul></div><div class="dash-guide-card"><div class="dash-guide-card-header"><div class="dash-guide-card-icon icon-violet">💡</div><div class="dash-guide-card-meta"><div class="dash-guide-icon-pill pill-violet">Pro Tips</div><h3 class="dash-guide-card-title">Hidden Features &amp; Power Tricks</h3></div></div><ul class="dash-guide-points"><li><strong>Search Everything</strong> — Filters across titles, URLs, note content, and tags in real-time.</li><li><strong>Tag Filter Strip</strong> — Click a sidebar tag to filter with a color strip and clear button.</li><li><strong>Sort Options</strong> — <em>Newest First</em>, <em>Oldest First</em>, and <em>Name A–Z</em> via the sort dropdown.</li><li><strong>Favicon Auto-Fetch</strong> — URL cards auto-fetch the site's favicon for visual recognition.</li><li><strong>Sidebar Collapse</strong> — Click ☰ to collapse the sidebar and maximize content area.</li></ul></div></div><div class="dash-guide-hotkeys-wrap"><h3 class="dash-guide-hotkeys-title">⌨️ Keyboard Shortcuts Cheat Sheet</h3><div class="dash-guide-hotkeys-grid"><div class="dash-guide-hotkey-row"><kbd>N</kbd><span class="dash-guide-hotkey-desc">Open new item dialog</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+L</kbd><span class="dash-guide-hotkey-desc">Lock vault instantly</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+B</kbd><span class="dash-guide-hotkey-desc">Toggle multi-select mode</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+F</kbd><span class="dash-guide-hotkey-desc">Focus the search bar</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+Shift+S</kbd><span class="dash-guide-hotkey-desc">Open popup from any tab</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+H</kbd><span class="dash-guide-hotkey-desc">Open this guide</span></div><div class="dash-guide-hotkey-row"><kbd>Esc</kbd><span class="dash-guide-hotkey-desc">Close modals & dialogs</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+1</kbd><span class="dash-guide-hotkey-desc">Switch to URLs tab</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+2</kbd><span class="dash-guide-hotkey-desc">Switch to API Keys tab</span></div><div class="dash-guide-hotkey-row"><kbd>Ctrl+3</kbd><span class="dash-guide-hotkey-desc">Switch to Passwords tab</span></div></div></div></div>`;
+}
+
+/* ── INIT DASHBOARD ───────────────────── */
+load();
+updateSpaceList();
+setupWallpaperStudioControls();
+
+document.querySelectorAll('.nav-item[data-collection]').forEach(b => b.addEventListener('click',()=>{state.collection=b.dataset.collection;state.tag=null;updateTagStrip();render();}));
+document.getElementById('global-search').addEventListener('input',e=>{state.search=e.target.value;render();});
+document.getElementById('sort-select').addEventListener('change',e=>{state.sort=e.target.value;render();});
+document.getElementById('view-grid').addEventListener('click',()=>{state.viewMode='grid';document.getElementById('view-grid').classList.add('active');document.getElementById('view-list').classList.remove('active');document.getElementById('view-masonry')?.classList.remove('active');render();});
+document.getElementById('view-list').addEventListener('click',()=>{state.viewMode='list';document.getElementById('view-list').classList.add('active');document.getElementById('view-grid').classList.remove('active');document.getElementById('view-masonry')?.classList.remove('active');render();});
+document.getElementById('view-masonry')?.addEventListener('click',()=>{state.viewMode='masonry';document.getElementById('view-masonry').classList.add('active');document.getElementById('view-grid').classList.remove('active');document.getElementById('view-list').classList.remove('active');render();});
+document.getElementById('topbar-wallpaper-btn')?.addEventListener('click', () => openSpaceSettings(state.activeSpace));
+document.getElementById('topbar-add-btn').addEventListener('click',openAdd);
+document.getElementById('sidebar-toggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('collapsed'));
+document.querySelectorAll('.type-pill').forEach(p=>p.addEventListener('click',()=>{document.querySelectorAll('.type-pill').forEach(q=>q.classList.remove('active'));p.classList.add('active');document.getElementById('item-type').value=p.dataset.type;showTypeFields(p.dataset.type);}));
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('modal-cancel').addEventListener('click',closeModal);
+document.getElementById('item-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('item-form').addEventListener('submit',handleFormSubmit);
+document.getElementById('export-btn').addEventListener('click',exportItems);
+document.getElementById('import-btn').addEventListener('click',()=>document.getElementById('import-file').click());
+document.getElementById('import-file').addEventListener('change',importFile);
+document.getElementById('tag-strip-clear').addEventListener('click',()=>{state.tag=null;updateTagStrip();render();});
+document.getElementById('add-space-btn').addEventListener('click', openAddSpace);
+document.getElementById('logout-btn')?.addEventListener('click', () => { sessionStorage.removeItem('sikpoket_user'); location.reload(); });
+document.getElementById('space-modal')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeSpaceModal();});
+document.getElementById('space-modal-close')?.addEventListener('click', closeSpaceModal);
+document.getElementById('space-modal-cancel')?.addEventListener('click', closeSpaceModal);
+document.getElementById('space-form')?.addEventListener('submit', handleSpaceSubmit);
+document.getElementById('btn-browse-local')?.addEventListener('click', () => { document.getElementById('space-wallpaper-file')?.click(); });
+document.addEventListener('keydown',e=>{
+  if((e.key==='n'||e.key==='N')&&!e.ctrlKey&&!e.metaKey&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))openAdd();
+  if(e.key==='Escape'){closeModal();closeSpaceModal();}
+  if(e.key==='Delete'&&e.ctrlKey){e.preventDefault();deleteActiveSpace();}
+});
+if (!state.spaces.some(s => s.items?.length)) seedDemo();
+render(); updateBadges(); renderSidebarTags(); setWallpaper();
+
+} // end initDashboard
+</script>
+</body>
+</html>

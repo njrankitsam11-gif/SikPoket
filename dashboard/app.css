@@ -391,6 +391,7 @@ a.card-title:hover { color: var(--brand-soft); }
 .space-section-sub {
   font-size: 10.5px;
   color: var(--muted);
+}
 /* Bundle Category Tabs */
 .wallpaper-bundle-tabs {
   display: flex;
