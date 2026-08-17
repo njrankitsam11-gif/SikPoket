@@ -87,7 +87,17 @@ if (manifest.action && manifest.action.default_popup) {
   }
 }
 
-// 5. Check Content Scripts
+// 5. Check Side Panel
+if (manifest.side_panel && manifest.side_panel.default_path) {
+  const spPath = path.join(rootDir, manifest.side_panel.default_path);
+  if (fs.existsSync(spPath)) {
+    logPass(`Side panel default_path found: ${manifest.side_panel.default_path}`);
+  } else {
+    logFail(`Side panel default_path missing: ${manifest.side_panel.default_path}`);
+  }
+}
+
+// 6. Check Content Scripts
 if (Array.isArray(manifest.content_scripts)) {
   for (const cs of manifest.content_scripts) {
     if (Array.isArray(cs.js)) {
@@ -103,7 +113,7 @@ if (Array.isArray(manifest.content_scripts)) {
   }
 }
 
-// 6. Check Web Accessible Resources
+// 7. Check Web Accessible Resources
 if (Array.isArray(manifest.web_accessible_resources)) {
   for (const war of manifest.web_accessible_resources) {
     if (Array.isArray(war.resources)) {
@@ -119,12 +129,14 @@ if (Array.isArray(manifest.web_accessible_resources)) {
   }
 }
 
-// 7. Security check: Scan for eval() or new Function() in extension JS files
+// 8. Security check: Scan for eval() or new Function() in extension JS files
 const jsFilesToCheck = [
   'background.js',
   'content.js',
   'popup.js',
   'crypto-helper.js',
+  'qr-helper.js',
+  'ai-helper.js',
   'dashboard/app.js',
   'unlock.js'
 ];

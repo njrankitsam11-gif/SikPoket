@@ -260,3 +260,75 @@ if (chrome.omnibox) {
   });
 }
 
+// Side Panel keyboard command trigger (Ctrl+Shift+E)
+if (chrome.commands) {
+  chrome.commands.onCommand.addListener(async (command) => {
+    if (command === 'toggle-side-panel') {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab && chrome.sidePanel) {
+        try {
+          await chrome.sidePanel.open({ windowId: tab.windowId });
+        } catch (e) {
+          console.warn('Could not open side panel:', e);
+        }
+      }
+    }
+  });
+}
+
+// Tab Session Snapshot & Restore Handlers
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'save-window-session') {
+    (async () => {
+      try {
+        const tabs = await chrome.tabs.query({ currentWindow: true });
+        const validTabs = tabs
+          .filter(t => t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://'))
+          .map(t => ({ url: t.url, title: t.title || t.url, favIconUrl: t.favIconUrl || '' }));
+
+        if (validTabs.length === 0) {
+          sendResponse({ success: false, error: 'No saveable tabs found' });
+          return;
+        }
+
+        const data = await chrome.storage.local.get(['sikpoketSessions']);
+        const sessions = data.sikpoketSessions || [];
+        const newSession = {
+          id: Date.now().toString(),
+          name: message.name || `Session ${new Date().toLocaleDateString('en-GB')} (${validTabs.length} tabs)`,
+          tabs: validTabs,
+          createdAt: Date.now()
+        };
+        sessions.unshift(newSession);
+        await chrome.storage.local.set({ sikpoketSessions: sessions });
+        sendResponse({ success: true, session: newSession });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+
+  if (message.action === 'restore-session') {
+    (async () => {
+      try {
+        const session = message.session;
+        if (!session?.tabs?.length) {
+          sendResponse({ success: false, error: 'No tabs in session' });
+          return;
+        }
+        // Open tabs in a new browser window
+        const win = await chrome.windows.create({ url: session.tabs[0].url });
+        for (let i = 1; i < session.tabs.length; i++) {
+          await chrome.tabs.create({ windowId: win.id, url: session.tabs[i].url, active: false });
+        }
+        sendResponse({ success: true, windowId: win.id });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    })();
+    return true;
+  }
+});
+
+

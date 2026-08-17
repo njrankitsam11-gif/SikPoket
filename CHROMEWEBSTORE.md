@@ -2,7 +2,7 @@
 
 **Last Updated:** August 17, 2026  
 **Extension Name:** SikPoket - Secure Bookmark Manager  
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Primary Category:** Productivity  
 **Secondary Category:** Workflow & Planning  
 
@@ -70,6 +70,7 @@ Every permission requested in `manifest.json` is strictly required for core user
 | `downloads` | Required to allow users to export and download their Netscape HTML bookmark files and encrypted JSON backups locally. |
 | `alarms` | Required to schedule user-configured bookmark reminders and broken link health checks without keeping background scripts permanently awake. |
 | `notifications` | Required to display system notifications when scheduled bookmark reminders or background exports complete. |
+| `sidePanel` | Required to provide the persistent docked side-by-side workspace interface for simultaneous browsing and research organization. |
 | `<all_urls>` (Host) | Required to allow the content script toast notification and reader mode extractor to operate across any webpage the user chooses to save. |
 
 ---

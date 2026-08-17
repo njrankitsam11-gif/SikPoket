@@ -54,7 +54,12 @@
     <div class="sp-reader-body" id="reader-content-wrap">
       <div class="sp-reader-meta">
         <span id="reader-time"></span>
+        <button class="sp-reader-btn" id="reader-ai-summarize-btn" style="color:var(--c-acc);font-weight:600;">✨ AI Summary</button>
         <a href="#" target="_blank" rel="noopener" id="reader-link">Original ↗</a>
+      </div>
+      <div id="reader-ai-summary-box" class="sp-hidden" style="margin-bottom:14px;padding:12px;background:rgba(144,152,212,0.1);border:1px solid rgba(144,152,212,0.25);border-radius:6px;">
+        <div style="font-size:11px;font-weight:700;color:var(--c-acc);margin-bottom:6px;display:flex;align-items:center;gap:5px;"><span>✨ Key Takeaways</span></div>
+        <div id="reader-ai-summary-text" style="font-size:12px;line-height:1.6;color:var(--c-txt);"></div>
       </div>
       <h1 id="reader-title-display"></h1>
       <div id="reader-body-display"></div>
@@ -69,6 +74,9 @@
         <span class="sp-brand-name">SikPoket</span>
       </div>
       <div class="sp-header-btns">
+        <button class="sp-icon-btn" id="sidepanel-btn" title="Open Docked Side Panel (Ctrl+Shift+E)">
+          <svg viewBox="0 0 20 20" fill="none" width="15"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M12 3v14" stroke="currentColor" stroke-width="1.4"/></svg>
+        </button>
         <button class="sp-icon-btn" id="wallpaper-btn" title="Change wallpaper">
           <svg viewBox="0 0 20 20" fill="none" width="15"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="6.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M2 14l4-4 3 3 3-4 5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -530,6 +538,7 @@
 
 <script src="crypto-helper.js"></script>
 <script src="qr-helper.js"></script>
+<script src="ai-helper.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>

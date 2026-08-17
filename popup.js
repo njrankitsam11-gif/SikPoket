@@ -207,6 +207,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   });
+  $('sidepanel-btn')?.addEventListener('click', async () => {
+    if (chrome.sidePanel) {
+      try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab) await chrome.sidePanel.open({ windowId: tab.windowId });
+      } catch (e) {
+        console.warn('Could not open side panel:', e);
+      }
+    }
+  });
+  $('save-window-tabs-btn')?.addEventListener('click', async () => {
+    const name = prompt('Name for this Tab Session snapshot:', `Research Session ${new Date().toLocaleDateString('en-GB')}`);
+    if (name) {
+      chrome.runtime.sendMessage({ action: 'save-window-session', name }, (res) => {
+        if (res && res.success) {
+          alert(`✅ Saved ${res.session.tabs.length} tabs into session "${res.session.name}"!`);
+        }
+      });
+    }
+  });
   lockBtn?.addEventListener('click', lock);
   settingsBtn?.addEventListener('click', () => toggleModal('settings-modal', true));
 
@@ -1155,6 +1175,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         readerLink.style.display = 'none';
       }
+    }
+
+    // AI Summary Button
+    const aiBox = $('reader-ai-summary-box');
+    if (aiBox) aiBox.classList.add('sp-hidden');
+    const aiBtn = $('reader-ai-summarize-btn');
+    if (aiBtn) {
+      aiBtn.textContent = '✨ AI Summary';
+      aiBtn.onclick = async () => {
+        aiBtn.textContent = '⏳ Summarizing…';
+        if (window.AIHelper) {
+          const bullets = await AIHelper.summarizeArticle(note.title, note.content, 3);
+          const summaryText = $('reader-ai-summary-text');
+          if (summaryText && bullets.length > 0) {
+            summaryText.innerHTML = bullets.map(b => `<div style="margin-bottom:4px;">• ${esc(b)}</div>`).join('');
+            if (aiBox) aiBox.classList.remove('sp-hidden');
+          }
+        }
+        aiBtn.textContent = '✨ Regenerate';
+      };
     }
 
     applyReaderStyles();
