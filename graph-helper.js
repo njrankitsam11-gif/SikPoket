@@ -148,11 +148,11 @@
         if (item.archived) return;
 
         const type = item.type || 'url';
-        let color = '#7952ff'; // Purple (URL)
+        let color = '#90b800'; // Electric Lime (URL)
         let icon = '🔗';
-        if (type === 'note') { color = '#00f2a9'; icon = '📝'; }
+        if (type === 'note') { color = '#e1e100'; icon = '📝'; }
         if (type === 'apiKey') { color = '#ffaa00'; icon = '🔑'; }
-        if (type === 'password') { color = '#ff3366'; icon = '🔒'; }
+        if (type === 'password') { color = '#ff4d4d'; icon = '🔒'; }
 
         const angle = (idx / Math.max(1, items.length)) * Math.PI * 2;
         const radius = 150 + Math.random() * 120;
@@ -200,7 +200,7 @@
           id: tagNodeId,
           label: '#' + tag,
           type: 'tag',
-          color: '#00e5ff',
+          color: '#e1e100',
           icon: '🏷️',
           radius: 9 + Math.min(8, itemIds.length * 2),
           x: this.width / 2 + (Math.random() - 0.5) * 300,
@@ -218,7 +218,7 @@
             source: this.nodeMap.get(itemId),
             target: tagNode,
             length: this.options.springLength,
-            color: 'rgba(0, 229, 255, 0.35)'
+            color: 'rgba(225, 225, 0, 0.35)'
           });
         });
       });
@@ -231,7 +231,7 @@
             id: domNodeId,
             label: domain,
             type: 'domain',
-            color: '#c4b5fd',
+            color: '#d6f264',
             icon: '🌐',
             radius: 11,
             x: this.width / 2 + (Math.random() - 0.5) * 400,
@@ -249,7 +249,7 @@
               source: this.nodeMap.get(itemId),
               target: domNode,
               length: this.options.springLength * 1.2,
-              color: 'rgba(196, 181, 253, 0.25)'
+              color: 'rgba(144, 184, 0, 0.25)'
             });
           });
         }
@@ -354,7 +354,7 @@
         this.ctx.beginPath();
         this.ctx.moveTo(edge.source.x, edge.source.y);
         this.ctx.lineTo(edge.target.x, edge.target.y);
-        this.ctx.strokeStyle = isHovered ? '#00e5ff' : edge.color;
+        this.ctx.strokeStyle = isHovered ? '#e1e100' : edge.color;
         this.ctx.lineWidth = isHovered ? 2.5 : 1.2;
         this.ctx.stroke();
       }

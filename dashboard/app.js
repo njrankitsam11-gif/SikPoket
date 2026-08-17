@@ -1118,10 +1118,10 @@ function openReaderMode(item) {
   // Handle WikiLink pill clicks
   bodyEl.querySelectorAll('.wikilink-pill').forEach(pill => {
     pill.style.cursor = 'pointer';
-    pill.style.background = 'rgba(121, 82, 255, 0.2)';
+    pill.style.background = 'rgba(144, 184, 0, 0.2)';
     pill.style.padding = '2px 6px';
     pill.style.borderRadius = '4px';
-    pill.style.color = '#00e5ff';
+    pill.style.color = '#e1e100';
     pill.addEventListener('click', (e) => {
       e.stopPropagation();
       const targetTitle = pill.dataset.wikilink.toLowerCase();
