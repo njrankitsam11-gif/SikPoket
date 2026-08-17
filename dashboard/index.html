@@ -87,14 +87,18 @@
         <div id="sidebar-tags" class="sidebar-tags"></div>
       </nav>
 
-      <div class="sidebar-footer">
-        <button class="sidebar-footer-btn" id="import-btn">
-          <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 3v10M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div class="sidebar-footer" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <button class="sidebar-footer-btn" id="import-btn" title="Import JSON backup">
+          <svg viewBox="0 0 20 20" fill="none" width="13"><path d="M10 3v10M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           Import
         </button>
-        <button class="sidebar-footer-btn" id="export-btn">
-          <svg viewBox="0 0 20 20" fill="none" width="14"><path d="M10 13V3M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          Export
+        <button class="sidebar-footer-btn" id="export-btn" title="Export JSON backup">
+          <svg viewBox="0 0 20 20" fill="none" width="13"><path d="M10 13V3M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          JSON
+        </button>
+        <button class="sidebar-footer-btn" id="export-html-btn" title="Export Netscape HTML bookmarks for browser import">
+          <svg viewBox="0 0 20 20" fill="none" width="13"><path d="M4 4h12v12H4z" stroke="currentColor" stroke-width="1.5"/><path d="M4 8h12M8 4v12" stroke="currentColor" stroke-width="1.5"/></svg>
+          HTML
         </button>
         <button class="sidebar-footer-btn" id="logout-btn" style="background: transparent; border-color: rgba(224,83,83,0.2); color: #e05353;" title="Logout">
           Logout
@@ -262,9 +266,30 @@
     </div>
   </div>
 
+  <!-- ══ QR CODE MODAL ════════════════════════ -->
+  <div class="modal hidden" id="qr-modal">
+    <div class="modal-card" style="max-width:340px;text-align:center;">
+      <div class="modal-header">
+        <h2 id="dashboard-qr-title">📱 Mobile QR Code</h2>
+        <button class="modal-close" id="dashboard-qr-close">✕</button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;align-items:center;padding:20px 16px;">
+        <div style="background:#ffffff;padding:12px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.5);margin-bottom:14px;">
+          <canvas id="dashboard-qr-canvas" style="display:block;max-width:100%;height:auto;"></canvas>
+        </div>
+        <p id="dashboard-qr-url" style="font-size:12px;color:var(--muted);word-break:break-all;max-height:60px;overflow-y:auto;margin:0 0 16px 0;width:100%;text-align:center;"></p>
+        <div style="display:flex;gap:8px;width:100%;">
+          <button id="dashboard-qr-copy-btn" class="btn-save" style="flex:1;">📋 Copy URL</button>
+          <button id="dashboard-qr-cancel-btn" class="btn-cancel" style="flex:1;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <input type="file" id="import-file" accept=".json" style="display:none">
   <div class="toast hidden" id="toast"></div>
 
+  <script src="../qr-helper.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

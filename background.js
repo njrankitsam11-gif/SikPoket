@@ -184,3 +184,79 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     message: title
   });
 });
+
+// Omnibox keyword search ('sik <query>')
+function escapeXml(unsafe) {
+  return String(unsafe || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+if (chrome.omnibox) {
+  chrome.omnibox.setDefaultSuggestion({
+    description: 'Search SikPoket bookmarks and notes for <match>%s</match>'
+  });
+
+  chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
+    const q = text.trim().toLowerCase();
+    if (!q) return;
+
+    try {
+      const data = await chrome.storage.local.get(['sikpoketData']);
+      const allData = data.sikpoketData || { urls: [], notes: [] };
+      const results = [];
+
+      const urls = (allData.urls || []).filter(u => !u.archived);
+      for (const item of urls) {
+        const title = item.title || item.url || '';
+        const url = item.url || '';
+        const tags = (item.tags || []).join(' ');
+        if (title.toLowerCase().includes(q) || url.toLowerCase().includes(q) || tags.toLowerCase().includes(q)) {
+          results.push({
+            content: url,
+            description: `<match>${escapeXml(title)}</match> - <dim>${escapeXml(url)}</dim>`
+          });
+        }
+        if (results.length >= 6) break;
+      }
+
+      if (results.length < 6) {
+        const notes = (allData.notes || []).filter(n => !n.archived);
+        for (const item of notes) {
+          const title = item.title || 'Note';
+          const content = item.content || '';
+          if (title.toLowerCase().includes(q) || content.toLowerCase().includes(q)) {
+            results.push({
+              content: chrome.runtime.getURL('dashboard/index.html?search=' + encodeURIComponent(q)),
+              description: `<match>Note: ${escapeXml(title)}</match> - <dim>${escapeXml(content.substring(0, 50))}</dim>`
+            });
+          }
+          if (results.length >= 6) break;
+        }
+      }
+
+      suggest(results);
+    } catch (e) {
+      console.warn('Omnibox search error:', e);
+    }
+  });
+
+  chrome.omnibox.onInputEntered.addListener((text, disposition) => {
+    let targetUrl = text.trim();
+    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://') && !targetUrl.startsWith('chrome-extension://')) {
+      targetUrl = chrome.runtime.getURL('dashboard/index.html?search=' + encodeURIComponent(targetUrl));
+    }
+
+    if (disposition === 'currentTab') {
+      chrome.tabs.update({ url: targetUrl });
+    } else if (disposition === 'newForegroundTab') {
+      chrome.tabs.create({ url: targetUrl, active: true });
+    } else if (disposition === 'newBackgroundTab') {
+      chrome.tabs.create({ url: targetUrl, active: false });
+    }
+  });
+}
+

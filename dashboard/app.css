@@ -991,3 +991,19 @@ kbd {
   letter-spacing: .03em;
   flex-shrink: 0;
 }
+
+/* Reading Time Badges */
+.card-read-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+  background: rgba(144, 152, 212, 0.08);
+  border: 1px solid rgba(144, 152, 212, 0.18);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+  width: fit-content;
+}
+

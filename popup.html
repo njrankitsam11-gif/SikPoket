@@ -319,6 +319,15 @@
         </div>
       </div>
 
+      <div class="sp-setting-block">
+        <div class="sp-setting-label">💾 Data Export & Bookmarks</div>
+        <p class="sp-setting-desc">Export your bookmarks for Chrome, Safari, Firefox, or encrypted JSON backup.</p>
+        <div class="sp-setting-actions" style="margin-top:8px;display:flex;gap:6px;">
+          <button id="export-html-btn" class="sp-setting-btn" style="flex:1;">🌐 Export HTML</button>
+          <button id="export-json-btn" class="sp-setting-btn" style="flex:1;">🔒 Export JSON</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -498,11 +507,29 @@
     <div class="sp-guide-footer">
       <span class="sp-guide-footer-tag">🔒 100% Local-First & Encrypted</span>
       <button class="sp-guide-footer-btn" id="guide-open-dash-btn">Open Dashboard &rarr;</button>
+  <!-- ══ QR CODE MODAL ════════════════════════ -->
+  <div class="sp-modal-bg" id="qr-modal">
+    <div class="sp-modal" style="text-align:center;">
+      <div class="sp-modal-head">
+        <span id="qr-modal-title">📱 Mobile QR Code</span>
+        <button class="sp-modal-close close-modal" data-modal="qr-modal">✕</button>
+      </div>
+      <div class="sp-modal-body" style="display:flex;flex-direction:column;align-items:center;padding:16px;">
+        <div style="background:#fff;padding:12px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.4);margin-bottom:12px;">
+          <canvas id="qr-canvas" style="display:block;max-width:100%;height:auto;"></canvas>
+        </div>
+        <p id="qr-url-text" style="font-size:11px;color:var(--c-txt2);word-break:break-all;max-height:45px;overflow-y:auto;margin:0 0 14px 0;width:100%;text-align:center;padding:0 8px;"></p>
+        <div style="display:flex;gap:8px;width:100%;">
+          <button id="qr-copy-btn" class="sp-btn" style="flex:1;">📋 Copy URL</button>
+          <button id="qr-close-btn" class="sp-btn sp-btn-secondary" style="flex:1;">Close</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script src="crypto-helper.js"></script>
+<script src="qr-helper.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>

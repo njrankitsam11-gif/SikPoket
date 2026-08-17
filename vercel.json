@@ -4,11 +4,11 @@
     { "source": "/", "destination": "/dashboard/index.html" },
     { "source": "/dashboard", "destination": "/dashboard/index.html" },
     { "source": "/dashboard/", "destination": "/dashboard/index.html" },
+    { "source": "/standalone", "destination": "/dashboard/standalone.html" },
+    { "source": "/standalone.html", "destination": "/dashboard/standalone.html" },
+    { "source": "/qr-helper.js", "destination": "/qr-helper.js" },
     { "source": "/app.css", "destination": "/dashboard/app.css" },
     { "source": "/app.js", "destination": "/dashboard/app.js" },
-    { "source": "/dashboard-init.js", "destination": "/dashboard/dashboard-init.js" },
-    { "source": "/auth", "destination": "/dashboard/auth.html" },
-    { "source": "/auth.html", "destination": "/dashboard/auth.html" },
-    { "source": "/auth.js", "destination": "/dashboard/auth.js" }
+    { "source": "/privacy", "destination": "/PRIVACY_POLICY.md" }
   ]
 }

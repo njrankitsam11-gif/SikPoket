@@ -193,6 +193,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('save-article-btn')?.addEventListener('click', saveArticle);
   exportBtn?.addEventListener('click', exportData);
   dashboardExportBtn?.addEventListener('click', dashboardExport);
+  $('export-html-btn')?.addEventListener('click', exportHtmlBookmarks);
+  $('export-json-btn')?.addEventListener('click', exportData);
+  $('qr-close-btn')?.addEventListener('click', () => toggleModal('qr-modal', false));
+  $('qr-copy-btn')?.addEventListener('click', async () => {
+    const url = $('qr-url-text')?.textContent;
+    if (url) {
+      await copyToClipboard(url);
+      const btn = $('qr-copy-btn');
+      if (btn) {
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy URL'; }, 1800);
+      }
+    }
+  });
   lockBtn?.addEventListener('click', lock);
   settingsBtn?.addEventListener('click', () => toggleModal('settings-modal', true));
 
@@ -420,7 +434,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const reminderKey = `sikpoketReminder_${type}_${item.id}`;
       const hasReminder = !!localStorage.getItem(reminderKey);
       const remBtn = `<button class="sp-act sp-reminder-btn${hasReminder?' sp-reminder-set':''}" data-id="${item.id}" data-type="${type||''}" title="${hasReminder?'Edit reminder':'Set reminder'}">🔔</button>`;
-      return `<div class="sp-card-acts" style="position:relative">${favBtn(item)}${archBtn(item)}${remBtn}${editBtn(item)}${delBtn(item)}</div>`;
+      const qrBtn = item.url ? `<button class="sp-act sp-qr-btn" data-id="${item.id}" data-type="${type||''}" data-url="${esc(item.url)}" title="View Mobile QR Code">📱</button>` : '';
+      return `<div class="sp-card-acts" style="position:relative">${favBtn(item)}${archBtn(item)}${qrBtn}${remBtn}${editBtn(item)}${delBtn(item)}</div>`;
     }
 
     function renderUrls(urls) {
@@ -534,12 +549,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ${cardActions(n, 'notes')}
               </div>`;
             }
+            const readingInfo = window.QRCodeGenerator?.estimateReadingTime(n.content);
+            const readingBadge = readingInfo ? `<span class="sp-read-badge">${esc(readingInfo.badgeText)}</span>` : '';
             return `<div class="sp-card${selectMode?' sp-card-selectable':''}${selectedItems.has('notes:'+n.id)?' sp-selected':''}" data-id="${n.id}">
               <div class="sp-card-check"></div>
               <div class="sp-fav sp-fav-note"><span>${isArticle?'📄':'📝'}</span></div>
               <div class="sp-card-body">
                 <span class="sp-card-title sp-card-title-clickable ${isArticle?'article-note-title':''}">${esc(n.title)}</span>
                 <span class="sp-card-sub">${esc((n.content||'').substring(0,80))}${(n.content||'').length>80?'…':''}</span>
+                ${readingBadge}
                 ${renderTags(n.tags)}
               </div>
               ${cardActions(n, 'notes')}
@@ -583,6 +601,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     container?.querySelectorAll('.archive-btn').forEach(btn => btn.addEventListener('click', () => toggleArchive(btn.dataset.id, type)));
     // Reminder buttons
     container?.querySelectorAll('.sp-reminder-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openReminderPopover(btn, btn.dataset.id, btn.dataset.type || type); }));
+    // QR code modal buttons
+    container?.querySelectorAll('.sp-qr-btn').forEach(btn => btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openQrModal(btn.dataset.url, btn.closest('.sp-card')?.querySelector('.sp-card-title')?.textContent || 'Bookmark');
+    }));
     // Batch select checkboxes
     container?.querySelectorAll('.sp-card-check').forEach(chk => {
       chk.addEventListener('click', (e) => {
@@ -805,6 +828,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     a.download = `sikpoket-export-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function exportHtmlBookmarks() {
+    if (!window.QRCodeGenerator) return;
+    const htmlContent = QRCodeGenerator.exportNetscapeBookmarks(allData.urls || []);
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sikpoket-bookmarks-${new Date().toISOString().split('T')[0]}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function openQrModal(url, title) {
+    if (!url) return;
+    const modal = $('qr-modal');
+    const canvas = $('qr-canvas');
+    const urlText = $('qr-url-text');
+    const modalTitle = $('qr-modal-title');
+    if (urlText) urlText.textContent = url;
+    if (modalTitle) modalTitle.textContent = '📱 ' + (title || 'QR Code');
+    if (canvas && window.QRCodeGenerator) {
+      QRCodeGenerator.renderToCanvas(canvas, url, { size: 180 });
+    }
+    toggleModal('qr-modal', true);
   }
 
   async function dashboardExport() {

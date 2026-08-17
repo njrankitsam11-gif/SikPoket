@@ -248,9 +248,15 @@ function cardHtml(item, lm) {
   const date = new Date(item.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
   let th = item.type==='url'&&item.url ? `<a class="card-title" href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.title||item.url)}</a>` : `<span class="card-title">${esc(item.title||item.name||'Untitled')}</span>`;
   let dh = ''; if(item.type==='url'&&item.url) try{dh=`<span class="card-domain">${new URL(item.url).hostname}</span>`}catch{} else if((item.type==='key'||item.type==='password')&&item.username)dh=`<span class="card-domain">${esc(item.username)}</span>`;
-  let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt">${esc(item.content)}</div>`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" data-action="copy-secret" title="Click to copy secret">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
+  let readBadge = '';
+  if (item.type === 'note' && item.content && window.QRCodeGenerator) {
+    const readInfo = QRCodeGenerator.estimateReadingTime(item.content);
+    if (readInfo) readBadge = `<div class="card-read-badge">${esc(readInfo.badgeText)}</div>`;
+  }
+  let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt">${esc(item.content)}</div>${readBadge}`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" data-action="copy-secret" title="Click to copy secret">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
   const thtml = (item.tags||[]).length?`<div class="card-tags">${item.tags.map(t=>`<span class="card-tag" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>`:'';
-  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions"><button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
+  const qrBtn = item.type==='url'&&item.url ? `<button class="card-action-btn" data-action="qr" data-id="${item.id}" data-url="${esc(item.url)}" title="View Mobile QR Code">📱</button>` : '';
+  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions">${qrBtn}<button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
 }
 
 function attachCardEventDelegation() {
@@ -269,6 +275,7 @@ function attachCardEventDelegation() {
       else if (action === 'edit') openEdit(id);
       else if (action === 'delete') confirmDelete(id);
       else if (action === 'copy-secret') copySecret(id);
+      else if (action === 'qr') openDashboardQrModal(actBtn.dataset.url, actBtn.closest('.item-card')?.querySelector('.card-title')?.textContent);
       return;
     }
 
@@ -605,7 +612,39 @@ function deleteActiveSpace() {
 /* ── EXPORT/IMPORT ───────────────────── */
 function exportItems() {
   const blob=new Blob([JSON.stringify({version:2,spaces:state.spaces,activeSpace:state.activeSpace},null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`sikpoket-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);toast('Exported!','success');
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`sikpoket-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);toast('Exported JSON!','success');
+}
+function exportNetscapeHtml() {
+  const space = getActiveSpace();
+  const allUrls = space ? (space.items || []).filter(i => i.type === 'url' && i.url) : [];
+  if (window.QRCodeGenerator) {
+    const html = QRCodeGenerator.exportNetscapeBookmarks(allUrls);
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sikpoket-bookmarks-${new Date().toISOString().slice(0,10)}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Exported HTML Bookmarks!', 'success');
+  }
+}
+function openDashboardQrModal(url, title) {
+  if (!url) return;
+  const modal = document.getElementById('qr-modal');
+  const canvas = document.getElementById('dashboard-qr-canvas');
+  const urlText = document.getElementById('dashboard-qr-url');
+  const titleEl = document.getElementById('dashboard-qr-title');
+  if (urlText) urlText.textContent = url;
+  if (titleEl) titleEl.textContent = '📱 ' + (title || 'QR Code');
+  if (canvas && window.QRCodeGenerator) {
+    QRCodeGenerator.renderToCanvas(canvas, url, { size: 200 });
+  }
+  if (modal) modal.classList.remove('hidden');
+}
+function closeDashboardQrModal() {
+  const modal = document.getElementById('qr-modal');
+  if (modal) modal.classList.add('hidden');
 }
 function importFile(e) {
   const f=e.target.files[0];if(!f)return;const r=new FileReader();
@@ -651,6 +690,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('item-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
   document.getElementById('item-form').addEventListener('submit',handleFormSubmit);
   document.getElementById('export-btn').addEventListener('click',exportItems);
+  document.getElementById('export-html-btn')?.addEventListener('click', exportNetscapeHtml);
+  document.getElementById('dashboard-qr-close')?.addEventListener('click', closeDashboardQrModal);
+  document.getElementById('dashboard-qr-cancel-btn')?.addEventListener('click', closeDashboardQrModal);
+  document.getElementById('qr-modal')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeDashboardQrModal(); });
+  document.getElementById('dashboard-qr-copy-btn')?.addEventListener('click', async () => {
+    const url = document.getElementById('dashboard-qr-url')?.textContent;
+    if (url) {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('dashboard-qr-copy-btn');
+      if (btn) {
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy URL'; }, 1800);
+      }
+      toast('Copied URL!', 'success');
+    }
+  });
   document.getElementById('import-btn').addEventListener('click',()=>document.getElementById('import-file').click());
   document.getElementById('import-file').addEventListener('change',importFile);
   document.getElementById('tag-strip-clear').addEventListener('click',()=>{state.tag=null;updateTagStrip();render();});
