@@ -5,8 +5,8 @@
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-:root {
-  /* Color Hunt Palette: #063b00, #266210, #90b800, #e1e100 */
+:root, html[data-theme="forest"] {
+  /* Color Hunt 1: Electric Forest (#063b00, #266210, #90b800, #e1e100) */
   --c-base:     #030e01;
   --c-surface:  #063b00;
   --c-raise:    #0d2705;
@@ -26,6 +26,46 @@
   --r:          8px;
   --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
   --wallpaper-url: none;
+}
+
+html[data-theme="sunset"] {
+  /* Color Hunt 2: Neon Sunset (#443199, #792ca2, #c13383, #e05454) */
+  --c-base:     #120826;
+  --c-surface:  #443199;
+  --c-raise:    #25154d;
+  --c-border:   rgba(193, 51, 131, 0.25);
+  --c-border2:  rgba(224, 84, 84, 0.45);
+  --c-acc:      #c13383;
+  --c-acc-dim:  rgba(193, 51, 131, 0.2);
+  --c-acc-glow: rgba(193, 51, 131, 0.45);
+  --c-cyan:     #e05454;
+  --c-emerald:  #c13383;
+  --c-txt:      #fff0f6;
+  --c-txt2:     #dfc0ec;
+  --c-txt3:     #9978bd;
+  --c-danger:   #ff3366;
+  --c-warn:     #e05454;
+  --c-ok:       #c13383;
+}
+
+html[data-theme="obsidian"] {
+  /* Cyber Obsidian */
+  --c-base:     #07070a;
+  --c-surface:  #0e1017;
+  --c-raise:    #141724;
+  --c-border:   rgba(255, 255, 255, 0.08);
+  --c-border2:  rgba(255, 255, 255, 0.16);
+  --c-acc:      #7952ff;
+  --c-acc-dim:  rgba(121, 82, 255, 0.15);
+  --c-acc-glow: rgba(121, 82, 255, 0.35);
+  --c-cyan:     #00e5ff;
+  --c-emerald:  #00f2a9;
+  --c-txt:      #f3f4f6;
+  --c-txt2:     #9ca3af;
+  --c-txt3:     #4b5563;
+  --c-danger:   #ff3366;
+  --c-warn:     #ffaa00;
+  --c-ok:       #00f2a9;
 }
 
 /* ── BASE ──────────────────────────────────── */

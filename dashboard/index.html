@@ -21,10 +21,9 @@
   </script>
   <style>
 /* ============================================================
-   SikPoket Dashboard — Electric Forest Cyber-Glass Theme
-   Color Palette: #063b00, #266210, #90b800, #e1e100
+   SikPoket Dashboard — Dynamic Multi-Theme Cyber-Glass Engine
    ============================================================ */
-:root {
+:root, html[data-theme="forest"] {
   --bg:            #030e01;
   --surface:       #063b00;
   --surface-2:     #0d2705;
@@ -55,6 +54,10 @@
   --glow-lime:     rgba(144, 184, 0, 0.4);
   --glow-gold:     rgba(225, 225, 0, 0.35);
 
+  --mesh-bg-1:     rgba(144, 184, 0, 0.22);
+  --mesh-bg-2:     rgba(225, 225, 0, 0.16);
+  --mesh-bg-3:     rgba(38, 98, 16, 0.32);
+
   --r-sm: 6px;
   --r-md: 10px;
   --r-lg: 16px;
@@ -62,6 +65,78 @@
   --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --sidebar-w: 245px;
+}
+
+html[data-theme="sunset"] {
+  --bg:            #120826;
+  --surface:       #443199;
+  --surface-2:     #25154d;
+  --surface-glass: rgba(68, 49, 153, 0.82);
+  --card-glass:    rgba(45, 22, 92, 0.75);
+
+  --primary:       #c13383;
+  --primary-2:     #792ca2;
+  --brand-soft:    #ff94c2;
+  --accent-gold:   #e05454;
+  --cyan:          #ff80bf;
+  --emerald:       #e05454;
+  --amber:         #e05454;
+  --rose:          #ff3366;
+
+  --green:         #e05454;
+  --danger:        #ff3366;
+  --warning:       #e05454;
+  --success:       #c13383;
+
+  --on-surface:    #fff0f6;
+  --on-variant:    #dfc0ec;
+  --muted:         #9978bd;
+
+  --outline:       rgba(193, 51, 131, 0.25);
+  --outline-hover: rgba(224, 84, 84, 0.65);
+  --divider:       rgba(193, 51, 131, 0.15);
+  --glow-lime:     rgba(193, 51, 131, 0.45);
+  --glow-gold:     rgba(224, 84, 84, 0.4);
+
+  --mesh-bg-1:     rgba(224, 84, 84, 0.22);
+  --mesh-bg-2:     rgba(193, 51, 131, 0.22);
+  --mesh-bg-3:     rgba(68, 49, 153, 0.38);
+}
+
+html[data-theme="obsidian"] {
+  --bg:            #07070a;
+  --surface:       #0e1017;
+  --surface-2:     #141724;
+  --surface-glass: rgba(15, 17, 26, 0.82);
+  --card-glass:    rgba(18, 21, 32, 0.75);
+
+  --primary:       #7952ff;
+  --primary-2:     #6338f0;
+  --brand-soft:    #c4b5fd;
+  --accent-gold:   #00e5ff;
+  --cyan:          #00e5ff;
+  --emerald:       #00f2a9;
+  --amber:         #ffaa00;
+  --rose:          #ff3366;
+
+  --green:         #00f2a9;
+  --danger:        #ff3366;
+  --warning:       #ffaa00;
+  --success:       #00f2a9;
+
+  --on-surface:    #f3f4f6;
+  --on-variant:    #9ca3af;
+  --muted:         #6b7280;
+
+  --outline:       rgba(255, 255, 255, 0.08);
+  --outline-hover: rgba(121, 82, 255, 0.45);
+  --divider:       rgba(255, 255, 255, 0.06);
+  --glow-lime:     rgba(121, 82, 255, 0.35);
+  --glow-gold:     rgba(0, 229, 255, 0.25);
+
+  --mesh-bg-1:     rgba(121, 82, 255, 0.18);
+  --mesh-bg-2:     rgba(0, 229, 255, 0.14);
+  --mesh-bg-3:     rgba(0, 242, 169, 0.06);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -73,14 +148,15 @@ body {
   font-family: var(--font) !important;
   background-color: var(--bg) !important;
   background-image: 
-    radial-gradient(circle at 10% 5%, rgba(144, 184, 0, 0.22) 0%, transparent 45%),
-    radial-gradient(circle at 90% 90%, rgba(225, 225, 0, 0.16) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(38, 98, 16, 0.32) 0%, transparent 60%) !important;
+    radial-gradient(circle at 10% 5%, var(--mesh-bg-1) 0%, transparent 45%),
+    radial-gradient(circle at 90% 90%, var(--mesh-bg-2) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, var(--mesh-bg-3) 0%, transparent 60%) !important;
   background-attachment: fixed !important;
   color: var(--on-surface) !important;
   font-size: 13px; line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
 .app { display: flex; height: 100vh; overflow: hidden; position: relative; background: transparent; z-index: 1; }
@@ -325,7 +401,11 @@ a.card-title:hover { color: var(--accent-gold); }
           <h1 id="view-title">All Items</h1>
           <span class="view-count" id="view-count">0 items</span>
         </div>
-        <div class="topbar-right">
+          <select id="theme-switcher" class="topbar-select" title="Switch Color Palette Theme">
+            <option value="forest">🌲 Electric Forest</option>
+            <option value="sunset">🌆 Neon Sunset</option>
+            <option value="obsidian">🌌 Cyber Obsidian</option>
+          </select>
           <select id="sort-select" class="topbar-select">
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>

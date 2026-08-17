@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   try {
+  const currentTheme = localStorage.getItem('sik_theme') || 'forest';
+  document.documentElement.setAttribute('data-theme', currentTheme);
   const $ = id => document.getElementById(id);
   const tabs = document.querySelectorAll('.sp-tab');
   const tabContents = document.querySelectorAll('.sp-section');
