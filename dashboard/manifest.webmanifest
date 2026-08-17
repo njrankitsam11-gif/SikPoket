@@ -1,0 +1,29 @@
+{
+  "name": "SikPoket - Secure Bookmark Manager",
+  "short_name": "SikPoket",
+  "description": "Save URLs, API keys, passwords, and articles securely with client-side encryption, custom spaces, and wallpaper studio.",
+  "start_url": "/dashboard/index.html",
+  "display": "standalone",
+  "background_color": "#120f0d",
+  "theme_color": "#161210",
+  "orientation": "any",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

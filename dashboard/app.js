@@ -513,6 +513,30 @@ function setupWallpaperStudioControls() {
       renderWallpaperPresets(currentUrl, bundle);
     });
   });
+
+  // Ambient Sound buttons
+  document.querySelectorAll('.btn-sound-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-sound-preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const soundId = btn.dataset.sound;
+      if (soundId === 'none') {
+        window.AudioHelper?.stop();
+        toast('Ambient sound muted', 'error');
+      } else if (window.AudioHelper) {
+        const vol = (parseInt(document.getElementById('ambient-sound-volume')?.value || '35')) / 100;
+        window.AudioHelper.play(soundId, vol);
+        toast(`Playing ${btn.textContent}`, 'success');
+      }
+    });
+  });
+
+  document.getElementById('ambient-sound-volume')?.addEventListener('input', (e) => {
+    const vol = parseInt(e.target.value);
+    const volLabel = document.getElementById('sound-vol-val');
+    if (volLabel) volLabel.textContent = vol + '%';
+    if (window.AudioHelper) window.AudioHelper.setVolume(vol / 100);
+  });
 }
 
 window.openSpaceSettings = function(id) {

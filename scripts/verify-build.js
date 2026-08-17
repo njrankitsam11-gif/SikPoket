@@ -137,6 +137,8 @@ const jsFilesToCheck = [
   'crypto-helper.js',
   'qr-helper.js',
   'ai-helper.js',
+  'audio-helper.js',
+  'sync-helper.js',
   'dashboard/app.js',
   'unlock.js'
 ];

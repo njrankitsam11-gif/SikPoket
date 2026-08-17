@@ -757,12 +757,35 @@ kbd { display: inline-flex; align-items: center; justify-content: center; backgr
             </div>
           </div>
         </div>
+        <!-- Ambient Focus Soundscapes -->
+        <div class="form-group" style="margin-top:14px;">
+          <div class="space-section-header">
+            <label>🎵 Ambient Focus Soundscapes (Offline Web Audio)</label>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="ambient-sound-buttons">
+            <button type="button" class="btn-sound-preset active" data-sound="none">🔇 Off</button>
+            <button type="button" class="btn-sound-preset" data-sound="rain">🌧️ Rain</button>
+            <button type="button" class="btn-sound-preset" data-sound="lofi">☕ Lo-Fi</button>
+            <button type="button" class="btn-sound-preset" data-sound="binaural">🧘 432Hz</button>
+            <button type="button" class="btn-sound-preset" data-sound="cafe">🥐 Cafe</button>
+          </div>
+          <div class="slider-row" style="padding:0 4px;">
+            <div class="slider-label-row">
+              <span>Sound Volume</span>
+              <span class="slider-val" id="sound-vol-val">35%</span>
+            </div>
+            <input type="range" id="ambient-sound-volume" min="0" max="100" value="35" step="1">
+          </div>
+        </div>
+
         <div class="form-actions-modal">
           <button type="button" class="btn-cancel" id="space-modal-cancel">Cancel</button>
           <button type="submit" class="btn-save">Apply & Save Space</button>
         </div>
       </form>
     </div>
+  </div>
+
   <!-- ══ QR CODE MODAL ════════════════════════ -->
   <div class="modal-overlay hidden" id="qr-modal">
     <div class="modal-card" style="max-width:340px;text-align:center;">
@@ -788,6 +811,7 @@ kbd { display: inline-flex; align-items: center; justify-content: center; backgr
 
   <script src="../qr-helper.js"></script>
   <script src="../ai-helper.js"></script>
+  <script src="../audio-helper.js"></script>
 
 <!-- ══════════════════════════════════════════
      JAVASCRIPT — Auth + Full Dashboard

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" width="440" height="280">
+  <defs>
+    <radialGradient id="smGrad" cx="50%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#241a30"/>
+      <stop offset="100%" stop-color="#0f0c13"/>
+    </radialGradient>
+  </defs>
+  <rect width="440" height="280" fill="url(#smGrad)"/>
+  <circle cx="220" cy="140" r="120" fill="#7c6af7" opacity="0.25" filter="blur(40px)"/>
+  
+  <g transform="translate(220, 75)">
+    <rect x="-24" y="-24" width="48" height="48" rx="12" fill="#7c6af7"/>
+    <text x="0" y="8" text-anchor="middle" font-size="24">🔐</text>
+  </g>
+  
+  <text text-anchor="middle" x="220" y="145" font-family="sans-serif" font-size="28" font-weight="800" fill="#ffffff" letter-spacing="-0.5">SikPoket</text>
+  <text text-anchor="middle" x="220" y="172" font-family="sans-serif" font-size="13" font-weight="500" fill="#c4b5fd">Secure Bookmarks, Side Panel &amp; Notes</text>
+  <text text-anchor="middle" x="220" y="215" font-family="sans-serif" font-size="11" font-weight="700" fill="#9ca3af" letter-spacing="1">100% LOCAL-FIRST • ZERO-KNOWLEDGE</text>
+</svg>

@@ -38,6 +38,8 @@ const includes = [
   'crypto-helper.js',
   'qr-helper.js',
   'ai-helper.js',
+  'audio-helper.js',
+  'sync-helper.js',
   'sidepanel.html',
   'popup.html',
   'popup.js',

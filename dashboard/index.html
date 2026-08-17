@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -257,6 +258,27 @@
             </div>
           </div>
 
+          <!-- Ambient Focus Soundscapes -->
+          <div class="form-group" style="margin-top:14px;">
+            <div class="space-section-header">
+              <label>🎵 Ambient Focus Soundscapes (Offline Web Audio)</label>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="ambient-sound-buttons">
+              <button type="button" class="btn-sound-preset active" data-sound="none">🔇 Off</button>
+              <button type="button" class="btn-sound-preset" data-sound="rain">🌧️ Rain</button>
+              <button type="button" class="btn-sound-preset" data-sound="lofi">☕ Lo-Fi</button>
+              <button type="button" class="btn-sound-preset" data-sound="binaural">🧘 432Hz</button>
+              <button type="button" class="btn-sound-preset" data-sound="cafe">🥐 Cafe</button>
+            </div>
+            <div class="slider-row" style="padding:0 4px;">
+              <div class="slider-label-row">
+                <span>Sound Volume</span>
+                <span class="slider-val" id="sound-vol-val">35%</span>
+              </div>
+              <input type="range" id="ambient-sound-volume" min="0" max="100" value="35" step="1">
+            </div>
+          </div>
+
           <div class="form-actions-modal">
             <button type="button" class="btn-cancel" id="space-modal-cancel">Cancel</button>
             <button type="submit" class="btn-save">Apply & Save Space</button>
@@ -291,6 +313,14 @@
 
   <script src="../qr-helper.js"></script>
   <script src="../ai-helper.js"></script>
+  <script src="../audio-helper.js"></script>
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
