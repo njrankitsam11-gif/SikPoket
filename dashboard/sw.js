@@ -3,7 +3,7 @@
  * Provides offline caching and instant loading for PWA desktop mode.
  */
 
-const CACHE_NAME = 'sikpoket-pwa-v1.4.0';
+const CACHE_NAME = 'sikpoket-pwa-v1.5.2';
 const ASSETS_TO_CACHE = [
   '/dashboard/index.html',
   '/dashboard/app.css',
@@ -12,6 +12,9 @@ const ASSETS_TO_CACHE = [
   '/qr-helper.js',
   '/ai-helper.js',
   '/audio-helper.js',
+  '/search-helper.js',
+  '/graph-helper.js',
+  '/reader-helper.js',
   '/icons/icon16.png',
   '/icons/icon48.png',
   '/icons/icon128.png',
@@ -45,19 +48,17 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Stale-while-revalidate for local dashboard assets
   if (event.request.method !== 'GET') return;
+  // Network first for fresh styling updates, fallback to cache
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
+    fetch(event.request)
+      .then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
         }
         return networkResponse;
-      }).catch(() => cachedResponse);
-
-      return cachedResponse || fetchPromise;
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
