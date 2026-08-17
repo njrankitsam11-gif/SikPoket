@@ -6,23 +6,23 @@
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 :root {
-  /* Futuristic Dark Glassmorphism */
-  --c-base:     #07070a;
-  --c-surface:  #0e1017;
-  --c-raise:    #141724;
-  --c-border:   rgba(255, 255, 255, 0.08);
-  --c-border2:  rgba(255, 255, 255, 0.16);
-  --c-acc:      #7952ff;
-  --c-acc-dim:  rgba(121, 82, 255, 0.15);
-  --c-acc-glow: rgba(121, 82, 255, 0.35);
-  --c-cyan:     #00e5ff;
-  --c-emerald:  #00f2a9;
-  --c-txt:      #f3f4f6;
-  --c-txt2:     #9ca3af;
-  --c-txt3:     #4b5563;
-  --c-danger:   #ff3366;
-  --c-warn:     #ffaa00;
-  --c-ok:       #00f2a9;
+  /* Color Hunt Palette: #063b00, #266210, #90b800, #e1e100 */
+  --c-base:     #030e01;
+  --c-surface:  #063b00;
+  --c-raise:    #0d2705;
+  --c-border:   rgba(144, 184, 0, 0.18);
+  --c-border2:  rgba(144, 184, 0, 0.35);
+  --c-acc:      #90b800;
+  --c-acc-dim:  rgba(144, 184, 0, 0.15);
+  --c-acc-glow: rgba(144, 184, 0, 0.4);
+  --c-cyan:     #e1e100;
+  --c-emerald:  #90b800;
+  --c-txt:      #f4ffe6;
+  --c-txt2:     #b0cca0;
+  --c-txt3:     #678759;
+  --c-danger:   #ff4d4d;
+  --c-warn:     #e1e100;
+  --c-ok:       #90b800;
   --r:          8px;
   --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
   --wallpaper-url: none;
@@ -110,7 +110,7 @@ html, body {
 ═══════════════════════════════════════════════ */
 .sp-lock-screen {
   display: none; position: fixed; inset: 0; z-index: 9999;
-  background: radial-gradient(circle at 50% 30%, rgba(121,82,255,0.2) 0%, var(--c-base) 70%);
+  background: radial-gradient(circle at 50% 30%, rgba(144,184,0,0.2) 0%, var(--c-base) 70%);
   align-items: center; justify-content: center;
 }
 .sp-lock-screen.show { display: flex; }
@@ -120,18 +120,18 @@ html, body {
   display: flex; flex-direction: column; align-items: center;
   gap: 12px; padding: 36px 28px 28px;
   width: 320px;
-  background: #0f111b;
-  border: 1.5px solid rgba(121, 82, 255, 0.4);
+  background: #051e02;
+  border: 1.5px solid rgba(144, 184, 0, 0.45);
   border-radius: 16px;
   text-align: center;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 35px rgba(121,82,255,0.25);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.85), 0 0 35px rgba(144,184,0,0.25);
 }
 
 .sp-lock-glow {
   position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
   width: 220px; height: 180px;
-  background: radial-gradient(circle, rgba(121,82,255,0.3), transparent 70%);
+  background: radial-gradient(circle, rgba(144,184,0,0.35), transparent 70%);
   pointer-events: none;
 }
 

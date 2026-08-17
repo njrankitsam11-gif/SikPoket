@@ -3,7 +3,7 @@
  * Provides offline caching and instant loading for PWA desktop mode.
  */
 
-const CACHE_NAME = 'sikpoket-pwa-v1.5.2';
+const CACHE_NAME = 'sikpoket-pwa-v1.6.2';
 const ASSETS_TO_CACHE = [
   '/dashboard/index.html',
   '/dashboard/app.css',
