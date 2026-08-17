@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SikPoket - Secure Bookmark Manager",
   "description": "Save URLs, API keys, passwords, and articles securely",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "omnibox": {
     "keyword": "sik"
   },

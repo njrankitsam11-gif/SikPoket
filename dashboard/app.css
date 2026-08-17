@@ -9,45 +9,54 @@
 .hidden { display: none !important; }
 
 :root {
-  /* Ground — warm near-blacks, like wax-resist cloth in charcoal vat */
-  --bg:         #0d0b0a;
-  --surface:    #161210;
-  --surface-2:  #1e1916;
+  /* Futuristic Dark Glassmorphism Ground */
+  --bg:         #07070a;
+  --surface:    #0e1017;
+  --surface-2:  #141724;
 
-  /* Accent — deep indigo, the rarest dye; used with restraint */
-  --primary:    #4a4f8a;
-  --primary-2:  #3e4278;
-  --brand-soft: #9098d4;
+  /* Radiant Accents */
+  --primary:    #7952ff;
+  --primary-2:  #6338f0;
+  --brand-soft: #a78bfa;
+  --cyan:       #00e5ff;
+  --emerald:    #00f2a9;
+  --amber:      #ffaa00;
 
-  /* Semantic — steeped through natural vats, never printed */
-  --green:      #5a7a5f;   /* forest floor */
-  --danger:     #8b3a2a;   /* steeped crimson */
-  --warning:    #b8882a;   /* beaten gold */
-  --success:    #5a7a5f;   /* moss */
+  /* Semantic */
+  --green:      #00f2a9;
+  --danger:     #ff3366;
+  --warning:    #ffaa00;
+  --success:    #00f2a9;
 
-  /* Fiber — bone, unbleached, held thread */
-  --on-surface: #ede8e1;
-  --on-variant: #9b9188;
-  --muted:      #5c5349;
+  /* Fiber & Typography */
+  --on-surface: #f3f4f6;
+  --on-variant: #9ca3af;
+  --muted:      #6b7280;
 
-  /* Warp threads — structure, held at very low opacity */
-  --outline:    rgba(237, 232, 225, 0.06);
-  --outline-hover: rgba(237, 232, 225, 0.11);
-  --divider:    rgba(237, 232, 225, 0.05);
+  /* Glass borders and glow */
+  --outline:    rgba(255, 255, 255, 0.08);
+  --outline-hover: rgba(121, 82, 255, 0.45);
+  --divider:    rgba(255, 255, 255, 0.06);
+  --card-glass: rgba(18, 20, 32, 0.7);
 
-  /* Radius — restrained; no machine-perfect pills on structure */
-  --r-sm: 0.35rem;
-  --r-md: 0.5rem;
-  --r-lg: 0.65rem;
+  /* Radius */
+  --r-sm: 0.45rem;
+  --r-md: 0.75rem;
+  --r-lg: 1rem;
 
-  --font: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
-  --sidebar-w: 230px;
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --sidebar-w: 240px;
 }
 
 html, body { height: 100%; }
 body {
   font-family: var(--font);
-  background: radial-gradient(ellipse at 18% 0%, #1a1208 0%, #0d0b0a 65%);
+  background: var(--bg);
+  background-image: 
+    radial-gradient(circle at 10% 0%, rgba(121, 82, 255, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(0, 229, 255, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(0, 242, 169, 0.04) 0%, transparent 50%);
   color: var(--on-surface);
   font-size: 13px; line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -1026,6 +1035,95 @@ kbd {
   border-color: rgba(144, 152, 212, 0.3);
 }
 .btn-sound-preset.active {
+  background: rgba(121, 82, 255, 0.25);
+  color: #fff;
+  border-color: rgba(121, 82, 255, 0.6);
+  box-shadow: 0 0 12px rgba(121, 82, 255, 0.3);
+}
+
+/* ── COMMAND PALETTE (CMD + K) ────────────────── */
+.cmd-palette-backdrop {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(4, 5, 8, 0.82);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 15vh;
+  animation: cmdFadeIn 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+.cmd-palette-backdrop.hidden { display: none !important; }
+
+.cmd-palette-modal {
+  width: 100%; max-width: 620px;
+  background: #0f111a;
+  border: 1px solid rgba(121, 82, 255, 0.35);
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.8), 0 0 40px rgba(121, 82, 255, 0.2);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+.cmd-palette-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.cmd-palette-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: inherit; font-size: 16px; font-weight: 500;
+  color: #fff;
+}
+.cmd-palette-input::placeholder { color: var(--muted); }
+
+.cmd-palette-list {
+  max-height: 380px; overflow-y: auto; padding: 10px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.cmd-palette-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  color: var(--on-variant); transition: all 0.15s ease;
+  font-size: 13px; font-weight: 500;
+}
+.cmd-palette-item:hover, .cmd-palette-item.active {
+  background: rgba(121, 82, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(121, 82, 255, 0.35);
+}
+.cmd-item-left { display: flex; align-items: center; gap: 10px; }
+.cmd-item-badge {
+  font-size: 10px; font-family: 'JetBrains Mono', monospace;
+  padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.08);
+  color: var(--muted);
+}
+
+.cmd-palette-footer {
+  padding: 10px 20px; border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; color: var(--muted); background: rgba(7,7,10,0.5);
+}
+
+@keyframes cmdFadeIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── ANIMATED AUDIO WAVEFORM EQUALIZER ─────────── */
+.eq-bars {
+  display: inline-flex; align-items: flex-end; gap: 2px;
+  height: 12px; margin-left: 4px;
+}
+.eq-bar {
+  width: 2.5px; background: #00e5ff; border-radius: 2px;
+  animation: eqBounce 1s ease-in-out infinite alternate;
+}
+.eq-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+.eq-bar:nth-child(2) { height: 90%; animation-delay: 0.3s; }
+.eq-bar:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+.eq-bar:nth-child(4) { height: 100%; animation-delay: 0.4s; }
+
+@keyframes eqBounce {
+  0% { height: 20%; }
+  100% { height: 100%; }
+}
   background: var(--brand-glow);
   background: #7c6af7;
   color: #ffffff;

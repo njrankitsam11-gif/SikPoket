@@ -349,6 +349,24 @@
     </div>
   </div>
 
+  <!-- ══ COMMAND PALETTE (CMD + K) ════════════════════════ -->
+  <div class="cmd-palette-backdrop hidden" id="cmd-palette-backdrop">
+    <div class="cmd-palette-modal" id="cmd-palette-modal">
+      <div class="cmd-palette-header">
+        <svg viewBox="0 0 20 20" fill="none" width="18" style="color:#7952ff;"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input type="text" id="cmd-palette-input" class="cmd-palette-input" placeholder="Type a command or search your vault..." autocomplete="off">
+        <kbd style="font-size:11px;">ESC</kbd>
+      </div>
+      <div class="cmd-palette-list" id="cmd-palette-list">
+        <!-- Dynamically populated -->
+      </div>
+      <div class="cmd-palette-footer">
+        <span>Navigation: <kbd>↑</kbd> <kbd>↓</kbd> to select, <kbd>↵</kbd> to run</span>
+        <span style="color:#00e5ff;font-weight:600;">SikPoket Spotlight</span>
+      </div>
+    </div>
+  </div>
+
   <input type="file" id="import-file" accept=".json" style="display:none">
   <div class="toast hidden" id="toast"></div>
 

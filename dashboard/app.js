@@ -781,10 +781,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('space-wallpaper-file')?.click();
   });
   document.addEventListener('keydown',e=>{
+    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      toggleCommandPalette();
+    }
     if((e.key==='n'||e.key==='N')&&!e.ctrlKey&&!e.metaKey&&!['INPUT','TEXTAREA'].includes(document.activeElement.tagName))openAdd();
-    if(e.key==='Escape'){closeModal();closeSpaceModal();}
+    if(e.key==='Escape'){closeModal();closeSpaceModal();closeReaderMode();closeCommandPalette();}
     if(e.key==='Delete'&&e.ctrlKey){e.preventDefault();deleteActiveSpace();}
   });
+  initCommandPalette();
   if (!state.spaces.some(s => s.items?.length)) seedDemo();
   render(); updateBadges(); updateSidebarTags();
   setWallpaper();
@@ -1160,4 +1165,146 @@ function closeReaderMode() {
   }
   const playBtn = document.getElementById('reader-tts-play-btn');
   if (playBtn) playBtn.textContent = '▶ Play Audio (TTS)';
+}
+
+/* ── COMMAND PALETTE (CMD + K) ───────────── */
+let cmdSelectedIndex = 0;
+let currentCmdItems = [];
+
+function toggleCommandPalette() {
+  const backdrop = document.getElementById('cmd-palette-backdrop');
+  if (!backdrop) return;
+  if (backdrop.classList.contains('hidden')) openCommandPalette();
+  else closeCommandPalette();
+}
+
+function openCommandPalette() {
+  const backdrop = document.getElementById('cmd-palette-backdrop');
+  const input = document.getElementById('cmd-palette-input');
+  if (!backdrop || !input) return;
+
+  cmdSelectedIndex = 0;
+  input.value = '';
+  backdrop.classList.remove('hidden');
+  renderCommandPalette('');
+  setTimeout(() => input.focus(), 50);
+}
+
+function closeCommandPalette() {
+  const backdrop = document.getElementById('cmd-palette-backdrop');
+  if (backdrop) backdrop.classList.add('hidden');
+}
+
+function renderCommandPalette(query) {
+  const list = document.getElementById('cmd-palette-list');
+  if (!list) return;
+
+  const q = (query || '').toLowerCase().trim();
+  const space = getActiveSpace();
+  const items = space ? space.items.filter(i => !i.archived) : [];
+
+  const baseActions = [
+    { icon: '➕', label: 'Add New Item to Vault', action: () => openAdd(), badge: 'Action' },
+    { icon: '🕸️', label: 'Open 2D Knowledge Graph', action: () => { state.collection = 'graph'; render(); }, badge: 'View' },
+    { icon: '🌧️', label: 'Play Ambient Focus Rain', action: () => { if (window.AudioHelper) window.AudioHelper.playPreset('rain'); toast('Playing Rain soundscape', 'success'); }, badge: 'Audio' },
+    { icon: '🧠', label: 'Play 40Hz Gamma Focus Beats', action: () => { if (window.AudioHelper) window.AudioHelper.playPreset('binaural'); toast('Playing 40Hz Gamma Beats', 'success'); }, badge: 'Audio' },
+    { icon: '🩺', label: 'Scan for Broken Bookmarks', action: () => { state.collection = 'broken'; render(); }, badge: 'Health' },
+    { icon: '📤', label: 'Export Netscape HTML Bookmarks', action: () => exportHtml(), badge: 'Export' },
+    { icon: '🖼️', label: 'Customize Space Wallpaper', action: () => openSpaceSettings(state.activeSpace), badge: 'Theme' }
+  ];
+
+  // Add space switch actions
+  state.spaces.forEach(s => {
+    if (s.id !== state.activeSpace) {
+      baseActions.push({
+        icon: '📁',
+        label: `Switch Space: ${s.name}`,
+        action: () => { state.activeSpace = s.id; state.collection = 'all'; save(); render(); updateSpaceList(); updateBadges(); setWallpaper(); },
+        badge: 'Space'
+      });
+    }
+  });
+
+  // Add vault items
+  items.forEach(i => {
+    baseActions.push({
+      icon: i.type === 'note' ? '📝' : i.type === 'key' ? '🔑' : i.type === 'password' ? '🔒' : '🔗',
+      label: i.title || i.name || i.url || 'Untitled',
+      action: () => {
+        if (i.content || i.type === 'note') openReaderMode(i);
+        else if (i.url) window.open(i.url, '_blank');
+        else openEdit(i.id);
+      },
+      badge: (i.type || 'url').toUpperCase()
+    });
+  });
+
+  currentCmdItems = q ? baseActions.filter(a => a.label.toLowerCase().includes(q) || a.badge.toLowerCase().includes(q)) : baseActions.slice(0, 8);
+  if (cmdSelectedIndex >= currentCmdItems.length) cmdSelectedIndex = 0;
+
+  if (!currentCmdItems.length) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:12px;">No matching actions or items found.</div>';
+    return;
+  }
+
+  list.innerHTML = currentCmdItems.map((item, idx) => `
+    <div class="cmd-palette-item ${idx === cmdSelectedIndex ? 'active' : ''}" data-cmd-index="${idx}">
+      <div class="cmd-item-left">
+        <span style="font-size:15px;">${item.icon}</span>
+        <span>${esc(item.label)}</span>
+      </div>
+      <span class="cmd-item-badge">${esc(item.badge)}</span>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.cmd-palette-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.cmdIndex, 10);
+      executeCommandItem(idx);
+    });
+  });
+}
+
+function executeCommandItem(index) {
+  const item = currentCmdItems[index];
+  if (item && item.action) {
+    closeCommandPalette();
+    item.action();
+  }
+}
+
+function initCommandPalette() {
+  const backdrop = document.getElementById('cmd-palette-backdrop');
+  const input = document.getElementById('cmd-palette-input');
+
+  if (backdrop && !backdrop._hasBound) {
+    backdrop._hasBound = true;
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) closeCommandPalette();
+    });
+  }
+
+  if (input && !input._hasBound) {
+    input._hasBound = true;
+    input.addEventListener('input', (e) => {
+      cmdSelectedIndex = 0;
+      renderCommandPalette(e.target.value);
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        cmdSelectedIndex = (cmdSelectedIndex + 1) % Math.max(1, currentCmdItems.length);
+        renderCommandPalette(input.value);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        cmdSelectedIndex = (cmdSelectedIndex - 1 + currentCmdItems.length) % Math.max(1, currentCmdItems.length);
+        renderCommandPalette(input.value);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        executeCommandItem(cmdSelectedIndex);
+      } else if (e.key === 'Escape') {
+        closeCommandPalette();
+      }
+    });
+  }
 }

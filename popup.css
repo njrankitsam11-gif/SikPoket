@@ -6,50 +6,26 @@
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 :root {
-  /* Existing vars */
-  --c-base:     #0d0b0a;
-  --c-surface:  #161210;
-  --c-raise:    #1e1916;
-  --c-border:   #2a2218;
-  --c-border2:  #3a2f22;
-  --c-acc:      #4a4f8a;
-  --c-acc-dim:  rgba(74, 79, 138, .14);
-  --c-acc-glow: rgba(74, 79, 138, .28);
-  --c-txt:      #ede8e1;
-  --c-txt2:     #7a7168;
-  --c-txt3:     #3e3528;
-  --c-danger:   #8b3a2a;
-  --c-warn:     #b8882a;
-  --c-ok:       #5a7a5f;
-  --r:          6px;
-  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-  /* Wallpaper support */
+  /* Futuristic Dark Glassmorphism */
+  --c-base:     #07070a;
+  --c-surface:  #0e1017;
+  --c-raise:    #141724;
+  --c-border:   rgba(255, 255, 255, 0.08);
+  --c-border2:  rgba(255, 255, 255, 0.16);
+  --c-acc:      #7952ff;
+  --c-acc-dim:  rgba(121, 82, 255, 0.15);
+  --c-acc-glow: rgba(121, 82, 255, 0.35);
+  --c-cyan:     #00e5ff;
+  --c-emerald:  #00f2a9;
+  --c-txt:      #f3f4f6;
+  --c-txt2:     #9ca3af;
+  --c-txt3:     #4b5563;
+  --c-danger:   #ff3366;
+  --c-warn:     #ffaa00;
+  --c-ok:       #00f2a9;
+  --r:          8px;
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
   --wallpaper-url: none;
-}
-  /* Ground — char & wax-resist cloth */
-  --c-base:     #0d0b0a;
-  --c-surface:  #161210;
-  --c-raise:    #1e1916;
-  --c-border:   #2a2218;
-  --c-border2:  #3a2f22;
-
-  /* Indigo — the rarest, most reserved dye */
-  --c-acc:      #4a4f8a;
-  --c-acc-dim:  rgba(74, 79, 138, .14);
-  --c-acc-glow: rgba(74, 79, 138, .28);
-
-  /* Fiber — bone & aged linen */
-  --c-txt:      #ede8e1;
-  --c-txt2:     #7a7168;
-  --c-txt3:     #3e3528;
-
-  /* Natural dye semantics — steeped, not printed */
-  --c-danger:   #8b3a2a;
-  --c-warn:     #b8882a;
-  --c-ok:       #5a7a5f;
-
-  --r:          6px;
-  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
 }
 
 /* ── BASE ──────────────────────────────────── */
