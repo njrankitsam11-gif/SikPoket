@@ -68,6 +68,26 @@ html[data-theme="obsidian"] {
   --c-ok:       #00f2a9;
 }
 
+html[data-theme="solar"] {
+  /* Color Hunt 3: Solar Horizon (#003049, #d62828, #f77f00, #fcbf49) */
+  --c-base:     #001420;
+  --c-surface:  #003049;
+  --c-raise:    #002033;
+  --c-border:   rgba(247, 127, 0, 0.22);
+  --c-border2:  rgba(252, 191, 73, 0.45);
+  --c-acc:      #f77f00;
+  --c-acc-dim:  rgba(247, 127, 0, 0.2);
+  --c-acc-glow: rgba(247, 127, 0, 0.45);
+  --c-cyan:     #fcbf49;
+  --c-emerald:  #f77f00;
+  --c-txt:      #fffdf5;
+  --c-txt2:     #fcdab7;
+  --c-txt3:     #8faec5;
+  --c-danger:   #d62828;
+  --c-warn:     #fcbf49;
+  --c-ok:       #f77f00;
+}
+
 /* ── BASE ──────────────────────────────────── */
 html, body {
   width: 400px; min-height: 560px; max-height: 640px;

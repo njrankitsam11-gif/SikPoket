@@ -131,6 +131,43 @@ html[data-theme="obsidian"] {
   --mesh-bg-3: rgba(0, 242, 169, 0.06);
 }
 
+/* ── 4. SOLAR HORIZON THEME (#003049, #d62828, #f77f00, #fcbf49) ── */
+html[data-theme="solar"] {
+  --bg:            #001420;
+  --surface:       #003049;
+  --surface-2:     #002033;
+  --surface-glass: rgba(0, 48, 73, 0.85);
+  --card-glass:    rgba(0, 36, 56, 0.78);
+
+  --primary:       #f77f00;   /* Electric Tangerine */
+  --primary-2:     #d62828;   /* Crimson Fire */
+  --brand-soft:    #fcbf49;   /* Warm Gold */
+  --accent-gold:   #fcbf49;   /* Sunray Amber */
+  --cyan:          #fcbf49;
+  --emerald:       #f77f00;
+  --amber:         #fcbf49;
+  --rose:          #d62828;
+
+  --green:         #f77f00;
+  --danger:        #d62828;
+  --warning:       #fcbf49;
+  --success:       #f77f00;
+
+  --on-surface:    #fffdf5;
+  --on-variant:    #fcdab7;
+  --muted:         #8faec5;
+
+  --outline:       rgba(247, 127, 0, 0.22);
+  --outline-hover: rgba(252, 191, 73, 0.65);
+  --divider:       rgba(247, 127, 0, 0.14);
+  --glow-lime:     rgba(247, 127, 0, 0.45);
+  --glow-gold:     rgba(252, 191, 73, 0.4);
+
+  --mesh-bg-1:     rgba(214, 40, 40, 0.22);
+  --mesh-bg-2:     rgba(247, 127, 0, 0.2);
+  --mesh-bg-3:     rgba(0, 48, 73, 0.42);
+}
+
 html, body { height: 100%; }
 
 body {

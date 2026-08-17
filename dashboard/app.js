@@ -1289,6 +1289,7 @@ function renderCommandPalette(query) {
     { icon: '➕', label: 'Add New Item to Vault', action: () => openAdd(), badge: 'Action' },
     { icon: '🌲', label: 'Switch Theme: 🌲 Electric Forest', action: () => { applyTheme('forest'); toast('Theme: Electric Forest', 'success'); }, badge: 'Theme' },
     { icon: '🌆', label: 'Switch Theme: 🌆 Neon Sunset', action: () => { applyTheme('sunset'); toast('Theme: Neon Sunset', 'success'); }, badge: 'Theme' },
+    { icon: '🔥', label: 'Switch Theme: 🔥 Solar Horizon', action: () => { applyTheme('solar'); toast('Theme: Solar Horizon', 'success'); }, badge: 'Theme' },
     { icon: '🌌', label: 'Switch Theme: 🌌 Cyber Obsidian', action: () => { applyTheme('obsidian'); toast('Theme: Cyber Obsidian', 'success'); }, badge: 'Theme' },
     { icon: '🕸️', label: 'Open 2D Knowledge Graph', action: () => { state.collection = 'graph'; render(); }, badge: 'View' },
     { icon: '🌧️', label: 'Play Ambient Focus Rain', action: () => { if (window.AudioHelper) window.AudioHelper.playPreset('rain'); toast('Playing Rain soundscape', 'success'); }, badge: 'Audio' },
