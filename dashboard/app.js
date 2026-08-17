@@ -167,13 +167,23 @@ function getFiltered() {
     items = items.filter(i => i.type === m[state.collection] && !i.archived);
   } else items = items.filter(i => !i.archived);
   if (state.tag) items = items.filter(i => i.tags && i.tags.includes(state.tag));
+  
+  let isSortedBySearch = false;
   if (state.search.trim()) {
-    const q = state.search.trim().toLowerCase();
-    items = items.filter(i => (i.title||'').toLowerCase().includes(q) || (i.url||'').toLowerCase().includes(q) || (i.name||'').toLowerCase().includes(q) || (i.content||'').toLowerCase().includes(q) || (i.tags||[]).some(t=>t.toLowerCase().includes(q)));
+    if (window.SearchHelper) {
+      items = window.SearchHelper.search(state.search, items);
+      isSortedBySearch = true; // SearchHelper already sorts by relevance
+    } else {
+      const q = state.search.trim().toLowerCase();
+      items = items.filter(i => (i.title||'').toLowerCase().includes(q) || (i.url||'').toLowerCase().includes(q) || (i.name||'').toLowerCase().includes(q) || (i.content||'').toLowerCase().includes(q) || (i.tags||[]).some(t=>t.toLowerCase().includes(q)));
+    }
   }
-  if (state.sort === 'newest') items.sort((a,b)=>b.createdAt-a.createdAt);
-  else if (state.sort === 'oldest') items.sort((a,b)=>a.createdAt-b.createdAt);
-  else if (state.sort === 'name') items.sort((a,b)=>(a.title||a.name||'').localeCompare(b.title||b.name||''));
+  
+  if (!isSortedBySearch) {
+    if (state.sort === 'newest') items.sort((a,b)=>b.createdAt-a.createdAt);
+    else if (state.sort === 'oldest') items.sort((a,b)=>a.createdAt-b.createdAt);
+    else if (state.sort === 'name') items.sort((a,b)=>(a.title||a.name||'').localeCompare(b.title||b.name||''));
+  }
   return items;
 }
 
@@ -256,7 +266,8 @@ function cardHtml(item, lm) {
   let bh = ''; if(item.type==='note'&&item.content)bh=`<div class="card-excerpt">${esc(item.content)}</div>${readBadge}`; else if((item.type==='key'||item.type==='password')&&item.value)bh=`<div class="card-secret" data-id="${item.id}" data-action="copy-secret" title="Click to copy secret">🔒 <span>${'•'.repeat(Math.min(item.value.length,14))}</span></div>`;
   const thtml = (item.tags||[]).length?`<div class="card-tags">${item.tags.map(t=>`<span class="card-tag" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>`:'';
   const qrBtn = item.type==='url'&&item.url ? `<button class="card-action-btn" data-action="qr" data-id="${item.id}" data-url="${esc(item.url)}" title="View Mobile QR Code">📱</button>` : '';
-  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions">${qrBtn}<button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
+  const readBtn = (item.content || item.type==='note' || item.type==='url') ? `<button class="card-action-btn" data-action="read" data-id="${item.id}" title="Distraction-free Reader Mode with Text-to-Speech">📖</button>` : '';
+  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions">${readBtn}${qrBtn}<button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
 }
 
 function attachCardEventDelegation() {
@@ -276,6 +287,11 @@ function attachCardEventDelegation() {
       else if (action === 'delete') confirmDelete(id);
       else if (action === 'copy-secret') copySecret(id);
       else if (action === 'qr') openDashboardQrModal(actBtn.dataset.url, actBtn.closest('.item-card')?.querySelector('.card-title')?.textContent);
+      else if (action === 'read') {
+        const space = getActiveSpace();
+        const item = space?.items.find(x => x.id === id);
+        if (item) openReaderMode(item);
+      }
       return;
     }
 
@@ -296,6 +312,25 @@ function render() {
   const titles = {all:'All Items',favorites:'Favorites',archived:'Archive',urls:'URLs',notes:'Notes',keys:'API Keys',passwords:'Passwords',highlights:'Highlights',broken:'Broken Links',guide:'How to Use SikPoket'};
   if(vt) vt.textContent = state.tag?`#${state.tag}`:(titles[state.collection]||'All Items');
   if(vc) vc.textContent = state.collection==='guide' ? '6 Modules Guide' : `${items.length} item${items.length!==1?'s':''}`;
+
+  // Knowledge Graph View
+  const graphContainer = document.getElementById('graph-container');
+  if (state.collection === 'graph') {
+    a.classList.add('hidden');
+    if (graphContainer) {
+      graphContainer.classList.remove('hidden');
+      initOrUpdateKnowledgeGraph();
+    }
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.collection===state.collection));
+    updateSidebarTags(); updateBadges(); setWallpaper();
+    return;
+  } else {
+    a.classList.remove('hidden');
+    if (graphContainer) {
+      graphContainer.classList.add('hidden');
+      if (window._currentGraphInstance) window._currentGraphInstance.stop();
+    }
+  }
 
   // Guide View: Render comprehensive documentation
   if (state.collection === 'guide') {
@@ -757,29 +792,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 /* ── BROKEN LINK SCANNER ──────────────── */
 async function scanBrokenLinks() {
-  const space = getActiveSpace(); if (!space) return;
-  const urlItems = space.items.filter(i => i.type === 'url' && i.url && !i.archived);
-  state.brokenIds = new Set();
   state.brokenScanDone = false;
-
-  const checks = urlItems.map(async (item) => {
-    try {
-      // Use a no-cors fetch to check if URL is reachable
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 8000);
-      const r = await fetch(item.url, { method: 'HEAD', mode: 'no-cors', signal: ctrl.signal });
-      clearTimeout(t);
-      // no-cors always returns opaque response (type='opaque'), not an error
-      // so we consider non-aborted = reachable
-    } catch (e) {
-      if (e.name === 'AbortError' || !navigator.onLine) {
-        // Timeout or offline — mark as possibly broken
-        state.brokenIds.add(item.id);
-      }
-      // Other network errors (CORS etc.) don't mean broken
-    }
-  });
-  await Promise.all(checks);
+  if (window.HealthHelper) {
+    const ids = await window.HealthHelper.scanAll();
+    state.brokenIds = new Set(ids);
+  } else {
+    state.brokenIds = new Set();
+  }
   state.brokenScanDone = true;
   setBdg('badge-broken', state.brokenIds.size);
   render();
@@ -963,4 +982,182 @@ function renderDashboardGuide(container) {
 
     </div>
   `;
+}
+
+/* ── KNOWLEDGE GRAPH LOGIC ──────────────── */
+function initOrUpdateKnowledgeGraph() {
+  const canvas = document.getElementById('knowledge-graph-canvas');
+  if (!canvas || typeof KnowledgeGraph === 'undefined') return;
+
+  const space = getActiveSpace();
+  if (!space) return;
+
+  if (!window._currentGraphInstance) {
+    window._currentGraphInstance = new KnowledgeGraph(canvas, {
+      onNodeClick: (node) => {
+        if (node.type === 'tag') {
+          const tag = node.label.replace(/^#/, '');
+          filterTag(tag);
+        } else if (node.item) {
+          if (node.item.type === 'note' || node.item.content) {
+            openReaderMode(node.item);
+          } else if (node.item.url) {
+            window.open(node.item.url, '_blank');
+          } else {
+            openEdit(node.item.id);
+          }
+        }
+      }
+    });
+
+    const resetBtn = document.getElementById('graph-reset-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (window._currentGraphInstance) {
+          window._currentGraphInstance.setData(space.items || []);
+          window._currentGraphInstance.start();
+        }
+      });
+    }
+  }
+
+  window._currentGraphInstance.setData(space.items || []);
+  if (state.search) {
+    window._currentGraphInstance.setSearchFilter(state.search);
+  }
+  window._currentGraphInstance.start();
+}
+
+/* ── READER MODE & TTS LOGIC ─────────────── */
+let currentReaderItem = null;
+let readerTheme = 'dark';
+let readerIsSerif = false;
+
+function openReaderMode(item) {
+  currentReaderItem = item;
+  const modal = document.getElementById('reader-modal');
+  const titleEl = document.getElementById('reader-article-title');
+  const metaEl = document.getElementById('reader-article-meta');
+  const bodyEl = document.getElementById('reader-article-body');
+  const readTimeEl = document.getElementById('reader-read-time');
+
+  if (!modal || !titleEl || !bodyEl) return;
+
+  const title = item.title || item.name || 'Untitled Article';
+  const rawText = item.content || item.title || item.url || '';
+  
+  titleEl.textContent = title;
+  
+  const date = new Date(item.createdAt || Date.now()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const host = item.url ? `<a href="${esc(item.url)}" target="_blank" style="color:var(--primary);text-decoration:none;">${new URL(item.url).hostname}</a> • ` : '';
+  const tagList = (item.tags || []).map(t => `#${t}`).join(' ');
+  metaEl.innerHTML = `${host}${date} ${tagList ? `• <span style="color:var(--muted);">${esc(tagList)}</span>` : ''}`;
+
+  if (typeof ReaderHelper !== 'undefined') {
+    bodyEl.innerHTML = ReaderHelper.cleanContent(rawText, title);
+    if (readTimeEl) {
+      const mins = ReaderHelper.calculateReadingTime(rawText);
+      readTimeEl.textContent = `📖 ${mins} min read`;
+    }
+  } else {
+    bodyEl.textContent = rawText;
+  }
+
+  modal.classList.remove('hidden');
+  initReaderControls();
+}
+
+function initReaderControls() {
+  const closeBtn = document.getElementById('reader-close-btn');
+  const fontBtn = document.getElementById('reader-font-toggle');
+  const themeBtn = document.getElementById('reader-theme-toggle');
+  const playBtn = document.getElementById('reader-tts-play-btn');
+  const rateSelect = document.getElementById('reader-tts-rate');
+  const modalContainer = document.querySelector('.reader-modal-container');
+  const bodyEl = document.getElementById('reader-article-body');
+
+  if (closeBtn && !closeBtn._hasBound) {
+    closeBtn._hasBound = true;
+    closeBtn.addEventListener('click', closeReaderMode);
+  }
+
+  if (fontBtn && !fontBtn._hasBound) {
+    fontBtn._hasBound = true;
+    fontBtn.addEventListener('click', () => {
+      readerIsSerif = !readerIsSerif;
+      if (bodyEl) {
+        bodyEl.style.fontFamily = readerIsSerif ? "'Georgia', 'Cambria', serif" : "'Plus Jakarta Sans', -apple-system, sans-serif";
+      }
+      fontBtn.textContent = readerIsSerif ? 'Aa Sans' : 'Aa Serif';
+    });
+  }
+
+  if (themeBtn && !themeBtn._hasBound) {
+    themeBtn._hasBound = true;
+    themeBtn.addEventListener('click', () => {
+      if (readerTheme === 'dark') {
+        readerTheme = 'sepia';
+        if (modalContainer) {
+          modalContainer.style.background = '#f5ead8';
+          modalContainer.style.color = '#3b2a14';
+        }
+        themeBtn.textContent = '☕ Sepia';
+      } else if (readerTheme === 'sepia') {
+        readerTheme = 'light';
+        if (modalContainer) {
+          modalContainer.style.background = '#fdfdfd';
+          modalContainer.style.color = '#1a1a1a';
+        }
+        themeBtn.textContent = '☀ Light';
+      } else {
+        readerTheme = 'dark';
+        if (modalContainer) {
+          modalContainer.style.background = '#0e0b0a';
+          modalContainer.style.color = '#ede8e1';
+        }
+        themeBtn.textContent = '🌙 Dark';
+      }
+    });
+  }
+
+  if (playBtn && !playBtn._hasBound) {
+    playBtn._hasBound = true;
+    playBtn.addEventListener('click', () => {
+      if (typeof ReaderHelper === 'undefined') return;
+
+      if (ReaderHelper.TTS.isPlaying && !ReaderHelper.TTS.isPaused) {
+        ReaderHelper.TTS.pause();
+        playBtn.textContent = '▶ Resume Audio';
+      } else if (ReaderHelper.TTS.isPaused) {
+        ReaderHelper.TTS.resume();
+        playBtn.textContent = '⏸ Pause Audio';
+      } else {
+        const textToRead = (document.getElementById('reader-article-title')?.textContent || '') + '. ' + (document.getElementById('reader-article-body')?.textContent || '');
+        if (rateSelect) ReaderHelper.TTS.setRate(rateSelect.value);
+        ReaderHelper.TTS.speak(textToRead, null, () => {
+          playBtn.textContent = '▶ Play Audio (TTS)';
+        });
+        playBtn.textContent = '⏸ Pause Audio';
+      }
+    });
+  }
+
+  if (rateSelect && !rateSelect._hasBound) {
+    rateSelect._hasBound = true;
+    rateSelect.addEventListener('change', () => {
+      if (typeof ReaderHelper !== 'undefined') {
+        ReaderHelper.TTS.setRate(rateSelect.value);
+      }
+    });
+  }
+}
+
+function closeReaderMode() {
+  const modal = document.getElementById('reader-modal');
+  if (modal) modal.classList.add('hidden');
+  if (typeof ReaderHelper !== 'undefined') {
+    ReaderHelper.TTS.stop();
+  }
+  const playBtn = document.getElementById('reader-tts-play-btn');
+  if (playBtn) playBtn.textContent = '▶ Play Audio (TTS)';
 }

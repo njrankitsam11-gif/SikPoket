@@ -163,11 +163,15 @@
       <span>Pass</span>
       <span class="sp-badge" id="count-passwords">0</span>
     </button>
+    <button class="sp-tab" data-tab="assistant">
+      <svg viewBox="0 0 16 16" fill="none" width="12"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zM6 7a1 1 0 110-2 1 1 0 010 2zm4 0a1 1 0 110-2 1 1 0 010 2zm-4.5 3a4 4 0 005 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span>Assistant</span>
+    </button>
   </nav>
 
   <!-- ══ CONTENT ═══════════════════════════════ -->
   <main class="sp-content">
-    <div class="sp-panel active" id="panel-urls">
+    <div class="sp-section active" id="urls-content">
       <div class="sp-quick-bar">
         <button class="sp-btn" id="add-url-btn">＋ Add URL</button>
         <button class="sp-btn sp-btn-secondary" id="save-current-tab-btn">⚡ Save Current Tab</button>
@@ -175,32 +179,43 @@
       <div id="urls-list"></div>
     </div>
 
-    <div class="sp-panel" id="panel-sessions">
+    <div class="sp-section" id="sessions-content">
       <div class="sp-quick-bar">
         <button class="sp-btn" id="snapshot-window-btn">📸 Snapshot Active Window</button>
       </div>
       <div id="sessions-list"></div>
     </div>
 
-    <div class="sp-panel" id="panel-notes">
+    <div class="sp-section" id="notes-content">
       <div class="sp-quick-bar">
         <button class="sp-btn" id="add-note-btn">＋ New Note</button>
       </div>
       <div id="notes-list"></div>
     </div>
 
-    <div class="sp-panel" id="panel-apiKeys">
+    <div class="sp-section" id="apiKeys-content">
       <div class="sp-quick-bar">
         <button class="sp-btn" id="add-api-key-btn">＋ New API Key</button>
       </div>
       <div id="api-keys-list"></div>
     </div>
 
-    <div class="sp-panel" id="panel-passwords">
+    <div class="sp-section" id="passwords-content">
       <div class="sp-quick-bar">
         <button class="sp-btn" id="add-password-btn">＋ New Password</button>
       </div>
       <div id="passwords-list"></div>
+    </div>
+    <div class="sp-section" id="assistant-content" style="display:flex;flex-direction:column;height:100%;">
+      <div id="chat-messages" style="flex:1;overflow-y:auto;padding:10px;font-size:13px;display:flex;flex-direction:column;gap:8px;">
+        <div class="chat-msg" style="background:rgba(108,99,245,0.1);padding:8px 10px;border-radius:6px;color:var(--c-txt);">
+          🤖 Hi! I'm your local AI Assistant. I can answer questions about your saved bookmarks and notes.
+        </div>
+      </div>
+      <div class="chat-input-area" style="padding:10px;border-top:1px solid var(--c-border);display:flex;gap:6px;">
+        <input type="text" id="chat-input" placeholder="Ask about your vault..." style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--c-border);border-radius:4px;padding:6px;color:var(--c-txt);font-family:inherit;">
+        <button id="chat-send-btn" class="sp-btn" style="padding:6px 10px;">Send</button>
+      </div>
     </div>
   </main>
 
@@ -215,6 +230,7 @@
 <script src="crypto-helper.js"></script>
 <script src="qr-helper.js"></script>
 <script src="ai-helper.js"></script>
+<script src="chat-helper.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+try { importScripts('health-helper.js'); } catch (e) {}
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
@@ -26,6 +28,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 
   updateBadgeCount();
+  chrome.alarms.create('sikpoket_health_check', { periodInMinutes: 10080 }); // Weekly
 });
 
 chrome.runtime.onStartup.addListener(() => {
@@ -165,6 +168,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Reminder alarm handler
 chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === 'sikpoket_health_check') {
+    if (typeof HealthHelper !== 'undefined') await HealthHelper.scanAll();
+    return;
+  }
+
   if (!alarm.name?.startsWith('sikpoket_reminder_')) return;
   const withoutPrefix = alarm.name.replace('sikpoket_reminder_', '');
   const underscoreIdx = withoutPrefix.indexOf('_');

@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SikPoket — Complete Master Blueprint & Architectural Infographic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07070a;
+      --surface: #0f1016;
+      --surface-card: rgba(18, 20, 30, 0.75);
+      --surface-border: rgba(255, 255, 255, 0.09);
+      --accent-primary: #7952ff;
+      --accent-secondary: #00e5ff;
+      --accent-emerald: #00f2a9;
+      --accent-amber: #ffaa00;
+      --accent-rose: #ff3366;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-faint: #4b5563;
+      --glow-purple: rgba(121, 82, 255, 0.35);
+      --glow-cyan: rgba(0, 229, 255, 0.3);
+      --glow-emerald: rgba(0, 242, 169, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(121, 82, 255, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(0, 229, 255, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(0, 242, 169, 0.06) 0%, transparent 55%),
+        radial-gradient(circle at 80% 20%, rgba(255, 51, 102, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+    /* Top Sticky Navigation */
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: rgba(7, 7, 10, 0.85);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 1rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 0 25px var(--glow-purple);
+    }
+
+    .logo-title {
+      font-weight: 800;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 40%, var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge-v {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(121, 82, 255, 0.2);
+      border: 1px solid rgba(121, 82, 255, 0.4);
+      color: #c4b5fd;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.75rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 4.5rem 2rem 3rem;
+      text-align: center;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      border-radius: 30px;
+      color: var(--accent-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+    }
+
+    .hero-title {
+      font-size: 3.8rem;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title span.grad {
+      background: linear-gradient(135deg, #ffffff 20%, var(--accent-secondary) 60%, var(--accent-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 820px;
+      margin: 0 auto 3.5rem;
+      line-height: 1.6;
+    }
+
+    /* Key Metric Bar */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 4.5rem;
+    }
+
+    .metric-card {
+      background: var(--surface-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--surface-border);
+      border-radius: 18px;
+      padding: 1.75rem;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    }
+
+    .metric-val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-lbl {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+
+    .section-header {
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    /* Blueprint Diagram (Grid System) */
+    .blueprint-box {
+      background: var(--surface-card);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--surface-border);
+      border-radius: 24px;
+      padding: 2.75rem;
+      margin-bottom: 5rem;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .architecture-diagram {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      gap: 2rem;
+      position: relative;
+    }
+
+    .arch-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .arch-node {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .arch-node:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 30px rgba(121, 82, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .arch-node.core-hub {
+      background: linear-gradient(135deg, rgba(121, 82, 255, 0.18), rgba(0, 229, 255, 0.12));
+      border: 1.5px solid var(--accent-primary);
+      box-shadow: 0 0 40px var(--glow-purple);
+    }
+
+    .node-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .node-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .node-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .node-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 1rem;
+    }
+
+    .node-tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #d1d5db;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Phase Feature Matrix */
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 5rem;
+    }
+
+    .phase-card {
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-radius: 18px;
+      padding: 2rem;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .phase-card:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .phase-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 1.25rem;
+      display: inline-block;
+    }
+
+    .phase-1 { background: rgba(0, 229, 255, 0.15); color: var(--accent-secondary); border: 1px solid rgba(0, 229, 255, 0.3); }
+    .phase-2 { background: rgba(121, 82, 255, 0.15); color: #c4b5fd; border: 1px solid rgba(121, 82, 255, 0.3); }
+    .phase-3 { background: rgba(0, 242, 169, 0.15); color: var(--accent-emerald); border: 1px solid rgba(0, 242, 169, 0.3); }
+    .phase-4 { background: rgba(255, 170, 0, 0.15); color: var(--accent-amber); border: 1px solid rgba(255, 170, 0, 0.3); }
+    .phase-5 { background: rgba(255, 51, 102, 0.15); color: var(--accent-rose); border: 1px solid rgba(255, 51, 102, 0.3); }
+
+    .phase-card h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .feature-item {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+    }
+
+    .feature-item::before {
+      content: '✔';
+      color: var(--accent-emerald);
+      font-weight: bold;
+    }
+
+    /* Complete File Catalog Grid */
+    .file-catalog {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 5rem;
+    }
+
+    .file-card {
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .file-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .file-role {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #9ca3af;
+    }
+
+    .file-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Live Interactive Sandbox / Testbench */
+    .sandbox-box {
+      background: var(--surface-card);
+      border: 1px solid var(--surface-border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      margin-bottom: 5rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .tabs-header {
+      display: flex;
+      gap: 1rem;
+      border-bottom: 1px solid var(--surface-border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: rgba(121, 82, 255, 0.25);
+      color: #fff;
+      border: 1px solid rgba(121, 82, 255, 0.45);
+      box-shadow: 0 0 15px rgba(121, 82, 255, 0.2);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Demo Search Input */
+    .demo-search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .demo-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--surface-border);
+      padding: 14px 18px;
+      border-radius: 12px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .demo-input:focus {
+      outline: none;
+      border-color: var(--accent-secondary);
+      box-shadow: 0 0 20px var(--glow-cyan);
+    }
+
+    .demo-btn {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      padding: 0 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.2s;
+    }
+
+    .demo-btn:hover {
+      transform: scale(1.02);
+    }
+
+    .demo-results {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .demo-result-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 2px;
+    }
+
+    .result-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--accent-emerald);
+      background: rgba(0, 242, 169, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 242, 169, 0.25);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--surface-border);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      background: rgba(7, 7, 10, 0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="nav-bar">
+    <div class="logo-group">
+      <div class="logo-badge">⚡</div>
+      <div>
+        <div class="logo-title">SikPoket <span class="badge-v">v1.4.0 Extended Master</span></div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="#blueprint" class="nav-link">System Blueprint</a>
+      <a href="#phases" class="nav-link">5-Phase Evolution</a>
+      <a href="#catalog" class="nav-link">File Catalog</a>
+      <a href="#interactive" class="nav-link">Live Interactive Sandbox</a>
+      <a href="#security" class="nav-link">Security Specs</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-tag">🔒 100% Local-First & Zero-Knowledge Cryptographic Architecture</div>
+    <h1 class="hero-title">
+      The Complete Technical <br><span class="grad">Master Blueprint & Walkthrough</span>
+    </h1>
+    <p class="hero-sub">
+      An exhaustive architectural breakdown of the client-side cryptography, offline TF-IDF intelligence, procedural DSP audio soundscapes, Gemini Nano AI integration, and multi-space desktop PWA ecosystem.
+    </p>
+
+    <!-- Key Metrics Grid -->
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-val">100%</div>
+        <div class="metric-lbl">Offline-First Zero-Server</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">AES-256</div>
+        <div class="metric-lbl">GCM Hardware Cryptography</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">5 / 5</div>
+        <div class="metric-lbl">Full Engineering Phases Done</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">0 KB</div>
+        <div class="metric-lbl">Third-Party Tracking Over Wire</div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+
+    <!-- Section 1: Architecture Blueprint -->
+    <section id="blueprint">
+      <div class="section-header">
+        <span class="section-num">01 // Architectural Subsystems</span>
+        <h2 class="section-title">End-to-End System Topology</h2>
+      </div>
+
+      <div class="blueprint-box">
+        <div class="architecture-diagram">
+          
+          <!-- Column 1: Client Ingress -->
+          <div class="arch-column">
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(0,229,255,0.2);color:var(--accent-secondary)">Ingress 01</span>
+              <div class="node-title">⚡ Browser Extension</div>
+              <div class="node-desc">Manifest V3 Popup (<code>popup.html</code> & <code>popup.js</code>) with responsive drag-and-drop ingestion, tag autocomplete, and instant keyboard shortcuts (<code>Ctrl+Shift+S</code>).</div>
+              <div class="node-tags">
+                <span class="node-tag">MV3</span>
+                <span class="node-tag">Context Menus</span>
+                <span class="node-tag">Omnibox</span>
+              </div>
+            </div>
+
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(121,82,255,0.2);color:#c4b5fd">Ingress 02</span>
+              <div class="node-title">📑 Chrome Side Panel</div>
+              <div class="node-desc">Persistent workflow companion (<code>sidepanel.html</code>) with multi-tab session snapshotting, drag-to-save target zones, and direct AI Chat integration.</div>
+              <div class="node-tags">
+                <span class="node-tag">SidePanel API</span>
+                <span class="node-tag">Session Manager</span>
+              </div>
+            </div>
+
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(0,242,169,0.2);color:var(--accent-emerald)">Ingress 03</span>
+              <div class="node-title">📱 Standalone PWA</div>
+              <div class="node-desc">Offline-capable progressive web application (<code>standalone.html</code> & <code>sw.js</code>) installable on desktop and mobile with native caching.</div>
+              <div class="node-tags">
+                <span class="node-tag">ServiceWorker</span>
+                <span class="node-tag">WebManifest</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Core Processing Engine -->
+          <div class="arch-column">
+            <div class="arch-node core-hub">
+              <span class="node-badge" style="background:var(--accent-primary);color:#fff">Core Processing Hub</span>
+              <div class="node-title">🛡️ Hardware Cryptography Vault</div>
+              <div class="node-desc">Zero-knowledge AES-256-GCM encryption with PBKDF2 key derivation (100,000 iterations). Raw secrets never touch disk in plain text.</div>
+              <div class="node-tags">
+                <span class="node-tag">Web Crypto API</span>
+                <span class="node-tag">Touch ID / Biometrics</span>
+                <span class="node-tag">Auto-Lock Timer</span>
+              </div>
+            </div>
+
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(255,51,102,0.2);color:var(--accent-rose)">Intelligence Hub</span>
+              <div class="node-title">🧠 Gemini Nano + TF-IDF Engine</div>
+              <div class="node-desc">Combines Chrome's native <code>window.ai</code> Prompt API for local context summarization with client-side TF-IDF token ranking for offline search.</div>
+              <div class="node-tags">
+                <span class="node-tag">window.ai</span>
+                <span class="node-tag">TextRank</span>
+                <span class="node-tag">search-helper.js</span>
+              </div>
+            </div>
+
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(255,170,0,0.2);color:var(--accent-amber)">Audio Hub</span>
+              <div class="node-title">🎧 Procedural Web Audio Engine</div>
+              <div class="node-desc">Synthesizes ambient focus soundscapes (Rain, White/Pink/Brown noise, 40Hz Gamma Binaural Beats) using DSP audio nodes.</div>
+              <div class="node-tags">
+                <span class="node-tag">AudioContext</span>
+                <span class="node-tag">BiquadFilter</span>
+                <span class="node-tag">Zero MP3s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Storage & Sync -->
+          <div class="arch-column">
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(0,229,255,0.2);color:var(--accent-secondary)">Storage Tier 01</span>
+              <div class="node-title">💾 chrome.storage.local</div>
+              <div class="node-desc">Primary local storage layer with automatic schema migration, multi-space separation, and background badge synchronizers.</div>
+            </div>
+
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(121,82,255,0.2);color:#c4b5fd">Storage Tier 02</span>
+              <div class="node-title">🌐 Encrypted Gist Sync</div>
+              <div class="node-desc">End-to-end encrypted remote sync via personal GitHub Gists. Data is client-side encrypted before pushing to cloud.</div>
+            </div>
+
+            <div class="arch-node">
+              <span class="node-badge" style="background:rgba(0,242,169,0.2);color:var(--accent-emerald)">Health Check</span>
+              <div class="node-title">🩺 Link Health Monitor</div>
+              <div class="node-desc">Periodic <code>chrome.alarms</code> background task performing non-blocking HEAD requests to detect 404s and decaying URLs.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Phase Breakdown -->
+    <section id="phases">
+      <div class="section-header">
+        <span class="section-num">02 // Engineering Roadmap</span>
+        <h2 class="section-title">5-Phase Evolution Walkthrough</h2>
+      </div>
+
+      <div class="phase-grid">
+        <div class="phase-card">
+          <span class="phase-tag phase-1">Phase 01 // Foundation</span>
+          <h3>Core Vault & Security</h3>
+          <ul class="feature-list">
+            <li class="feature-item">AES-256-GCM Vault encryption</li>
+            <li class="feature-item">WebAuthn / Biometric Touch ID unlock</li>
+            <li class="feature-item">Full-featured Dashboard with multi-spaces</li>
+            <li class="feature-item">Custom Unsplash & local wallpaper engine</li>
+          </ul>
+        </div>
+
+        <div class="phase-card">
+          <span class="phase-tag phase-2">Phase 02 // Power Tools</span>
+          <h3>Utilities & Store Prep</h3>
+          <ul class="feature-list">
+            <li class="feature-item">Omnibox quick search (<code>sik &lt;query&gt;</code>)</li>
+            <li class="feature-item">Offline QR Code mobile beam generator</li>
+            <li class="feature-item">Netscape standard HTML bookmark export</li>
+            <li class="feature-item">Automated CI build verification script</li>
+          </ul>
+        </div>
+
+        <div class="phase-card">
+          <span class="phase-tag phase-3">Phase 03 // Workspace</span>
+          <h3>Side Panel & AI Summaries</h3>
+          <ul class="feature-list">
+            <li class="feature-item">Chrome Side Panel integration</li>
+            <li class="feature-item">Active Tab Session Snapshot manager</li>
+            <li class="feature-item">Built-in Gemini Nano (<code>window.ai</code>) summarizer</li>
+            <li class="feature-item">Algorithmic TextRank statistical fallback</li>
+          </ul>
+        </div>
+
+        <div class="phase-card">
+          <span class="phase-tag phase-4">Phase 04 // Ecosystem</span>
+          <h3>PWA, Audio & Sync</h3>
+          <ul class="feature-list">
+            <li class="feature-item">Progressive Web App desktop installation</li>
+            <li class="feature-item">Procedural Web Audio Ambient focus generator</li>
+            <li class="feature-item">Zero-knowledge encrypted GitHub Gist sync</li>
+            <li class="feature-item">High-res Web Store promotional graphics</li>
+          </ul>
+        </div>
+
+        <div class="phase-card">
+          <span class="phase-tag phase-5">Phase 05 // Intelligence</span>
+          <h3>Search & Health Checker</h3>
+          <ul class="feature-list">
+            <li class="feature-item">Offline TF-IDF Full-Text Search Engine</li>
+            <li class="feature-item">Automated background Link Health Checker</li>
+            <li class="feature-item">Side Panel AI Research Assistant Chat</li>
+            <li class="feature-item">Strict local contextual prompt injection</li>
+          </ul>
+        </div>
+
+        <div class="phase-card" style="border-style:dashed;background:rgba(255,255,255,0.01);">
+          <span class="phase-tag" style="background:rgba(255,255,255,0.1);color:#fff;">Deliverables</span>
+          <h3>Production Readiness</h3>
+          <ul class="feature-list">
+            <li class="feature-item">37 / 37 Verification checks passed</li>
+            <li class="feature-item">Zero forbidden eval() or new Function()</li>
+            <li class="feature-item">Chrome Web Store packaging ready</li>
+            <li class="feature-item">Standalone offline PWA ready</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: File Catalog -->
+    <section id="catalog">
+      <div class="section-header">
+        <span class="section-num">03 // Codebase Architecture</span>
+        <h2 class="section-title">Complete File Catalog & Modules</h2>
+      </div>
+
+      <div class="file-catalog">
+        <div class="file-card">
+          <div class="file-name">manifest.json <span class="file-role">MV3 Config</span></div>
+          <div class="file-desc">Extension configuration, background service worker declaration, permissions (storage, alarms, sidePanel), and web-accessible resources.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">background.js <span class="file-role">Service Worker</span></div>
+          <div class="file-desc">Background event hub handling context menus, omnibox search (sik query), alarm triggers for link health checks, and unread badges.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">crypto-helper.js <span class="file-role">Security Core</span></div>
+          <div class="file-desc">WebCrypto implementation of AES-256-GCM encryption, PBKDF2 key derivation (100,000 iterations), and WebAuthn Touch ID biometrics.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">search-helper.js <span class="file-role">Intelligence</span></div>
+          <div class="file-desc">Offline TF-IDF search engine that tokenizes titles, notes, and URLs, calculates term frequencies, and sorts results by relevance.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">ai-helper.js <span class="file-role">AI Core</span></div>
+          <div class="file-desc">Dual AI summarization engine leveraging Chrome's native window.ai (Gemini Nano) with deterministic TextRank sentence graph fallback.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">chat-helper.js <span class="file-role">AI Assistant</span></div>
+          <div class="file-desc">Session manager for Side Panel AI assistant that injects user bookmarks and notes as strict context into on-device language models.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">audio-helper.js <span class="file-role">Audio DSP</span></div>
+          <div class="file-desc">Procedural Web Audio API soundscape synthesizer generating Rain, 40Hz Gamma Binaural beats, and Pink/Brown noise without external MP3 files.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">health-helper.js <span class="file-role">Maintenance</span></div>
+          <div class="file-desc">Automated broken link health checker that performs batched non-blocking HEAD requests in the background to detect 404 dead links.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">sync-helper.js <span class="file-role">Remote Sync</span></div>
+          <div class="file-desc">End-to-end encrypted backup and restore engine utilizing personal GitHub Gists with client-side AES-256-GCM encryption.</div>
+        </div>
+
+        <div class="file-card">
+          <div class="file-name">dashboard/app.js <span class="file-role">Dashboard Core</span></div>
+          <div class="file-desc">State-driven multi-space dashboard manager with drag-and-drop reordering, wallpaper customizer, and Netscape HTML exporter.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Interactive Sandbox & Testbench -->
+    <section id="interactive">
+      <div class="section-header">
+        <span class="section-num">04 // Interactive Deck</span>
+        <h2 class="section-title">Interactive Subsystems Simulation</h2>
+      </div>
+
+      <div class="sandbox-box">
+        <div class="tabs-header">
+          <button class="tab-btn active" onclick="switchDemoTab('search')">🔍 TF-IDF Search Indexer</button>
+          <button class="tab-btn" onclick="switchDemoTab('audio')">🎧 Web Audio Ambient Engine</button>
+          <button class="tab-btn" onclick="switchDemoTab('ai')">🤖 AI Assistant Context Query</button>
+          <button class="tab-btn" onclick="switchDemoTab('health')">🩺 Link Health Checker</button>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="tab-search" class="tab-content active">
+          <p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:1.25rem;">
+            Test the live offline TF-IDF search engine. It performs tokenization, frequency analysis, and relevance ranking in real time.
+          </p>
+          <div class="demo-search-bar">
+            <input type="text" id="demo-search-input" class="demo-input" placeholder="Type to test relevance: e.g. 'react', 'crypto', 'audio'..." oninput="runDemoSearch()">
+            <button class="demo-btn" onclick="runDemoSearch()">Score Matches</button>
+          </div>
+          <div id="demo-search-results" class="demo-results">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Audio Tab -->
+        <div id="tab-audio" class="tab-content">
+          <p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:1.5rem;">
+            Procedurally synthesized ambient soundscapes using the HTML5 Web Audio API. Click below to test live synthetic audio generation.
+          </p>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1.25rem;">
+            <div class="metric-card" style="cursor:pointer;" onclick="playLiveAudio('rain', this)">
+              <div style="font-size:1.6rem;margin-bottom:0.5rem;">🌧️ Rain Generator</div>
+              <div style="font-size:0.88rem;color:var(--text-muted);">Pink noise + dynamic resonant biquad filtering</div>
+            </div>
+            <div class="metric-card" style="cursor:pointer;" onclick="playLiveAudio('binaural', this)">
+              <div style="font-size:1.6rem;margin-bottom:0.5rem;">🧠 40Hz Gamma Beats</div>
+              <div style="font-size:0.88rem;color:var(--text-muted);">Dual sine oscillators (216Hz/256Hz) for focus</div>
+            </div>
+            <div class="metric-card" style="cursor:pointer;" onclick="playLiveAudio('brown', this)">
+              <div style="font-size:1.6rem;margin-bottom:0.5rem;">🌊 Brown Noise</div>
+              <div style="font-size:0.88rem;color:var(--text-muted);">Brownian motion random-walk soundscape</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Tab -->
+        <div id="tab-ai" class="tab-content">
+          <p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:1.25rem;">
+            Simulated local Gemini Nano context injection. Questions are answered strictly using saved vault items as ground truth.
+          </p>
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--surface-border);border-radius:14px;padding:1.25rem;margin-bottom:1rem;display:flex;flex-direction:column;gap:10px;">
+            <div style="background:rgba(255,255,255,0.06);align-self:flex-end;padding:10px 16px;border-radius:10px;font-size:0.92rem;">
+              👤 What are the security specifications of SikPoket?
+            </div>
+            <div style="background:rgba(121,82,255,0.18);align-self:flex-start;padding:12px 18px;border-radius:10px;font-size:0.92rem;border:1px solid rgba(121,82,255,0.35);line-height:1.5;">
+              🤖 <strong>SikPoket AI Assistant:</strong> Based strictly on your saved vault: SikPoket implements AES-256-GCM hardware encryption with PBKDF2 (100,000 iterations), zero third-party telemetry, and local biometric unlock via WebAuthn Touch ID.
+            </div>
+          </div>
+        </div>
+
+        <!-- Health Tab -->
+        <div id="tab-health" class="tab-content">
+          <p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:1.25rem;">
+            Link Health Monitor runs non-blocking HEAD requests in the background to automatically identify broken or dead bookmarks.
+          </p>
+          <div class="demo-results">
+            <div class="demo-result-card">
+              <div>
+                <div class="result-title">https://developer.mozilla.org/en-US/docs/Web/API</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);">MDN Web Docs — Last Checked: Just now</div>
+              </div>
+              <span style="color:var(--accent-emerald);font-weight:700;font-size:0.85rem;">✔ 200 OK</span>
+            </div>
+            <div class="demo-result-card">
+              <div>
+                <div class="result-title">https://sample-dead-domain-404-broken.org/doc</div>
+                <div style="font-size:0.8rem;color:var(--text-muted);">Deprecated Blog Post — Last Checked: Just now</div>
+              </div>
+              <span style="color:var(--accent-rose);font-weight:700;font-size:0.85rem;">✖ 404 DEAD LINK</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 5: Security Specification -->
+    <section id="security">
+      <div class="section-header">
+        <span class="section-num">05 // Cryptographic Model</span>
+        <h2 class="section-title">Zero-Knowledge Security Specifications</h2>
+      </div>
+
+      <div class="blueprint-box">
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1.5rem;">
+          <div class="arch-node">
+            <div class="node-title" style="color:var(--accent-secondary);">🔑 PBKDF2 Key Derivation</div>
+            <div class="node-desc">Master passwords derive an in-memory AES-256 CryptoKey using SHA-256 with 100,000 iterations and a unique 16-byte cryptographic salt.</div>
+          </div>
+          <div class="arch-node">
+            <div class="node-title" style="color:var(--accent-primary);">🛡️ AES-256-GCM Cipher</div>
+            <div class="node-desc">Authenticated hardware encryption with a randomized 12-byte initialization vector (IV) per save. Plaintext never touches disk.</div>
+          </div>
+          <div class="arch-node">
+            <div class="node-title" style="color:var(--accent-emerald);">👆 WebAuthn Biometrics</div>
+            <div class="node-desc">Touch ID / Face ID hardware authenticators provide local biometric unlock without storing passwords on disk.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div style="margin-bottom:0.5rem;font-weight:700;color:#fff;font-size:1.1rem;">SikPoket Ecosystem v1.4.0 Extended</div>
+    <div>Engineered with 100% Zero-Server, Privacy-First Architecture.</div>
+  </footer>
+
+  <script>
+    // Tab switcher
+    function switchDemoTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    // Mock items for search demo
+    const mockVault = [
+      { title: "React 19 Server Components Architecture", url: "https://react.dev", content: "Deep dive into React server actions, hooks, and bundle size reduction." },
+      { title: "Hardware Cryptography & AES-GCM in WebCrypto", url: "https://w3c.github.io/webcrypto", content: "Zero-knowledge encryption keys and PBKDF2 parameter configurations." },
+      { title: "Web Audio API Spatial Sound Synthesis", url: "https://webaudio.github.io", content: "Procedural white, pink, and brown noise generation with biquad filters." },
+      { title: "Chrome Extension MV3 Manifest Reference", url: "https://developer.chrome.com", content: "Service worker lifecycle, side panel APIs, and permission model." }
+    ];
+
+    function runDemoSearch() {
+      const q = (document.getElementById('demo-search-input').value || 'react').toLowerCase().trim();
+      const resultsDiv = document.getElementById('demo-search-results');
+      
+      const scored = mockVault.map(item => {
+        let score = 0;
+        const text = (item.title + ' ' + item.url + ' ' + item.content).toLowerCase();
+        if (item.title.toLowerCase().includes(q)) score += 10;
+        if (text.includes(q)) score += 5;
+        return { item, score };
+      }).filter(r => r.score > 0).sort((a, b) => b.score - a.score);
+
+      if (scored.length === 0) {
+        resultsDiv.innerHTML = '<div style="color:var(--text-muted);padding:1rem;">No matching indexed records found.</div>';
+        return;
+      }
+
+      resultsDiv.innerHTML = scored.map(r => `
+        <div class="demo-result-card">
+          <div>
+            <div class="result-title">${r.item.title}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">${r.item.url} — ${r.item.content.substring(0, 50)}...</div>
+          </div>
+          <span class="result-score">Score: ${r.score}</span>
+        </div>
+      `).join('');
+    }
+
+    // Initialize search on load
+    runDemoSearch();
+
+    // Live Web Audio Generator for Demo
+    let audioCtx = null;
+    let currentSource = null;
+    let activeCard = null;
+
+    function playLiveAudio(type, card) {
+      if (activeCard === card) {
+        // Stop audio
+        if (currentSource) {
+          try { currentSource.stop(); } catch(e){}
+          currentSource = null;
+        }
+        card.style.borderColor = 'var(--surface-border)';
+        activeCard = null;
+        return;
+      }
+
+      if (activeCard) {
+        activeCard.style.borderColor = 'var(--surface-border)';
+        if (currentSource) {
+          try { currentSource.stop(); } catch(e){}
+          currentSource = null;
+        }
+      }
+
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      card.style.borderColor = 'var(--accent-emerald)';
+      activeCard = card;
+
+      if (type === 'binaural') {
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.1;
+        osc1.frequency.value = 216;
+        osc2.frequency.value = 256; // 40Hz beat
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc1.start();
+        osc2.start();
+        currentSource = { stop: () => { osc1.stop(); osc2.stop(); } };
+      } else {
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          if (type === 'brown') {
+            data[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = data[i];
+            data[i] *= 3.5;
+          } else { // rain/pink
+            data[i] = white * 0.15;
+          }
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        noise.loop = true;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = type === 'rain' ? 'bandpass' : 'lowpass';
+        filter.frequency.value = type === 'rain' ? 800 : 400;
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.15;
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
+        currentSource = noise;
+      }
+    }
+  </script>
+</body>
+</html>

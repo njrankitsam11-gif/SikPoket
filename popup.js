@@ -1594,6 +1594,75 @@ document.addEventListener('DOMContentLoaded', async () => {
       if ($('wallpaper-opacity'))    $('wallpaper-opacity').value    = '30';
     });
   }
+  /* --- Chat Assistant --- */
+  const chatInput = $('chat-input');
+  const chatSendBtn = $('chat-send-btn');
+  const chatMessages = $('chat-messages');
+
+  if (chatInput && chatSendBtn && chatMessages) {
+    chatSendBtn.addEventListener('click', handleChat);
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleChat();
+    });
+  }
+
+  async function handleChat() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    
+    appendChatMessage('user', text);
+    chatInput.value = '';
+    
+    // Check available
+    if (!window.ChatHelper) {
+      appendChatMessage('ai', 'Error: ChatHelper not loaded.');
+      return;
+    }
+    const avail = await window.ChatHelper.isAvailable();
+    if (!avail) {
+      appendChatMessage('ai', 'Error: window.ai is not available. Please ensure you are using Chrome Dev/Canary with the built-in Gemini Nano model enabled.');
+      return;
+    }
+    
+    if (!window.ChatHelper.session) {
+      appendChatMessage('ai', 'Initializing session with your vault context... this may take a moment.');
+      try {
+        const allItems = [...allData.urls, ...allData.notes].filter(i => !i.archived);
+        await window.ChatHelper.initSession(allItems);
+      } catch (e) {
+        appendChatMessage('ai', 'Failed to initialize session: ' + e.message);
+        return;
+      }
+    }
+    
+    try {
+      const typingMsg = appendChatMessage('ai', '...');
+      const response = await window.ChatHelper.prompt(text);
+      typingMsg.innerHTML = '🤖 ' + esc(response).replace(/\n/g, '<br>');
+    } catch (e) {
+      appendChatMessage('ai', 'Error processing request: ' + e.message);
+    }
+  }
+
+  function appendChatMessage(role, text) {
+    const div = document.createElement('div');
+    div.className = 'chat-msg';
+    div.style.padding = '8px 10px';
+    div.style.borderRadius = '6px';
+    div.style.color = 'var(--c-txt)';
+    if (role === 'user') {
+      div.style.background = 'rgba(255,255,255,0.05)';
+      div.style.alignSelf = 'flex-end';
+      div.innerHTML = '👤 ' + esc(text).replace(/\n/g, '<br>');
+    } else {
+      div.style.background = 'rgba(108,99,245,0.1)';
+      div.style.alignSelf = 'flex-start';
+      div.innerHTML = '🤖 ' + esc(text).replace(/\n/g, '<br>');
+    }
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
 
   } catch (e) { console.error('SikPoket init error:', e); }
 });
