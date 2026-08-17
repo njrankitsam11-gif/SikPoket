@@ -2,7 +2,7 @@
 
 /**
  * SikPoket Chrome Extension Packager
- * Creates a clean release ZIP for Chrome Web Store upload excluding dev/repo metadata.
+ * Creates a clean release ZIP for Chrome Web Store upload inside the dist/ directory.
  */
 
 const { execSync } = require('child_process');
@@ -10,10 +10,15 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
+const distDir = path.join(rootDir, 'dist');
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
+}
+
 const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'manifest.json'), 'utf8'));
 const version = manifest.version || '1.0.0';
 const zipName = `SikPoket-v${version}.zip`;
-const zipPath = path.join(rootDir, zipName);
+const zipPath = path.join(distDir, zipName);
 
 console.log(`\n📦 Packaging SikPoket v${version} for Chrome Web Store...\n`);
 
@@ -40,6 +45,14 @@ const includes = [
   'ai-helper.js',
   'audio-helper.js',
   'sync-helper.js',
+  'search-helper.js',
+  'health-helper.js',
+  'chat-helper.js',
+  'graph-helper.js',
+  'reader-helper.js',
+  'wikilink-helper.js',
+  'tagger-helper.js',
+  'archive-helper.js',
   'sidepanel.html',
   'popup.html',
   'popup.js',
@@ -61,12 +74,12 @@ try {
     '-x', '"*.zip"'
   ].join(' ');
 
-  const command = `zip -r "${zipName}" ${includes.join(' ')} ${excludeArgs}`;
+  const command = `zip -r "dist/${zipName}" ${includes.join(' ')} ${excludeArgs}`;
   console.log(`Executing: ${command}`);
   execSync(command, { cwd: rootDir, stdio: 'inherit' });
 
   const stats = fs.statSync(zipPath);
-  console.log(`\n\x1b[32m✔ Successfully built release package: ${zipName} (${(stats.size / 1024).toFixed(1)} KB)\x1b[0m`);
+  console.log(`\n\x1b[32m✔ Successfully built release package: dist/${zipName} (${(stats.size / 1024).toFixed(1)} KB)\x1b[0m`);
   console.log(`Ready for upload to Chrome Developer Dashboard!\n`);
 } catch (err) {
   console.error(`\x1b[31m✖ Failed to create zip package: ${err.message}\x1b[0m`);

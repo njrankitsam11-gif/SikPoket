@@ -1,5 +1,21 @@
+# macOS
 .DS_Store
-.hermes/
+.AppleDouble
+.LSOverride
+._*
+
+# Node / Scratch
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Release artifacts (keep root clean)
 *.zip
-.vercel
+dist/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
