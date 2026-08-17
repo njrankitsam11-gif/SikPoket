@@ -71,6 +71,24 @@
           <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 9V7a2 2 0 114 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <span>Passwords</span><span class="nav-badge" id="badge-passwords">0</span>
         </button>
+        <div class="nav-section-label" style="margin-top:16px;">Smart Spaces</div>
+        <button class="nav-item" data-collection="smart-quick">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M11 2L4 11h6l-1 7 7-9h-6l1-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span>Quick Reads</span><span class="nav-badge" id="badge-smart-quick" style="color:#00e5ff;">&lt;3m</span>
+        </button>
+        <button class="nav-item" data-collection="smart-research">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Research &amp; AI</span><span class="nav-badge" id="badge-smart-research" style="color:#a78bfa;">Deep</span>
+        </button>
+        <button class="nav-item" data-collection="smart-dev">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M6 7l-4 3 4 3m8-6l4 3-4 3M11 4l-2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Code &amp; Repos</span><span class="nav-badge" id="badge-smart-dev" style="color:#00f2a9;">Dev</span>
+        </button>
+        <button class="nav-item" data-collection="smart-inbox">
+          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 5h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5"/><path d="M3 11h4a2 2 0 002 2h2a2 2 0 002-2h4" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Inbox</span><span class="nav-badge" id="badge-smart-inbox">0</span>
+        </button>
+
         <div class="nav-section-label" style="margin-top:16px;">Tools</div>
         <button class="nav-item" data-collection="highlights">
           <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 14l2-5 8-7 2 2-8 7-4 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 14l-1 3 3-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -376,6 +394,9 @@
   <script src="../search-helper.js"></script>
   <script src="../graph-helper.js"></script>
   <script src="../reader-helper.js"></script>
+  <script src="../wikilink-helper.js"></script>
+  <script src="../tagger-helper.js"></script>
+  <script src="../archive-helper.js"></script>
   <script src="app.js"></script>
   <script>
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

@@ -155,6 +155,10 @@ function getFiltered() {
   const space = getActiveSpace(); if (!space) return [];
   let items = [...space.items];
   if (state.collection === 'highlights') items = items.filter(i => (i.tags||[]).includes('highlight') && !i.archived);
+  else if (state.collection === 'smart-quick') items = items.filter(i => window.TaggerHelper ? window.TaggerHelper.SmartSpaces.isQuickRead(i) : true);
+  else if (state.collection === 'smart-research') items = items.filter(i => window.TaggerHelper ? window.TaggerHelper.SmartSpaces.isResearch(i) : true);
+  else if (state.collection === 'smart-dev') items = items.filter(i => window.TaggerHelper ? window.TaggerHelper.SmartSpaces.isDev(i) : true);
+  else if (state.collection === 'smart-inbox') items = items.filter(i => window.TaggerHelper ? window.TaggerHelper.SmartSpaces.isInbox(i) : true);
   else if (state.collection === 'broken') {
     // Broken items are stored in state.brokenIds (populated by scanBrokenLinks)
     const brokenIds = state.brokenIds || new Set();
@@ -198,6 +202,14 @@ function updateBadges() {
   setBdg('badge-keys', a.filter(i=>i.type==='key').length);
   setBdg('badge-passwords', a.filter(i=>i.type==='password').length);
   setBdg('badge-highlights', a.filter(i=>(i.tags||[]).includes('highlight')).length);
+  
+  if (window.TaggerHelper) {
+    setBdg('badge-smart-quick', a.filter(i => window.TaggerHelper.SmartSpaces.isQuickRead(i)).length);
+    setBdg('badge-smart-research', a.filter(i => window.TaggerHelper.SmartSpaces.isResearch(i)).length);
+    setBdg('badge-smart-dev', a.filter(i => window.TaggerHelper.SmartSpaces.isDev(i)).length);
+    setBdg('badge-smart-inbox', a.filter(i => window.TaggerHelper.SmartSpaces.isInbox(i)).length);
+  }
+
   const brokenCount = state.brokenIds?.size ?? '—';
   setBdg('badge-broken', brokenCount === '—' ? '—' : brokenCount);
   renderSidebarTags();
@@ -309,7 +321,11 @@ function render() {
   if (!a) return; const space = getActiveSpace(); if (!space) return;
   attachCardEventDelegation();
   const items = getFiltered(), lm = state.viewMode==='list', mm = state.viewMode==='masonry';
-  const titles = {all:'All Items',favorites:'Favorites',archived:'Archive',urls:'URLs',notes:'Notes',keys:'API Keys',passwords:'Passwords',highlights:'Highlights',broken:'Broken Links',guide:'How to Use SikPoket'};
+  const titles = {
+    all: 'All Items', favorites: 'Favorites', archived: 'Archive', urls: 'URLs', notes: 'Notes', keys: 'API Keys', passwords: 'Passwords',
+    highlights: 'Highlights', broken: 'Broken Links', guide: 'How to Use SikPoket',
+    'smart-quick': '⚡ Quick Reads (< 3m)', 'smart-research': '🧠 Research & AI', 'smart-dev': '💻 Code & Repos', 'smart-inbox': '📥 Inbox (Untagged)'
+  };
   if(vt) vt.textContent = state.tag?`#${state.tag}`:(titles[state.collection]||'All Items');
   if(vc) vc.textContent = state.collection==='guide' ? '6 Modules Guide' : `${items.length} item${items.length!==1?'s':''}`;
 
@@ -1049,7 +1065,7 @@ function openReaderMode(item) {
   if (!modal || !titleEl || !bodyEl) return;
 
   const title = item.title || item.name || 'Untitled Article';
-  const rawText = item.content || item.title || item.url || '';
+  let rawText = item.content || item.title || item.url || '';
   
   titleEl.textContent = title;
   
@@ -1058,6 +1074,11 @@ function openReaderMode(item) {
   const tagList = (item.tags || []).map(t => `#${t}`).join(' ');
   metaEl.innerHTML = `${host}${date} ${tagList ? `• <span style="color:var(--muted);">${esc(tagList)}</span>` : ''}`;
 
+  // Parse WikiLinks
+  if (typeof WikiLinkHelper !== 'undefined') {
+    rawText = WikiLinkHelper.renderWikiLinks(rawText);
+  }
+
   if (typeof ReaderHelper !== 'undefined') {
     bodyEl.innerHTML = ReaderHelper.cleanContent(rawText, title);
     if (readTimeEl) {
@@ -1065,8 +1086,50 @@ function openReaderMode(item) {
       readTimeEl.textContent = `📖 ${mins} min read`;
     }
   } else {
-    bodyEl.textContent = rawText;
+    bodyEl.innerHTML = rawText;
   }
+
+  // Render Incoming Backlinks
+  const space = getActiveSpace();
+  if (space && typeof WikiLinkHelper !== 'undefined') {
+    const linkIndex = WikiLinkHelper.buildLinkIndex(space.items || []);
+    const backlinks = linkIndex.getItemBacklinks(item.id);
+    if (backlinks.length > 0) {
+      const backlinkHtml = `
+        <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;font-family:var(--font-mono);">
+            🔗 Backlinks (${backlinks.length} incoming reference${backlinks.length > 1 ? 's' : ''})
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${backlinks.map(b => `<button class="btn-cancel backlink-btn" data-item-id="${b.id}" style="padding:6px 12px;font-size:12px;border-radius:8px;background:rgba(121,82,255,0.1);border-color:rgba(121,82,255,0.3);color:#c4b5fd;">📝 ${esc(b.title || b.name)}</button>`).join('')}
+          </div>
+        </div>
+      `;
+      bodyEl.innerHTML += backlinkHtml;
+      bodyEl.querySelectorAll('.backlink-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = space.items.find(x => x.id === btn.dataset.itemId);
+          if (target) openReaderMode(target);
+        });
+      });
+    }
+  }
+
+  // Handle WikiLink pill clicks
+  bodyEl.querySelectorAll('.wikilink-pill').forEach(pill => {
+    pill.style.cursor = 'pointer';
+    pill.style.background = 'rgba(121, 82, 255, 0.2)';
+    pill.style.padding = '2px 6px';
+    pill.style.borderRadius = '4px';
+    pill.style.color = '#00e5ff';
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetTitle = pill.dataset.wikilink.toLowerCase();
+      const found = (space?.items || []).find(x => (x.title || x.name || '').toLowerCase() === targetTitle);
+      if (found) openReaderMode(found);
+      else toast(`Note "${pill.dataset.wikilink}" not found`, 'error');
+    });
+  });
 
   modal.classList.remove('hidden');
   initReaderControls();

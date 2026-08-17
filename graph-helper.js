@@ -255,6 +255,26 @@
         }
       });
 
+      // 4. Add Bi-Directional WikiLink Direct Edges
+      if (typeof window !== 'undefined' && window.WikiLinkHelper) {
+        const linkIndex = window.WikiLinkHelper.buildLinkIndex(items);
+        linkIndex.forwardLinks.forEach((targetIds, sourceId) => {
+          const sourceNode = this.nodeMap.get('item_' + sourceId);
+          targetIds.forEach(targetId => {
+            const targetNode = this.nodeMap.get('item_' + targetId);
+            if (sourceNode && targetNode) {
+              this.edges.push({
+                source: sourceNode,
+                target: targetNode,
+                length: this.options.springLength * 0.8,
+                color: 'rgba(121, 82, 255, 0.75)',
+                isWikiLink: true
+              });
+            }
+          });
+        });
+      }
+
       // Center initial transform
       this.transform = { x: 0, y: 0, scale: 1 };
     }
