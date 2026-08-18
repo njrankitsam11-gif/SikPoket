@@ -21,10 +21,13 @@ let state = {
   viewMode: 'grid',
   editId: null
 };
+window.state = state;
 
 function getActiveSpace() {
   return state.spaces.find(s => s.id === state.activeSpace) || state.spaces[0] || null;
 }
+window.getActiveSpace = getActiveSpace;
+window.render = render;
 
 async function load() {
   try {
@@ -1170,6 +1173,7 @@ function initOrUpdateKnowledgeGraph() {
     }
   }
 
+  window._currentGraphInstance.resize();
   window._currentGraphInstance.setData(space.items || []);
   if (state.search) {
     window._currentGraphInstance.setSearchFilter(state.search);
