@@ -321,12 +321,20 @@ a.card-title:hover { color: var(--accent-gold); }
       </div>
 
       <!-- Space switcher -->
-      <div class="space-switcher">
-        <div class="nav-section-label">Spaces</div>
-        <div class="space-list" id="space-list"></div>
-        <button class="add-space-btn" id="add-space-btn">
-          <span>+</span> New Space
-        </button>
+      <div class="space-switcher nav-section" id="section-spaces" data-section-id="spaces">
+        <div class="nav-section-header">
+          <div class="nav-section-header-left">
+            <svg class="nav-section-chevron" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Spaces</span>
+          </div>
+          <button type="button" class="sidebar-collapse-all-btn" id="btn-toggle-all-sections" title="Collapse / Expand All Sections">Toggle All</button>
+        </div>
+        <div class="nav-section-body">
+          <div class="space-list" id="space-list"></div>
+          <button class="add-space-btn" id="add-space-btn">
+            <span>+</span> New Space
+          </button>
+        </div>
       </div>
 
       <div class="sidebar-search">
@@ -337,88 +345,141 @@ a.card-title:hover { color: var(--accent-gold); }
       </div>
 
       <nav class="sidebar-nav">
-        <div class="nav-section-label">Library</div>
-        <button class="nav-item active" data-collection="all">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>All Items</span>
-          <span class="nav-badge" id="badge-all">0</span>
-        </button>
-        <button class="nav-item" data-collection="favorites">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 5.1 5.6.5-4.2 3.8 1.3 5.5L10 14.3l-5.1 2.6 1.3-5.5L2 7.6l5.6-.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span>Favorites</span>
-          <span class="nav-badge" id="badge-favorites">0</span>
-        </button>
-        <button class="nav-item" data-collection="archived">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 7v8a2 2 0 002 2h8a2 2 0 002-2V7" stroke="currentColor" stroke-width="1.5"/><path d="M8 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Archive</span>
-          <span class="nav-badge" id="badge-archived">0</span>
-        </button>
-        <div class="nav-section-label" style="margin-top:16px;">Categories</div>
-        <button class="nav-item" data-collection="urls">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>URLs</span><span class="nav-badge" id="badge-urls">0</span>
-        </button>
-        <button class="nav-item" data-collection="notes">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M6 2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Notes</span><span class="nav-badge" id="badge-notes">0</span>
-        </button>
-        <button class="nav-item" data-collection="keys">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M12 10h6M16 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>API Keys</span><span class="nav-badge" id="badge-keys">0</span>
-        </button>
-        <button class="nav-item" data-collection="passwords">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 9V7a2 2 0 114 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Passwords</span><span class="nav-badge" id="badge-passwords">0</span>
-        </button>
-        <div class="nav-section-label" style="margin-top:16px;">Smart Spaces</div>
-        <button class="nav-item" data-collection="smart-quick">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M11 2L4 11h6l-1 7 7-9h-6l1-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-          <span>Quick Reads</span><span class="nav-badge" id="badge-smart-quick" style="color:#e1e100;">&lt;3m</span>
-        </button>
-        <button class="nav-item" data-collection="smart-research">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Research &amp; AI</span><span class="nav-badge" id="badge-smart-research" style="color:#90b800;">Deep</span>
-        </button>
-        <button class="nav-item" data-collection="smart-dev">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M6 7l-4 3 4 3m8-6l4 3-4 3M11 4l-2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Code &amp; Repos</span><span class="nav-badge" id="badge-smart-dev" style="color:#d6f264;">Dev</span>
-        </button>
-        <button class="nav-item" data-collection="smart-inbox">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 5h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5"/><path d="M3 11h4a2 2 0 002 2h2a2 2 0 002-2h4" stroke="currentColor" stroke-width="1.5"/></svg>
-          <span>Inbox</span><span class="nav-badge" id="badge-smart-inbox">0</span>
-        </button>
+        <!-- Library Section -->
+        <div class="nav-section" id="section-library" data-section-id="library">
+          <div class="nav-section-header">
+            <div class="nav-section-header-left">
+              <svg class="nav-section-chevron" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Library</span>
+            </div>
+          </div>
+          <div class="nav-section-body">
+            <button class="nav-item active" data-collection="all">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>All Items</span>
+              <span class="nav-badge" id="badge-all">0</span>
+            </button>
+            <button class="nav-item" data-collection="favorites">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 5.1 5.6.5-4.2 3.8 1.3 5.5L10 14.3l-5.1 2.6 1.3-5.5L2 7.6l5.6-.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              <span>Favorites</span>
+              <span class="nav-badge" id="badge-favorites">0</span>
+            </button>
+            <button class="nav-item" data-collection="archived">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M4 7v8a2 2 0 002 2h8a2 2 0 002-2V7" stroke="currentColor" stroke-width="1.5"/><path d="M8 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Archive</span>
+              <span class="nav-badge" id="badge-archived">0</span>
+            </button>
+          </div>
+        </div>
 
-        <div class="nav-section-label" style="margin-top:16px;">Tools</div>
-        <button class="nav-item" data-collection="highlights">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 14l2-5 8-7 2 2-8 7-4 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 14l-1 3 3-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Highlights</span><span class="nav-badge" id="badge-highlights">0</span>
-        </button>
-        <button class="nav-item" data-collection="broken">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3l14 14" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Broken Links</span><span class="nav-badge nav-badge-danger" id="badge-broken">-</span>
-        </button>
-        <button class="nav-item" data-collection="graph">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="15" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 6.5l2.5 6m4.5-6l-2.5 6M7.5 5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <span>Knowledge Graph</span><span class="nav-badge" style="background:rgba(144,184,0,0.18);color:#e1e100;font-size:10px;font-weight:700;">2D Mindmap</span>
-        </button>
-        <button class="nav-item" data-collection="rss">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 11a7 7 0 017 7M4 6a12 12 0 0112 12M5 17a1 1 0 11-2 0 1 1 0 012 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>RSS Feeds</span><span class="nav-badge" style="background:rgba(247,127,0,0.18);color:#f77f00;font-size:10px;font-weight:700;">Watcher</span>
-        </button>
-        <button class="nav-item" id="btn-dedup-clean">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 6h14M8 6V4a1 1 0 011-1h2a1 1 0 011 1v2M5 6v10a2 2 0 002 2h6a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5"/><path d="M8 10v4M12 10v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Clean Duplicates</span><span class="nav-badge" id="badge-dedup">Auto</span>
-        </button>
-        <button class="nav-item" id="btn-shortcuts-help">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8.5 8a1.5 1.5 0 013 0c0 1-1.5 1.5-1.5 2.5m0 2.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>Shortcuts (?)</span><span class="nav-badge" style="font-family:var(--font-mono);font-size:10px;">VIM</span>
-        </button>
-        <button class="nav-item" data-collection="guide">
-          <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 4.5A2.5 2.5 0 016.5 2H16v14.5a.5.5 0 01-.5.5H6.5A2.5 2.5 0 004 19.5V4.5z" stroke="currentColor" stroke-width="1.5"/><path d="M4 17a2.5 2.5 0 012.5-2.5H16" stroke="currentColor" stroke-width="1.5"/><path d="M8 6h5M8 9h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span>How to Use</span><span class="nav-badge" style="background:rgba(144,184,0,0.18);color:#90b800;font-size:10px;font-weight:600;">Guide</span>
-        </button>
-        <div class="nav-section-label" style="margin-top:16px;">Tags</div>
-        <div id="sidebar-tags" class="sidebar-tags"></div>
+        <!-- Categories Section -->
+        <div class="nav-section" id="section-categories" data-section-id="categories">
+          <div class="nav-section-header">
+            <div class="nav-section-header-left">
+              <svg class="nav-section-chevron" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Categories</span>
+            </div>
+          </div>
+          <div class="nav-section-body">
+            <button class="nav-item" data-collection="urls">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>URLs</span><span class="nav-badge" id="badge-urls">0</span>
+            </button>
+            <button class="nav-item" data-collection="notes">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M6 2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Notes</span><span class="nav-badge" id="badge-notes">0</span>
+            </button>
+            <button class="nav-item" data-collection="keys">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="10" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M12 10h6M16 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>API Keys</span><span class="nav-badge" id="badge-keys">0</span>
+            </button>
+            <button class="nav-item" data-collection="passwords">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 9V7a2 2 0 114 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Passwords</span><span class="nav-badge" id="badge-passwords">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Smart Spaces Section -->
+        <div class="nav-section" id="section-smart-spaces" data-section-id="smart-spaces">
+          <div class="nav-section-header">
+            <div class="nav-section-header-left">
+              <svg class="nav-section-chevron" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Smart Spaces</span>
+            </div>
+          </div>
+          <div class="nav-section-body">
+            <button class="nav-item" data-collection="smart-quick">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M11 2L4 11h6l-1 7 7-9h-6l1-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              <span>Quick Reads</span><span class="nav-badge" id="badge-smart-quick" style="color:#e1e100;">&lt;3m</span>
+            </button>
+            <button class="nav-item" data-collection="smart-research">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Research &amp; AI</span><span class="nav-badge" id="badge-smart-research" style="color:#90b800;">Deep</span>
+            </button>
+            <button class="nav-item" data-collection="smart-dev">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M6 7l-4 3 4 3m8-6l4 3-4 3M11 4l-2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Code &amp; Repos</span><span class="nav-badge" id="badge-smart-dev" style="color:#d6f264;">Dev</span>
+            </button>
+            <button class="nav-item" data-collection="smart-inbox">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 5h14v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5"/><path d="M3 11h4a2 2 0 002 2h2a2 2 0 002-2h4" stroke="currentColor" stroke-width="1.5"/></svg>
+              <span>Inbox</span><span class="nav-badge" id="badge-smart-inbox">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tools Section -->
+        <div class="nav-section" id="section-tools" data-section-id="tools">
+          <div class="nav-section-header">
+            <div class="nav-section-header-left">
+              <svg class="nav-section-chevron" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Tools</span>
+            </div>
+          </div>
+          <div class="nav-section-body">
+            <button class="nav-item" data-collection="highlights">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 14l2-5 8-7 2 2-8 7-4 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4 14l-1 3 3-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Highlights</span><span class="nav-badge" id="badge-highlights">0</span>
+            </button>
+            <button class="nav-item" data-collection="broken">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M7.5 13.5l5-5m-3-1.5l1.5-1.5a3.5 3.5 0 015 5l-1.5 1.5m-7 1l-1.5 1.5a3.5 3.5 0 01-5-5l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 3l14 14" stroke="#ff4d4d" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Broken Links</span><span class="nav-badge nav-badge-danger" id="badge-broken">-</span>
+            </button>
+            <button class="nav-item" data-collection="graph">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="15" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 6.5l2.5 6m4.5-6l-2.5 6M7.5 5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span>Knowledge Graph</span><span class="nav-badge" style="background:rgba(144,184,0,0.18);color:#e1e100;font-size:10px;font-weight:700;">2D Mindmap</span>
+            </button>
+            <button class="nav-item" data-collection="rss">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 11a7 7 0 017 7M4 6a12 12 0 0112 12M5 17a1 1 0 11-2 0 1 1 0 012 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>RSS Feeds</span><span class="nav-badge" style="background:rgba(247,127,0,0.18);color:#f77f00;font-size:10px;font-weight:700;">Watcher</span>
+            </button>
+            <button class="nav-item" id="btn-dedup-clean">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M3 6h14M8 6V4a1 1 0 011-1h2a1 1 0 011 1v2M5 6v10a2 2 0 002 2h6a2 2 0 002-2V6" stroke="currentColor" stroke-width="1.5"/><path d="M8 10v4M12 10v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Clean Duplicates</span><span class="nav-badge" id="badge-dedup">Auto</span>
+            </button>
+            <button class="nav-item" id="btn-shortcuts-help">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8.5 8a1.5 1.5 0 013 0c0 1-1.5 1.5-1.5 2.5m0 2.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>Shortcuts (?)</span><span class="nav-badge" style="font-family:var(--font-mono);font-size:10px;">VIM</span>
+            </button>
+            <button class="nav-item" data-collection="guide">
+              <svg class="nav-icon-svg" viewBox="0 0 20 20" fill="none"><path d="M4 4.5A2.5 2.5 0 016.5 2H16v14.5a.5.5 0 01-.5.5H6.5A2.5 2.5 0 004 19.5V4.5z" stroke="currentColor" stroke-width="1.5"/><path d="M4 17a2.5 2.5 0 012.5-2.5H16" stroke="currentColor" stroke-width="1.5"/><path d="M8 6h5M8 9h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span>How to Use</span><span class="nav-badge" style="background:rgba(144,184,0,0.18);color:#90b800;font-size:10px;font-weight:600;">Guide</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tags Section -->
+        <div class="nav-section" id="section-tags" data-section-id="tags">
+          <div class="nav-section-header">
+            <div class="nav-section-header-left">
+              <svg class="nav-section-chevron" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Tags</span>
+            </div>
+          </div>
+          <div class="nav-section-body">
+            <div id="sidebar-tags" class="sidebar-tags"></div>
+          </div>
+        </div>
       </nav>
 
       <div class="sidebar-footer" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
@@ -630,7 +691,8 @@ a.card-title:hover { color: var(--accent-gold); }
             </div>
           </div>
 
-          <div class="form-actions-modal">
+          <div class="form-actions-modal" style="display:flex;align-items:center;gap:8px;">
+            <button type="button" class="btn-cancel" id="btn-delete-space-modal" style="color:var(--danger);border-color:rgba(255,77,77,0.3);margin-right:auto;" title="Delete this space">🗑️ Delete Space</button>
             <button type="button" class="btn-cancel" id="space-modal-cancel">Cancel</button>
             <button type="submit" class="btn-save">Apply & Save Space</button>
           </div>

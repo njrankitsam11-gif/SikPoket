@@ -29,6 +29,73 @@ function getActiveSpace() {
 window.getActiveSpace = getActiveSpace;
 window.render = render;
 
+async function syncFromExtensionStorage() {
+  if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
+  try {
+    const res = await chrome.storage.local.get(['sikpoketData', 'sikpoketDashboardData']);
+    let modified = false;
+
+    // 1. If sikpoketDashboardData exists, sync state.spaces
+    if (res.sikpoketDashboardData?.spaces?.length) {
+      state.spaces = res.sikpoketDashboardData.spaces.map(s => ({ ...s, items: (s.items||[]).filter(i => !i._removed) }));
+      if (res.sikpoketDashboardData.activeSpace) {
+        state.activeSpace = res.sikpoketDashboardData.activeSpace;
+      }
+    }
+
+    // 2. If sikpoketData exists from popup/content script, ensure all items are in active space
+    if (res.sikpoketData) {
+      let active = getActiveSpace();
+      if (!active && state.spaces.length) active = state.spaces[0];
+      if (active) {
+        if (!active.items) active.items = [];
+        const allExtItems = [
+          ...(res.sikpoketData.urls || []).map(u => ({ id: u.id || genId(), type: 'url', title: u.title || u.url, url: u.url, tags: u.tags || [], favorite: !!u.favorite, archived: !!u.archived, createdAt: u.createdAt || Date.now() })),
+          ...(res.sikpoketData.notes || []).map(n => ({ id: n.id || genId(), type: 'note', title: n.title || 'Note', content: n.content || n.text || '', tags: n.tags || [], favorite: !!n.favorite, archived: !!n.archived, createdAt: n.createdAt || Date.now() })),
+          ...(res.sikpoketData.apiKeys || []).map(k => ({ id: k.id || genId(), type: 'key', name: k.name || k.title || 'API Key', username: k.service || k.username || '', value: k.key || k.value || '', tags: k.tags || [], favorite: !!k.favorite, archived: !!k.archived, createdAt: k.createdAt || Date.now() })),
+          ...(res.sikpoketData.passwords || []).map(p => ({ id: p.id || genId(), type: 'password', name: p.name || p.title || 'Password', username: p.username || '', value: p.password || p.value || '', tags: p.tags || [], favorite: !!p.favorite, archived: !!p.archived, createdAt: p.createdAt || Date.now() }))
+        ];
+
+        const existingKeys = new Set();
+        state.spaces.forEach(s => {
+          (s.items || []).forEach(i => {
+            if (i.id) existingKeys.add(i.id);
+            if (i.url) existingKeys.add(i.url);
+          });
+        });
+
+        allExtItems.forEach(item => {
+          if (!existingKeys.has(item.id) && (!item.url || !existingKeys.has(item.url))) {
+            active.items.unshift(item);
+            existingKeys.add(item.id);
+            if (item.url) existingKeys.add(item.url);
+            modified = true;
+          }
+        });
+      }
+    }
+
+    if (modified) {
+      await save();
+    }
+  } catch (e) {
+    console.warn('Extension storage sync warning:', e);
+  }
+}
+
+// Real-time synchronization when user adds bookmark in popup
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+  chrome.storage.onChanged.addListener(async (changes, area) => {
+    if (area === 'local' && (changes.sikpoketData || changes.sikpoketDashboardData)) {
+      await syncFromExtensionStorage();
+      render();
+      updateSpaceList();
+      updateBadges();
+      renderSidebarTags();
+    }
+  });
+}
+
 async function load() {
   try {
     let raw = null;
@@ -64,15 +131,8 @@ async function load() {
       }
     });
   }
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    chrome.storage.local.get(['sikpoketDashboardData'], (r) => {
-      if (r.sikpoketDashboardData?.length) {
-        const space = getActiveSpace(); if (space) space.items = [...r.sikpoketDashboardData, ...space.items];
-        chrome.storage.local.remove('sikpoketDashboardData');
-        save(); render(); updateBadges(); renderSidebarTags();
-      }
-    });
-  }
+
+  await syncFromExtensionStorage();
 }
 
 async function save() {
@@ -222,22 +282,32 @@ function setBdg(id, n) { const e = document.getElementById(id); if(e) e.textCont
 function updateSpaceList() {
   const c = document.getElementById('space-list'); if (!c) return;
   c.innerHTML = state.spaces.map(s => `
-    <div class="space-item ${s.id===state.activeSpace?'active':''}" data-space="${s.id}">
+    <div class="space-item ${s.id===state.activeSpace?'active':''}" data-space="${s.id}" title="${esc(s.name)}">
       <span class="space-dot"></span>
-      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(s.name)}</span>
+      <span class="space-name-text">${esc(s.name)}</span>
       <span class="space-count">${(s.items||[]).filter(i=>!i.archived).length}</span>
-      <button class="space-wallpaper-btn" data-space-id="${s.id}" title="Change space atmosphere">🖼</button>
+      <div class="space-actions-group">
+        <button class="space-action-btn btn-space-edit" data-space-id="${s.id}" title="Edit Space & Settings">✏️</button>
+        <button class="space-action-btn btn-space-wallpaper" data-space-id="${s.id}" title="Change Atmosphere">🖼️</button>
+        ${state.spaces.length > 1 ? `<button class="space-action-btn btn-space-delete" data-space-id="${s.id}" title="Delete Space">🗑️</button>` : ''}
+      </div>
     </div>
   `).join('');
   c.querySelectorAll('.space-item').forEach(b => b.addEventListener('click', (e) => {
-    if (e.target.closest('.space-wallpaper-btn')) return;
+    if (e.target.closest('.space-actions-group') || e.target.closest('.space-action-btn')) return;
     state.activeSpace = b.dataset.space; state.collection = 'all'; state.tag = null; updateTagStrip();
     save(); setWallpaper(); render(); updateSpaceList(); updateBadges();
   }));
-  c.querySelectorAll('.space-wallpaper-btn').forEach(btn => {
+  c.querySelectorAll('.btn-space-edit, .btn-space-wallpaper').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       openSpaceSettings(btn.dataset.spaceId);
+    });
+  });
+  c.querySelectorAll('.btn-space-delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteSpace(btn.dataset.spaceId);
     });
   });
 }
@@ -704,13 +774,84 @@ window.handleSpaceSubmit = function(e) {
 };
 
 function deleteActiveSpace() {
-  if (state.spaces.length <= 1) { toast('Cannot delete only space', 'error'); return; }
-  const idx = state.spaces.findIndex(s=>s.id===state.activeSpace);
-  if (!confirm(`Delete "${state.spaces[idx].name}" and all its items?`)) return;
-  state.spaces.splice(idx,1);
-  state.activeSpace = state.spaces[0].id;
-  save(); updateSpaceList(); setWallpaper(); render(); updateBadges();
-  toast('Space deleted','error');
+  deleteSpace(state.activeSpace);
+}
+
+window.deleteSpace = function(spaceId) {
+  if (!spaceId) return;
+  if (state.spaces.length <= 1) {
+    toast('Cannot delete your only space. Create another first.', 'error');
+    return;
+  }
+  const space = state.spaces.find(s => s.id === spaceId);
+  if (!space) return;
+  const itemCount = (space.items || []).filter(i => !i._removed).length;
+  if (!confirm(`Delete space "${space.name}"${itemCount ? ` and all ${itemCount} items inside it` : ''}?`)) return;
+  
+  state.spaces = state.spaces.filter(s => s.id !== spaceId);
+  if (state.activeSpace === spaceId) {
+    state.activeSpace = state.spaces[0].id;
+  }
+  save();
+  updateSpaceList();
+  setWallpaper();
+  render();
+  updateBadges();
+  closeSpaceModal();
+  toast(`Space "${space.name}" deleted`, 'error');
+};
+
+function initCollapsibleSections() {
+  let collapsed = [];
+  try {
+    collapsed = JSON.parse(localStorage.getItem('sik_collapsed_sections') || '[]');
+  } catch {}
+
+  document.querySelectorAll('.nav-section').forEach(sec => {
+    const secId = sec.dataset.sectionId;
+    if (secId && collapsed.includes(secId)) {
+      sec.classList.add('collapsed');
+    }
+
+    const header = sec.querySelector('.nav-section-header');
+    if (header) {
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('#btn-toggle-all-sections') || e.target.closest('button')) return;
+        sec.classList.toggle('collapsed');
+        saveCollapsedState();
+      });
+    }
+  });
+
+  const toggleAllBtn = document.getElementById('btn-toggle-all-sections');
+  if (toggleAllBtn) {
+    const updateToggleBtnText = () => {
+      const allSections = document.querySelectorAll('.nav-section');
+      const anyExpanded = Array.from(allSections).some(s => !s.classList.contains('collapsed'));
+      toggleAllBtn.textContent = anyExpanded ? 'Contract All' : 'Expand All';
+    };
+    updateToggleBtnText();
+
+    toggleAllBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const allSections = document.querySelectorAll('.nav-section');
+      const anyExpanded = Array.from(allSections).some(s => !s.classList.contains('collapsed'));
+      allSections.forEach(s => {
+        if (anyExpanded) s.classList.add('collapsed');
+        else s.classList.remove('collapsed');
+      });
+      saveCollapsedState();
+      updateToggleBtnText();
+    });
+  }
+
+  function saveCollapsedState() {
+    const coll = [];
+    document.querySelectorAll('.nav-section.collapsed').forEach(s => {
+      if (s.dataset.sectionId) coll.push(s.dataset.sectionId);
+    });
+    localStorage.setItem('sik_collapsed_sections', JSON.stringify(coll));
+  }
 }
 
 /* ── EXPORT/IMPORT ───────────────────── */
@@ -856,6 +997,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('logout-btn')?.addEventListener('click', () => {
     sessionStorage.removeItem('sikpoket_user');
     window.location.href = 'auth.html';
+  });
+  initCollapsibleSections();
+  document.getElementById('btn-delete-space-modal')?.addEventListener('click', () => {
+    const editId = document.getElementById('space-edit-id')?.value;
+    if (editId) deleteSpace(editId);
   });
   document.getElementById('space-modal')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeSpaceModal();});
   document.getElementById('space-modal-close')?.addEventListener('click', closeSpaceModal);

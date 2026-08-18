@@ -1,1 +1,16 @@
-{"projectId":"prj_Ucr32sgbqlP2AnXGhNFtGXyHwtQu","orgId":"team_7ELib4M21slH5ZUg6Hew90EM","projectName":"sikpoket"}
+{
+  "projectId": "prj_Ucr32sgbqlP2AnXGhNFtGXyHwtQu",
+  "orgId": "team_7ELib4M21slH5ZUg6Hew90EM",
+  "projectName": "sikpoket",
+  "settings": {
+    "createdAt": 1786551457634,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}

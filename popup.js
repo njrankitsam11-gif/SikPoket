@@ -826,6 +826,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function saveAndRefresh() {
     await chrome.storage.local.set({ sikpoketData: allData });
+    try {
+      const dashRaw = await chrome.storage.local.get(['sikpoketDashboardData']);
+      const dashData = dashRaw?.sikpoketDashboardData;
+      if (dashData && Array.isArray(dashData.spaces) && dashData.spaces.length) {
+        let targetSpace = dashData.spaces.find(s => s.id === dashData.activeSpace) || dashData.spaces[0];
+        if (targetSpace) {
+          if (!targetSpace.items) targetSpace.items = [];
+          const allPopupItems = [
+            ...(allData.urls || []).map(u => ({ id: u.id || ('url_' + Math.random().toString(36).substr(2, 9)), type: 'url', title: u.title || u.url, url: u.url, tags: u.tags || [], favorite: !!u.favorite, archived: !!u.archived, createdAt: u.createdAt || Date.now() })),
+            ...(allData.notes || []).map(n => ({ id: n.id || ('note_' + Math.random().toString(36).substr(2, 9)), type: 'note', title: n.title || 'Note', content: n.content || n.text || '', tags: n.tags || [], favorite: !!n.favorite, archived: !!n.archived, createdAt: n.createdAt || Date.now() })),
+            ...(allData.apiKeys || []).map(k => ({ id: k.id || ('key_' + Math.random().toString(36).substr(2, 9)), type: 'key', name: k.name || k.title || 'API Key', username: k.service || k.username || '', value: k.key || k.value || '', tags: k.tags || [], favorite: !!k.favorite, archived: !!k.archived, createdAt: k.createdAt || Date.now() })),
+            ...(allData.passwords || []).map(p => ({ id: p.id || ('pass_' + Math.random().toString(36).substr(2, 9)), type: 'password', name: p.name || p.title || 'Password', username: p.username || '', value: p.password || p.value || '', tags: p.tags || [], favorite: !!p.favorite, archived: !!p.archived, createdAt: p.createdAt || Date.now() }))
+          ];
+          const existingKeys = new Set();
+          dashData.spaces.forEach(s => {
+            (s.items || []).forEach(i => {
+              if (i.id) existingKeys.add(i.id);
+              if (i.url) existingKeys.add(i.url);
+            });
+          });
+          let modified = false;
+          allPopupItems.forEach(item => {
+            if (!existingKeys.has(item.id) && (!item.url || !existingKeys.has(item.url))) {
+              targetSpace.items.unshift(item);
+              existingKeys.add(item.id);
+              if (item.url) existingKeys.add(item.url);
+              modified = true;
+            }
+          });
+          if (modified) {
+            await chrome.storage.local.set({ sikpoketDashboardData: dashData });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Dashboard bridge sync:', e);
+    }
     updateTabCounts();
     renderCurrentTab();
     buildTagFilter();
