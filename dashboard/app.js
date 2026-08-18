@@ -279,7 +279,8 @@ function cardHtml(item, lm) {
   const thtml = (item.tags||[]).length?`<div class="card-tags">${item.tags.map(t=>`<span class="card-tag" data-tag="${esc(t)}">${esc(t)}</span>`).join('')}</div>`:'';
   const qrBtn = item.type==='url'&&item.url ? `<button class="card-action-btn" data-action="qr" data-id="${item.id}" data-url="${esc(item.url)}" title="View Mobile QR Code">📱</button>` : '';
   const readBtn = (item.content || item.type==='note' || item.type==='url') ? `<button class="card-action-btn" data-action="read" data-id="${item.id}" title="Distraction-free Reader Mode with Text-to-Speech">📖</button>` : '';
-  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions">${readBtn}${qrBtn}<button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
+  const simBtn = `<button class="card-action-btn" data-action="similar" data-id="${item.id}" title="Find Semantically Similar Items in Vault">✨</button>`;
+  return `<div class="item-card ${lm?'list-mode':''}" data-id="${item.id}"><div class="card-body"><div class="card-title-row">${faviconEl(item)}<div class="card-title-block">${th}${dh}</div></div>${bh}${thtml}</div><div class="card-footer"><span class="card-date">${date}</span><div class="card-actions">${readBtn}${simBtn}${qrBtn}<button class="card-action-btn${item.favorite?' fav-active':''}" data-action="fav" data-id="${item.id}" title="${item.favorite?'Favorited':'Favorite'}">${item.favorite?'★':'☆'}</button><button class="card-action-btn" data-action="archive" data-id="${item.id}" title="${item.archived?'Restore':'Archive'}">${item.archived?'📤':'📥'}</button><button class="card-action-btn" data-action="edit" data-id="${item.id}" title="Edit">✏️</button><button class="card-action-btn delete-btn" data-action="delete" data-id="${item.id}" title="Delete">✕</button></div></div></div>`;
 }
 
 function attachCardEventDelegation() {
@@ -299,6 +300,23 @@ function attachCardEventDelegation() {
       else if (action === 'delete') confirmDelete(id);
       else if (action === 'copy-secret') copySecret(id);
       else if (action === 'qr') openDashboardQrModal(actBtn.dataset.url, actBtn.closest('.item-card')?.querySelector('.card-title')?.textContent);
+      else if (action === 'similar') {
+        const space = getActiveSpace();
+        const item = space?.items.find(x => x.id === id);
+        if (item && window.VectorHelper) {
+          const similar = window.VectorHelper.findSimilar(item, space.items, 6);
+          if (!similar.length) {
+            toast('No strongly related items found.', 'info');
+          } else {
+            toast(`✨ Found ${similar.length} related items (${similar[0].score}% match)`, 'success');
+            const topMatch = similar[0].item;
+            state.search = (topMatch.tags && topMatch.tags[0]) || (item.tags && item.tags[0]) || (topMatch.title || '').split(/\s+/)[0];
+            const searchInput = document.getElementById('global-search');
+            if (searchInput) searchInput.value = state.search;
+            render();
+          }
+        }
+      }
       else if (action === 'read') {
         const space = getActiveSpace();
         const item = space?.items.find(x => x.id === id);
@@ -712,6 +730,36 @@ function exportNetscapeHtml() {
     toast('Exported HTML Bookmarks!', 'success');
   }
 }
+
+function exportObsidianVault() {
+  const space = getActiveSpace();
+  const items = space ? (space.items || []) : [];
+  if (!items.length) {
+    toast('No items to export', 'error');
+    return;
+  }
+  if (window.ExportHelper) {
+    const spaceName = space ? space.name : 'SikPoket-Vault';
+    const zipBlob = ExportHelper.exportObsidianVaultZip(items, `SikPoket-${spaceName.replace(/\s+/g, '-')}`);
+    ExportHelper.triggerDownload(zipBlob, `SikPoket-Obsidian-Vault-${new Date().toISOString().slice(0, 10)}.zip`);
+    toast('Exported Obsidian Vault Zip (with YAML & Wikilinks)!', 'success');
+  }
+}
+
+function exportNotionCsv() {
+  const space = getActiveSpace();
+  const items = space ? (space.items || []) : [];
+  if (!items.length) {
+    toast('No items to export', 'error');
+    return;
+  }
+  if (window.ExportHelper) {
+    const csvContent = ExportHelper.exportNotionCSV(items);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    ExportHelper.triggerDownload(blob, `sikpoket-notion-${new Date().toISOString().slice(0, 10)}.csv`);
+    toast('Exported Notion CSV Database!', 'success');
+  }
+}
 function openDashboardQrModal(url, title) {
   if (!url) return;
   const modal = document.getElementById('qr-modal');
@@ -780,6 +828,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('item-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
   document.getElementById('item-form').addEventListener('submit',handleFormSubmit);
   document.getElementById('export-btn').addEventListener('click',exportItems);
+  document.getElementById('export-obsidian-btn')?.addEventListener('click', exportObsidianVault);
+  document.getElementById('export-notion-btn')?.addEventListener('click', exportNotionCsv);
   document.getElementById('export-html-btn')?.addEventListener('click', exportNetscapeHtml);
   document.getElementById('dashboard-qr-close')?.addEventListener('click', closeDashboardQrModal);
   document.getElementById('dashboard-qr-cancel-btn')?.addEventListener('click', closeDashboardQrModal);

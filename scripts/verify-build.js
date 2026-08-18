@@ -149,6 +149,8 @@ const jsFilesToCheck = [
   'archive-helper.js',
   'dedup-helper.js',
   'feed-helper.js',
+  'export-helper.js',
+  'vector-helper.js',
   'dashboard/app.js',
   'unlock.js'
 ];

@@ -19,3 +19,7 @@ dist/
 .idea/
 *.swp
 *.swo
+
+# Vercel
+.vercel/.env.*
+.vercel/output/

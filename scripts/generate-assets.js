@@ -132,6 +132,32 @@ const smallSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" 
 fs.writeFileSync(path.join(assetsDir, 'promo-1280x800.svg'), marqueeSvg, 'utf8');
 fs.writeFileSync(path.join(assetsDir, 'promo-440x280.svg'), smallSvg, 'utf8');
 
-console.log('✅ Successfully generated Chrome Web Store promo assets:');
+console.log('✅ Successfully generated Chrome Web Store promo assets (SVG):');
 console.log('   - assets/store/promo-1280x800.svg (Marquee 1280x800)');
 console.log('   - assets/store/promo-440x280.svg (Small Tile 440x280)\n');
+
+// On macOS, automatically render SVG to pixel-perfect PNG using native qlmanage & sips
+try {
+  const { execSync } = require('child_process');
+  execSync(`qlmanage -t -s 1280 -o "${assetsDir}" "${path.join(assetsDir, 'promo-1280x800.svg')}" > /dev/null 2>&1`);
+  execSync(`qlmanage -t -s 440 -o "${assetsDir}" "${path.join(assetsDir, 'promo-440x280.svg')}" > /dev/null 2>&1`);
+  
+  const raw1280 = path.join(assetsDir, 'promo-1280x800.svg.png');
+  const raw440 = path.join(assetsDir, 'promo-440x280.svg.png');
+  
+  if (fs.existsSync(raw1280)) {
+    execSync(`sips --cropToHeightWidth 800 1280 "${raw1280}" --out "${path.join(assetsDir, 'promo-1280x800.png')}" > /dev/null 2>&1`);
+    fs.unlinkSync(raw1280);
+  }
+  if (fs.existsSync(raw440)) {
+    execSync(`sips --cropToHeightWidth 280 440 "${raw440}" --out "${path.join(assetsDir, 'promo-440x280.png')}" > /dev/null 2>&1`);
+    fs.unlinkSync(raw440);
+  }
+
+  console.log('✅ Successfully rendered Chrome Web Store promo assets (PNG):');
+  console.log('   - assets/store/promo-1280x800.png (1280x800 Marquee PNG)');
+  console.log('   - assets/store/promo-440x280.png (440x280 Small Tile PNG)\n');
+} catch (e) {
+  console.log('ℹ PNG generation skipped or not supported on this platform.');
+}
+
