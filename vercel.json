@@ -9,6 +9,8 @@
     { "source": "/qr-helper.js", "destination": "/qr-helper.js" },
     { "source": "/app.css", "destination": "/dashboard/app.css" },
     { "source": "/app.js", "destination": "/dashboard/app.js" },
+    { "source": "/infographic", "destination": "/infographic.html" },
+    { "source": "/blueprint", "destination": "/infographic.html" },
     { "source": "/privacy", "destination": "/PRIVACY_POLICY.md" }
   ]
 }
