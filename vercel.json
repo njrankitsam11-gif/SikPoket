@@ -48,6 +48,32 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "header", "key": "Accept", "value": "text/markdown" }],
+      "destination": "/api/markdown?path=/index.md"
+    },
+    {
+      "source": "/about",
+      "has": [{ "type": "header", "key": "Accept", "value": "text/markdown" }],
+      "destination": "/api/markdown?path=/about/index.md"
+    },
+    {
+      "source": "/contact",
+      "has": [{ "type": "header", "key": "Accept", "value": "text/markdown" }],
+      "destination": "/api/markdown?path=/contact/index.md"
+    },
+    {
+      "source": "/privacy",
+      "has": [{ "type": "header", "key": "Accept", "value": "text/markdown" }],
+      "destination": "/api/markdown?path=/privacy/index.md"
+    },
+    {
+      "source": "/dashboard",
+      "has": [{ "type": "header", "key": "Accept", "value": "text/markdown" }],
+      "destination": "/api/markdown?path=/dashboard/index.md"
+    },
+    { "source": "/.well-known/mcp", "destination": "/api/mcp" },
     { "source": "/about", "destination": "/about/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/privacy", "destination": "/privacy/index.html" },
@@ -59,32 +85,7 @@
     { "source": "/app.css", "destination": "/dashboard/app.css" },
     { "source": "/app.js", "destination": "/dashboard/app.js" },
     { "source": "/infographic", "destination": "/infographic.html" },
-    { "source": "/blueprint", "destination": "/infographic.html" },
-    {
-      "source": "/",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
-      "destination": "/index.md"
-    },
-    {
-      "source": "/about",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
-      "destination": "/about/index.md"
-    },
-    {
-      "source": "/contact",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
-      "destination": "/contact/index.md"
-    },
-    {
-      "source": "/privacy",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
-      "destination": "/privacy/index.md"
-    },
-    {
-      "source": "/dashboard",
-      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
-      "destination": "/dashboard/index.md"
-    }
+    { "source": "/blueprint", "destination": "/infographic.html" }
   ],
   "redirects": []
 }

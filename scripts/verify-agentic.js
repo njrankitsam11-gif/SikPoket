@@ -52,12 +52,12 @@ function check(name, ok, detail='') {
 // 4. Markdown negotiation
 {
   const vc = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
-  const hasVary = (vc.headers || []).some(h => h.headers?.some(x => x.key === 'Vary' && /Accept/.test(x.value)));
+  const hasVary = (vc.headers || []).some(h => h.headers?.some(x => x.key.toLowerCase() === 'vary' && /Accept/i.test(x.value)));
   check('Vary header includes Accept', hasVary, hasVary ? 'found Vary: Accept' : 'missing');
-  const hasMarkdownRewrite = (vc.rewrites || []).some(r => r.has?.some(h => h.key === 'accept' && /text\/markdown/.test(h.value)));
+  const hasMarkdownRewrite = (vc.rewrites || []).some(r => r.has?.some(h => h.key.toLowerCase() === 'accept' && /text\/markdown/i.test(h.value)) && /(\.md|api\/markdown)/.test(r.destination));
   check('Markdown negotiation via Accept header', hasMarkdownRewrite, 'has header condition for text/markdown');
   check('index.md exists', fs.existsSync(path.join(root, 'index.md')));
-  check('.md Vary header', (vc.headers || []).some(h => h.source === '/(.*).md' && h.headers?.some(x => x.key === 'Vary')));
+  check('.md Vary header', (vc.headers || []).some(h => h.source === '/(.*).md' && h.headers?.some(x => x.key.toLowerCase() === 'vary')));
 }
 
 // 5. Developer resource discoverability
