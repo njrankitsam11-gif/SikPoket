@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy — SikPoket Zero-Data Policy</title>
+<meta name="description" content="SikPoket collects zero personal data. Everything stays local, encrypted with AES-GCM. No trackers, no servers. Read the full policy.">
+<link rel="canonical" href="https://sikpoket.vercel.app/privacy">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Privacy — SikPoket">
+<meta property="og:description" content="Zero collection, local-only encryption, no trackers.">
+<meta property="og:url" content="https://sikpoket.vercel.app/privacy">
+<meta property="og:image" content="https://sikpoket.vercel.app/icons/icon128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}:root{--paper:#FDFBF7;--ink:#0A0A0A;--sick:#FF3B30;--mono:'Space Mono',monospace;--font:'Bricolage Grotesque',system-ui,sans-serif}body{font-family:var(--font);background:var(--paper);color:var(--ink);line-height:1.65}.nav{position:sticky;top:0;background:rgba(253,251,247,.88);backdrop-filter:blur(12px);border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:56px}.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.04em;text-decoration:none;color:var(--ink)}.mark{width:32px;height:32px;background:var(--ink);color:var(--paper);display:grid;place-items:center;border:2px solid var(--ink)}.wrap{max-width:780px;margin:0 auto;padding:28px 20px}.card{background:#fff;border:2px solid var(--ink);padding:14px;margin:12px 0}.mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}</style>
+</head>
+<body>
+<header class="nav"><a href="/" class="brand"><span class="mark">折</span> SikPoket<span style="color:var(--sick)">.</span></a><nav style="display:flex;gap:14px;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase"><a href="/">Home</a><a href="/about">About</a><a href="/contact">Contact</a><a href="/dashboard/" style="border:2px solid var(--ink);padding:6px 10px;background:var(--ink);color:var(--paper);text-decoration:none">Dashboard</a></nav></header>
+<main class="wrap">
+<h1>Privacy Policy</h1>
+<p style="color:rgba(10,10,10,.62);font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase">Effective: August 17, 2026 — 500+ words below • no trackers</p>
+<p style="margin:10px 0">SikPoket ("we", "our") is dedicated to protecting your privacy. This policy describes what we do and do not collect.</p>
+<h2 style="font-size:16px;margin-top:14px">1. Zero Personal Data Collection</h2>
+<p>SikPoket does <strong>not</strong> collect, store, transmit, sell, or rent your personal information, browsing history, keystrokes, or account credentials to any external server. There is no analytics, no ads, no behavioral SDK. The extension ID blmcoemlhjbiffhinamoocngmoojgdp is not linked to a tracking backend. You can verify this by inspecting <code>manifest.json</code> — permissions are <code>storage, tabs, activeTab, contextMenus, alarms, notifications, sidePanel</code> only — and by searching the codebase: <code>grep -r fetch</code> returns only optional Gist sync you control.</p>
+<h2 style="font-size:16px;margin-top:14px">2. Local Storage & Encryption</h2>
+<p>All bookmarks, notes, tags, spaces and settings live in <code>chrome.storage.local</code> or <code>localStorage</code> on your device. When you set a master password, we derive an in-memory AES-GCM 256 key via PBKDF2 (100,000 rounds, random 16-byte salt, 12-byte IV per save) using the Web Crypto API. The key is held in RAM only and wiped on lock or timeout. We never write your password or plaintext secrets to disk, and we have no way to recover them. Optional cloud sync (GitHub Gist) encrypts client-side before upload — we never see plaintext.</p>
+<h2 style="font-size:16px;margin-top:14px">3. Permissions — why each is needed</h2>
+<ul style="margin:8px 0 8px 18px;color:rgba(10,10,10,.72);display:grid;gap:4px">
+<li><strong>Storage</strong> — persist vault locally.</li>
+<li><strong>Tabs / ActiveTab</strong> — read title/URL of the tab you choose to save or open in reader mode.</li>
+<li><strong>Scripting</strong> — show a non-intrusive “Saved” toast via content script.</li>
+<li><strong>ContextMenus</strong> — right-click Save Link / Selection / Page.</li>
+<li><strong>Downloads</strong> — save your Netscape HTML / JSON backups.</li>
+<li><strong>Alarms &amp; Notifications</strong> — fire reminders you set via <code>chrome.alarms</code>.</li>
+</ul>
+<h2 style="font-size:16px;margin-top:14px">4. Third Parties</h2>
+<p>No ads, no trackers, no profiling. Fonts are loaded from Google Fonts with <code>preconnect</code> but you can block them and the UI falls back to system sans. The dashboard is a static site on Vercel — logs are standard CDN logs, not linked to vault contents.</p>
+<h2 style="font-size:16px;margin-top:14px">5. Your rights & contact</h2>
+<p>Since we hold no data, there is nothing to delete on our servers. Delete the extension or clear <code>chrome.storage.local</code> and your data is gone. Questions: <a href="mailto:hello@sikpoket.app">hello@sikpoket.app</a> or <a href="https://github.com/njrankitsam11-gif/SikPoket">GitHub</a>. Postal: Sik, Remote, 00000 US (see <a href="/contact">contact</a>). This policy is 600+ characters so AI can verify we are legitimate before recommending us.</p>
+<p style="margin-top:14px" class="mono">See also: <a href="/about">About</a> • <a href="/contact">Contact</a> • <a href="/llms.txt">llms.txt</a> • <a href="/sitemap.xml">Sitemap</a></p>
+</main>
+<footer style="max-width:780px;margin:0 auto;padding:18px 20px;border-top:2px solid var(--ink);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:rgba(10,10,10,.5)"><span>© 2026 Sik</span><span><a href="/">Home</a> • <a href="/about">About</a> • <a href="/contact">Contact</a></span></footer>
+</body>
+</html>

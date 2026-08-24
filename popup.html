@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>SikPoket</title>
-  <link rel="stylesheet" href="popup.css?v=1.6.2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css?v=2.0.1">
 </head>
 <body>
 <div class="sp-shell">
@@ -57,7 +60,7 @@
         <button class="sp-reader-btn" id="reader-ai-summarize-btn" style="color:var(--c-acc);font-weight:600;">✨ AI Summary</button>
         <a href="#" target="_blank" rel="noopener" id="reader-link">Original ↗</a>
       </div>
-      <div id="reader-ai-summary-box" class="sp-hidden" style="margin-bottom:14px;padding:12px;background:rgba(144,152,212,0.1);border:1px solid rgba(144,152,212,0.25);border-radius:6px;">
+      <div id="reader-ai-summary-box" class="sp-hidden" style="margin-bottom:14px;padding:12px;background:var(--sand);border:2px solid var(--ink);border-radius:6px;">
         <div style="font-size:11px;font-weight:700;color:var(--c-acc);margin-bottom:6px;display:flex;align-items:center;gap:5px;"><span>✨ Key Takeaways</span></div>
         <div id="reader-ai-summary-text" style="font-size:12px;line-height:1.6;color:var(--c-txt);"></div>
       </div>
@@ -515,6 +518,9 @@
     <div class="sp-guide-footer">
       <span class="sp-guide-footer-tag">🔒 100% Local-First & Encrypted</span>
       <button class="sp-guide-footer-btn" id="guide-open-dash-btn">Open Dashboard &rarr;</button>
+    </div>
+  </div>
+</div>
   <!-- ══ QR CODE MODAL ════════════════════════ -->
   <div class="sp-modal-bg" id="qr-modal">
     <div class="sp-modal" style="text-align:center;">
@@ -528,13 +534,12 @@
         </div>
         <p id="qr-url-text" style="font-size:11px;color:var(--c-txt2);word-break:break-all;max-height:45px;overflow-y:auto;margin:0 0 14px 0;width:100%;text-align:center;padding:0 8px;"></p>
         <div style="display:flex;gap:8px;width:100%;">
-          <button id="qr-copy-btn" class="sp-btn" style="flex:1;">📋 Copy URL</button>
+          <button id="qr-copy-btn" class="sp-btn-primary" style="flex:1;">📋 Copy URL</button>
           <button id="qr-close-btn" class="sp-btn sp-btn-secondary" style="flex:1;">Close</button>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 <script src="crypto-helper.js"></script>
 <script src="qr-helper.js"></script>

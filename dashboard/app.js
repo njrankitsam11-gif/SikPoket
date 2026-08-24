@@ -950,8 +950,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateSpaceList();
   setupWallpaperStudioControls();
 
-  // Theme Switcher Setup
-  const savedTheme = localStorage.getItem('sik_theme') || 'forest';
+  // Theme Switcher Setup — simple Light/Dark (forest=Paper, obsidian=Ink)
+  let savedTheme = localStorage.getItem('sik_theme') || 'forest';
+  if(savedTheme==='sunset'||savedTheme==='solar') savedTheme='forest';
   applyTheme(savedTheme);
   document.getElementById('theme-switcher')?.addEventListener('change', e => {
     applyTheme(e.target.value);
@@ -1537,8 +1538,10 @@ function closeCommandPalette() {
 }
 
 function applyTheme(theme) {
+  if(theme==='sunset'||theme==='solar') theme='forest';
   state.theme = theme;
   document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.classList.toggle('dark', theme==='obsidian');
   localStorage.setItem('sik_theme', theme);
   const sel = document.getElementById('theme-switcher');
   if (sel) sel.value = theme;

@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>SikPoket Side Panel</title>
-  <link rel="stylesheet" href="popup.css?v=1.6.2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css?v=2.0.1">
   <style>
     body {
       width: 100%;
@@ -25,9 +28,9 @@
     .sp-drop-zone {
       margin: 8px 12px;
       padding: 10px;
-      border: 1.5px dashed rgba(144, 152, 212, 0.35);
+      border: 2px dashed var(--ink);
       border-radius: 6px;
-      background: rgba(144, 152, 212, 0.05);
+      background: var(--sand);
       text-align: center;
       font-size: 11px;
       color: var(--c-txt2);
@@ -40,7 +43,7 @@
     }
     .sp-drop-zone.dragover {
       border-color: var(--c-acc);
-      background: rgba(144, 152, 212, 0.15);
+      background: var(--cream);
       color: var(--c-txt);
       transform: scale(1.01);
     }
@@ -153,10 +156,10 @@
       <span>Notes</span>
       <span class="sp-badge" id="count-notes">0</span>
     </button>
-    <button class="sp-tab" data-tab="apiKeys">
+    <button class="sp-tab" data-tab="api-keys">
       <svg viewBox="0 0 16 16" fill="none" width="12"><circle cx="6" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M9 8h5M12 6v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       <span>Keys</span>
-      <span class="sp-badge" id="count-apiKeys">0</span>
+      <span class="sp-badge" id="count-api-keys">0</span>
     </button>
     <button class="sp-tab" data-tab="passwords">
       <svg viewBox="0 0 16 16" fill="none" width="12"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -193,7 +196,7 @@
       <div id="notes-list"></div>
     </div>
 
-    <div class="sp-section" id="apiKeys-content">
+    <div class="sp-section" id="api-keys-content">
       <div class="sp-quick-bar">
         <button class="sp-btn" id="add-api-key-btn">＋ New API Key</button>
       </div>

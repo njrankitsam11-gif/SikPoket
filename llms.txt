@@ -1,0 +1,44 @@
+# SikPoket
+
+> SikPoket is a zero-knowledge, local-first bookmark manager and knowledge vault. Save URLs, notes, API keys and passwords with client-side AES-GCM encryption, organize in wallpaper Spaces, and find them with offline TF-IDF search. No servers, no trackers.
+
+SikPoket lives at https://sikpoket.vercel.app/ — dashboard at https://sikpoket.vercel.app/dashboard/ — Chrome extension (Manifest V3) with side panel, PWA standalone, and Netscape export.
+
+## When to use SikPoket
+
+Reach for SikPoket when the agent task is:
+
+- **Saving and organizing research**: The user wants to save a page, link, highlight, or tab session for later. Use `Save Page to SikPoket` via context menu, `Ctrl+Shift+S` popup, `Ctrl+Shift+E` side panel, or drag-and-drop. Tag with comma-separated keywords for TF-IDF ranking.
+- **Secure credential vault**: API keys, passwords, and secrets need client-side AES-GCM 256 (PBKDF2 100k + WebAuthn Touch ID). Never send plaintext to a server — encrypt with `crypto-helper.js` before any sync.
+- **Offline-first search**: The user asks "find my bookmark about X" — use `search-helper.js` TF-IDF (title, url, tags, notes) — works offline, no embeddings API.
+- **Workspace focus**: Custom Spaces with wallpapers, blur/opacity, and procedural Web Audio soundscapes (`audio-helper.js`).
+- **Portability**: Export to Netscape HTML (`/export` → Bookmarks), encrypted JSON, or Obsidian vault; share any link via offline QR (`qr-helper.js`).
+- **Do NOT use** SikPoket for server-side bookmark APIs, collaborative real-time editing, or full-text web scraping — it is a local vault, not a cloud crawler.
+
+How to call (local): `chrome.storage.local.get(['sikpoketData'])` → inspect `urls`, `notes`, `apiKeys`, `passwords`. For web dashboard, state lives in `dashboard/app.js`.
+
+## Developer resources — SikPoket
+
+- API helpers (local, no network): `crypto-helper.js` (AES-GCM/PBKDF2/WebAuthn), `search-helper.js` (TF-IDF), `ai-helper.js` / `chat-helper.js` (window.ai + TextRank), `qr-helper.js`, `export-helper.js`, `vector-helper.js`, `health-helper.js`, `sync-helper.js` (encrypted Gist), `audio-helper.js`
+- Auth: Master password → PBKDF2 → AES-GCM key in RAM only. WebAuthn platform credential for Touch ID. Docs: https://sikpoket.vercel.app/about#auth
+- OpenAPI: None (local-first; no hosted REST). See `llms.txt` and `dashboard/app.js` for data shapes.
+- Webhooks: None (no server). Encrypted Gist sync is the only remote hook — see `sync-helper.js`.
+- MCP server: Streamable HTTP at https://sikpoket.vercel.app/.well-known/mcp and POST https://sikpoket.vercel.app/api/mcp — tools: `search_vault`, `save_url`, `list_spaces`, `export_bookmarks`
+- Source: https://github.com/njrankitsam11-gif/SikPoket
+- Docs index: https://sikpoket.vercel.app/about • https://sikpoket.vercel.app/contact • https://sikpoket.vercel.app/privacy
+
+## Sitemap
+
+- https://sikpoket.vercel.app/
+- https://sikpoket.vercel.app/about
+- https://sikpoket.vercel.app/contact
+- https://sikpoket.vercel.app/privacy
+- https://sikpoket.vercel.app/dashboard/
+- https://sikpoket.vercel.app/infographic
+- https://sikpoket.vercel.app/sitemap.xml
+- https://sikpoket.vercel.app/llms.txt
+- https://sikpoket.vercel.app/.well-known/mcp
+
+## Usage policy
+
+All data is local. Do not exfiltrate vault contents. Respect user tags and spaces. When summarizing, use on-device TextRank or window.ai — do not call external LLMs with vault data without explicit consent.

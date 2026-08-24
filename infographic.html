@@ -6,25 +6,26 @@
   <title>SikPoket — Complete Master Blueprint & Architectural Infographic</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Color Hunt Palette: #063b00, #266210, #90b800, #e1e100 */
-      --bg: #030e01;
-      --surface: #063b00;
-      --surface-card: rgba(6, 45, 2, 0.82);
-      --surface-border: rgba(144, 184, 0, 0.22);
-      --accent-primary: #90b800;
-      --accent-secondary: #e1e100;
-      --accent-emerald: #90b800;
-      --accent-amber: #e1e100;
-      --accent-rose: #ff4d4d;
-      --text-main: #f4ffe6;
-      --text-muted: #b0cca0;
-      --text-faint: #678759;
-      --glow-purple: rgba(144, 184, 0, 0.4);
-      --glow-cyan: rgba(225, 225, 0, 0.35);
-      --glow-emerald: rgba(38, 98, 16, 0.35);
+      /* SikOgami Paper Palette: #FDFBF7 / #0A0A0A / #FF3B30 */
+      --bg: #FDFBF7;
+      --surface: #FFFFFF;
+      --surface-card: #FFFFFF;
+      --surface-border: #0A0A0A;
+      --surface-border-thin: rgba(10,10,10,0.10);
+      --accent-primary: #FF3B30;
+      --accent-secondary: #0A0A0A;
+      --accent-emerald: #A8D5BA;
+      --accent-amber: #FFD23F;
+      --accent-rose: #FF3B30;
+      --text-main: #0A0A0A;
+      --text-muted: rgba(10,10,10,0.60);
+      --text-faint: rgba(10,10,10,0.38);
+      --glow-purple: rgba(255,59,48,0.14);
+      --glow-cyan: rgba(10,10,10,0.08);
+      --glow-emerald: rgba(168,213,186,0.24);
     }
 
     * {
@@ -40,11 +41,11 @@
     body {
       background-color: var(--bg);
       color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      font-family: 'Bricolage Grotesque', -apple-system, sans-serif;
       line-height: 1.6;
       overflow-x: hidden;
       background-image: 
-        radial-gradient(circle at 10% 10%, rgba(144, 184, 0, 0.22) 0%, transparent 45%),
+        radial-gradient(circle at 10% 10%, rgba(255,59,48,0.04) 0%, transparent 45%),
         radial-gradient(circle at 90% 80%, rgba(225, 225, 0, 0.16) 0%, transparent 45%),
         radial-gradient(circle at 50% 50%, rgba(38, 98, 16, 0.3) 0%, transparent 60%),
         radial-gradient(circle at 80% 20%, rgba(144, 184, 0, 0.12) 0%, transparent 40%);
@@ -109,7 +110,7 @@
       background: rgba(121, 82, 255, 0.2);
       border: 1px solid rgba(121, 82, 255, 0.4);
       color: #c4b5fd;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
     }
 
     .nav-links {
@@ -215,7 +216,7 @@
       font-size: 2.2rem;
       font-weight: 800;
       color: #fff;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
       margin-bottom: 0.25rem;
     }
 
@@ -238,7 +239,7 @@
     }
 
     .section-num {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
       font-size: 0.82rem;
       font-weight: 700;
       color: var(--accent-secondary);
@@ -309,7 +310,7 @@
       padding: 3px 10px;
       border-radius: 6px;
       margin-bottom: 0.6rem;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
     }
 
     .node-title {
@@ -340,7 +341,7 @@
       border-radius: 5px;
       background: rgba(255, 255, 255, 0.05);
       color: #d1d5db;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
     }
 
     /* Phase Feature Matrix */
@@ -369,7 +370,7 @@
     .phase-tag {
       font-size: 0.75rem;
       font-weight: 700;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
       padding: 4px 12px;
       border-radius: 20px;
       margin-bottom: 1.25rem;
@@ -429,7 +430,7 @@
     }
 
     .file-name {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
       font-size: 0.95rem;
       font-weight: 700;
       color: var(--accent-secondary);
@@ -569,7 +570,7 @@
     }
 
     .result-score {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Space Mono', monospace;
       font-size: 0.85rem;
       color: var(--accent-emerald);
       background: rgba(0, 242, 169, 0.1);
@@ -594,7 +595,7 @@
   <!-- Top Navigation -->
   <header class="nav-bar">
     <div class="logo-group">
-      <div class="logo-badge">⚡</div>
+      <div class="logo-badge" style="background:#0A0A0A;color:#FDFBF7;border:2px solid #0A0A0A;border-radius:0;box-shadow:3px 3px 0px #0A0A0A;">折</div>
       <div>
         <div class="logo-title">SikPoket <span class="badge-v">v1.4.0 Extended Master</span></div>
       </div>

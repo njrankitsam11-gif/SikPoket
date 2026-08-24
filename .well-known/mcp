@@ -1,0 +1,19 @@
+{
+  "mcp_version": "2025-06-18",
+  "name": "sikpoket",
+  "displayName": "SikPoket",
+  "description": "Local-first encrypted bookmark vault — search_vault, save_url, list_spaces, export_bookmarks",
+  "url": "https://sikpoket.vercel.app/.well-known/mcp",
+  "transport": "streamable-http",
+  "endpoint": "https://sikpoket.vercel.app/api/mcp",
+  "capabilities": ["tools", "resources"],
+  "tools": [
+    {"name": "search_vault", "description": "TF-IDF offline search over vault (urls, notes, tags)"},
+    {"name": "save_url", "description": "Save a URL with title and tags to the vault"},
+    {"name": "list_spaces", "description": "List wallpaper Spaces and their item counts"},
+    {"name": "export_bookmarks", "description": "Export as Netscape HTML or encrypted JSON"}
+  ],
+  "publisher": {"name": "Sik", "url": "https://sikpoket.vercel.app/", "contact": "hello@sikpoket.app"},
+  "auth": {"type": "none", "note": "Local vault — no server auth. Bring your own Gist PAT for sync."},
+  "vercel_mcp_adapter": "@vercel/mcp-adapter"
+}

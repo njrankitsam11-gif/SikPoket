@@ -3,18 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SikPoket — Vault Dashboard</title>
+  <title>SikPoket — Encrypted Bookmark Manager & Knowledge Vault</title>
+  <meta name="description" content="SikPoket is a zero-knowledge, local-first bookmark manager for researchers and creators. Save URLs, notes, API keys and passwords with client-side AES-GCM encryption, offline TF-IDF search, and wallpaper spaces.">
+  <link rel="canonical" href="https://sikpoket.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SikPoket — Encrypted Bookmark Manager & Knowledge Vault">
+  <meta property="og:description" content="Zero-knowledge, local-first bookmark vault with AES-GCM encryption, offline search, and custom spaces.">
+  <meta property="og:url" content="https://sikpoket.vercel.app/">
+  <meta property="og:image" content="https://sikpoket.vercel.app/icons/icon128.png">
+  <meta property="og:site_name" content="SikPoket">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SikPoket — Encrypted Bookmark Manager">
+  <meta name="twitter:description" content="Local-first, encrypted bookmark vault for researchers.">
+  <meta name="twitter:image" content="https://sikpoket.vercel.app/icons/icon128.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    window.location.replace("./dashboard/");
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SikPoket",
+    "description": "Zero-knowledge, local-first bookmark manager with client-side AES-GCM encryption, offline TF-IDF search, and custom wallpaper spaces for researchers and creators.",
+    "url": "https://sikpoket.vercel.app/",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Chrome, Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Organization", "name": "Sik", "url": "https://sikpoket.vercel.app/" },
+    "publisher": { "@type": "Organization", "name": "Sik", "url": "https://sikpoket.vercel.app/" },
+    "sameAs": ["https://github.com/njrankitsam11-gif/SikPoket"],
+    "featureList": ["AES-GCM encryption", "Chrome Side Panel", "TF-IDF search", "Wallpaper spaces", "Offline QR sharing", "Netscape export"],
+    "screenshot": "https://sikpoket.vercel.app/icons/icon128.png"
+  }
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Sik",
+    "url": "https://sikpoket.vercel.app/",
+    "logo": "https://sikpoket.vercel.app/icons/icon128.png",
+    "description": "Sik builds local-first productivity tools like SikPoket and SikOgami — encrypted, offline-capable workspaces for modern researchers.",
+    "sameAs": ["https://github.com/njrankitsam11-gif/SikPoket"],
+    "contactPoint": [{
+      "@type": "ContactPoint",
+      "contactType": "customer support",
+      "email": "hello@sikpoket.app",
+      "url": "https://sikpoket.vercel.app/contact",
+      "availableLanguage": ["en"]
+    }],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Remote",
+      "addressLocality": "Remote",
+      "addressRegion": "Global",
+      "postalCode": "00000",
+      "addressCountry": "US"
+    }
+  }
+  </script>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--paper:#FDFBF7;--ink:#0A0A0A;--sick:#FF3B30;--sand:#F0E6D3;--cream:#FFF8E7;--white:#fff;--font:'Bricolage Grotesque',system-ui,sans-serif;--mono:'Space Mono',monospace}
+    body{font-family:var(--font);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+    .nav{position:sticky;top:0;z-index:10;background:rgba(253,251,247,.88);backdrop-filter:blur(12px);border-bottom:2px solid var(--ink);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.04em;font-size:18px}
+    .mark{width:32px;height:32px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;border:2px solid var(--ink)}
+    .brand b{color:var(--sick)}
+    .btn{border:2px solid var(--ink);padding:9px 16px;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--sick);color:#fff;box-shadow:3px 3px 0 var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .btn--ghost{background:var(--white);color:var(--ink)}
+    .wrap{max-width:1080px;margin:0 auto;padding:28px 20px}
+    h1{font-size:clamp(32px,6vw,56px);font-weight:800;letter-spacing:-.04em;line-height:.9;margin:18px 0}
+    h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+    .kicker{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--sick)}
+    .lead{max-width:62ch;color:rgba(10,10,10,.62);font-size:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:24px 0}
+    .card{background:var(--white);border:2px solid var(--ink);padding:14px}
+    .card h3{font-size:14px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+    .card p{font-size:13px;color:rgba(10,10,10,.62)}
+    .mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+    .foot{border-top:2px solid var(--ink);margin-top:28px;padding:18px 0;color:rgba(10,10,10,.5);font-family:var(--mono);font-size:11px;display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between}
+    .paper-grid{background-image:linear-gradient(to right,rgba(10,10,10,.04)1px,transparent 1px),linear-gradient(to bottom,rgba(10,10,10,.04)1px,transparent 1px);background-size:20px 20px}
+  </style>
 </head>
-<body style="background:#0d0b0a;color:#ede8e1;font-family:'Plus Jakarta Sans',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
-  <div style="text-align:center;">
-    <h2 style="font-weight:600;margin-bottom:8px;">🔐 SikPoket</h2>
-    <p style="color:#9b9188;font-size:14px;">Loading SikPoket Vault Dashboard...</p>
-  </div>
+<body>
+  <header class="nav">
+    <a href="/" class="brand" style="text-decoration:none;color:var(--ink)"><span class="mark">折</span> SikPoket<b>.</b></a>
+    <nav style="display:flex;gap:14px;align-items:center;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase">
+      <a href="/about" style="text-decoration:none">About</a>
+      <a href="/contact" style="text-decoration:none">Contact</a>
+      <a href="/privacy" style="text-decoration:none">Privacy</a>
+      <a href="/llms.txt" style="text-decoration:none">llms.txt</a>
+      <a href="/sitemap.xml" style="text-decoration:none">Sitemap</a>
+      <a href="/dashboard/" class="btn">Open Dashboard →</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <p class="kicker">Local-first • Zero-knowledge • Open</p>
+    <h1>SikPoket is your encrypted <em>bookmark vault</em> for research that never leaves your device.</h1>
+    <p class="lead">Save URLs, notes, API keys and passwords with client-side AES-GCM 256 encryption (PBKDF2 100k). Organize them in wallpaper <strong>Spaces</strong>, find them instantly with offline <strong>TF-IDF</strong> search, and share them via offline QR — no tracking servers, no accounts required. Built by <strong>Sik</strong> for researchers, developers and creators who want a calm, paper-like workspace that works offline and syncs only if you want it to. The Chrome side panel (Ctrl+Shift+E) keeps your vault docked beside any tab; drag-and-drop tabs, highlights and links straight into your vault. Procedural Web Audio soundscapes, reader mode, and Netscape HTML export keep you focused and portable.</p>
+    <p style="margin:14px 0;display:flex;gap:10px;flex-wrap:wrap">
+      <a href="/dashboard/" class="btn">Launch Dashboard — Free</a>
+      <a href="https://github.com/njrankitsam11-gif/SikPoket" class="btn btn--ghost">View on GitHub</a>
+      <a href="/about" class="btn btn--ghost">How it works</a>
+    </p>
+
+    <section class="grid">
+      <div class="card"><h3>🪟 Side Panel + Sessions</h3><p>Keep your vault docked. Save all open tabs as a named session and restore them in one click. Drag any link or selection into the vault.</p><p class="mono" style="margin-top:8px">API: chrome.sidePanel • chrome.tabs</p></div>
+      <div class="card"><h3>🔒 Zero-Knowledge Encryption</h3><p>Master password derives an in-memory AES-GCM 256 key via PBKDF2. Ciphertext only touches <code>chrome.storage.local</code>. WebAuthn Touch ID / Face ID unlock optional.</p><p class="mono" style="margin-top:8px">No eval • 0 tracking • 100% local</p></div>
+      <div class="card"><h3>🔍 Offline TF-IDF Search</h3><p>Tokenizes titles, URLs, notes and tags. Exact + partial matching with length normalization — sub-millisecond, no server.</p><p class="mono" style="margin-top:8px">search-helper.js • offline</p></div>
+      <div class="card"><h3>🎨 Spaces & Wallpapers</h3><p>38+ curated wallpapers, local uploads, blur/opacity sliders and procedural soundscapes (Rain, Lo-Fi, 432Hz). Each space is a separate vault.</p><p class="mono" style="margin-top:8px">Local files • no upload</p></div>
+      <div class="card"><h3>📱 QR & Universal Export</h3><p>Offline canvas QR for any link. Export Netscape HTML (Chrome/Safari/Firefox), encrypted JSON, or Obsidian vault — your data, your format.</p><p class="mono" style="margin-top:8px">qr-helper.js • export-helper.js</p></div>
+      <div class="card"><h3>🧠 On-Device AI</h3><p>Chrome’s Gemini Nano via <code>window.ai</code> for 3-bullet takeaways, plus TextRank fallback. Context is your own vault (25k chars) — never sent to a server.</p><p class="mono" style="margin-top:8px">ai-helper.js • chat-helper.js</p></div>
+    </section>
+
+    <section style="border:2px solid var(--ink);background:var(--white);padding:16px;display:grid;gap:10px">
+      <h2 style="font-size:18px;letter-spacing:-.02em">Built for agents and humans</h2>
+      <p style="color:rgba(10,10,10,.62)">Agents: read <a href="/llms.txt">llms.txt</a> for when to use SikPoket, <a href="/sitemap.xml">sitemap.xml</a> for all URLs, <code>Accept: text/markdown</code> for markdown, and <a href="/.well-known/mcp">/.well-known/mcp</a> for the MCP handshake. Humans: install the <a href="https://chrome.google.com/webstore">Chrome extension</a> (Manifest V3) or use the dashboard as a PWA. See <a href="/privacy">privacy</a>, <a href="/about">about</a> and <a href="/contact">contact</a>.</p>
+      <p class="mono">Try: <a href="/dashboard/?search=react">/dashboard/?search=react</a> • <a href="/api/health">/api/health</a></p>
+    </section>
+
+    <section style="margin-top:18px;font-size:13px;color:rgba(10,10,10,.62)">
+      <h2 style="font-size:14px;color:var(--ink);margin-bottom:6px">Developer resources</h2>
+      <ul style="display:grid;gap:6px;margin-left:18px">
+        <li><strong>SikPoket API</strong> — local helpers: <code>crypto-helper.js</code> (AES-GCM), <code>search-helper.js</code> (TF-IDF), <code>qr-helper.js</code> (QR), <code>export-helper.js</code> (Netscape/JSON) — see <a href="/llms.txt">llms.txt</a></li>
+        <li><strong>Auth</strong> — master password (PBKDF2) or WebAuthn platform credential — docs at <a href="/about#auth">/about#auth</a></li>
+        <li><strong>Webhooks</strong> — none (local-first); optional GitHub Gist encrypted sync via <code>sync-helper.js</code></li>
+        <li><strong>MCP server</strong> — Streamable HTTP at <a href="/.well-known/mcp">/.well-known/mcp</a> and <code>POST /api/mcp</code></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <span>© 2026 Sik — SikPoket<span style="color:var(--sick)">.</span> Local-first. No trackers.</span>
+    <span><a href="/privacy">Privacy</a> • <a href="/about">About</a> • <a href="/contact">Contact</a> • <a href="https://github.com/njrankitsam11-gif/SikPoket">GitHub</a></span>
+  </footer>
 </body>
 </html>
