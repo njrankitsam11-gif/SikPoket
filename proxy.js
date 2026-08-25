@@ -1,8 +1,6 @@
+import fs from 'fs';
+import path from 'path';
 export default function proxy(request) {
-  // Avoid infinite loop: if we already proxied, pass through
-  if (request.headers.get('x-proxy-loop')) {
-    return;
-  }
   const accept = request.headers.get('accept') || '';
   const url = new URL(request.url);
   const pathname = url.pathname;
@@ -51,17 +49,37 @@ export default function proxy(request) {
     return fetch(new Request(target, init));
   }
 
-  // For non-markdown, fetch static HTML to avoid proxy loop (matcher is clean URLs, not *.html)
-  let staticPath = null;
-  if (pathname === '/' || pathname === '/index.html') staticPath = '/index.html';
-  else if (pathname === '/about' || pathname === '/about/') staticPath = '/about/index.html';
-  else if (pathname === '/contact' || pathname === '/contact/') staticPath = '/contact/index.html';
-  else if (pathname === '/privacy' || pathname === '/privacy/') staticPath = '/privacy/index.html';
-  else if (pathname === '/dashboard' || pathname === '/dashboard/') staticPath = '/dashboard/index.html';
-  else if (pathname === '/developers' || pathname === '/developers/') staticPath = '/developers/index.html';
-  if (staticPath) {
-    const target = new URL(staticPath, request.url);
-    return fetch(target);
+  // For non-markdown, serve static HTML directly to avoid fetch loop / 520 for external IPs
+  const htmlMap = {
+    '/': '/index.html',
+    '/index.html': '/index.html',
+    '/about': '/about/index.html',
+    '/about/': '/about/index.html',
+    '/contact': '/contact/index.html',
+    '/contact/': '/contact/index.html',
+    '/privacy': '/privacy/index.html',
+    '/privacy/': '/privacy/index.html',
+    '/dashboard': '/dashboard/index.html',
+    '/dashboard/': '/dashboard/index.html',
+    '/developers': '/developers/index.html',
+    '/developers/': '/developers/index.html',
+  };
+  if (htmlMap[pathname]) {
+    try {
+      const filePath = path.join(process.cwd(), htmlMap[pathname].replace(/^\//, ''));
+      const html = fs.readFileSync(filePath, 'utf8');
+      return new Response(html, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Vary': 'Accept, Accept-Encoding',
+          'Cache-Control': 'public, max-age=0, must-revalidate',
+        },
+      });
+    } catch (e) {
+      // fall through to fetch
+    }
   }
-  return fetch(request);
+  // MCP already handled above; for other paths, let Vercel handle (will go to api/404 via rewrites)
+  return;
 }
