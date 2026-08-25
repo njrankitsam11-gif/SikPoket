@@ -50,27 +50,27 @@
   "rewrites": [
     {
       "source": "/",
-      "has": [{ "type": "header", "key": "Accept", "value": ".*text/markdown.*" }],
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
       "destination": "/api/markdown?path=/index.md"
     },
     {
       "source": "/about",
-      "has": [{ "type": "header", "key": "Accept", "value": ".*text/markdown.*" }],
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
       "destination": "/api/markdown?path=/about/index.md"
     },
     {
       "source": "/contact",
-      "has": [{ "type": "header", "key": "Accept", "value": ".*text/markdown.*" }],
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
       "destination": "/api/markdown?path=/contact/index.md"
     },
     {
       "source": "/privacy",
-      "has": [{ "type": "header", "key": "Accept", "value": ".*text/markdown.*" }],
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
       "destination": "/api/markdown?path=/privacy/index.md"
     },
     {
       "source": "/dashboard",
-      "has": [{ "type": "header", "key": "Accept", "value": ".*text/markdown.*" }],
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
       "destination": "/api/markdown?path=/dashboard/index.md"
     },
     { "source": "/.well-known/mcp", "destination": "/api/mcp" },

@@ -33,13 +33,15 @@ export default function handler(req, res) {
 
   // Ensure leading slash and .md
   if (!mdPath.startsWith('/')) mdPath = '/' + mdPath;
-  // Resolve to filesystem
-  const root = process.cwd();
-  const filePath = path.join(root, mdPath.replace(/^\//, ''));
-  try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    res.status(200).send(content);
-  } catch (e) {
-    res.status(404).send('# 404 — Markdown not found\n\nTry /sitemap.xml or /llms.txt\n');
-  }
+
+  // Serve hardcoded markdown to avoid filesystem issues on Vercel
+  const mdMap = {
+    '/index.md': `# SikPoket — Encrypted Bookmark Manager & Knowledge Vault\n\n> Zero-knowledge, local-first bookmark vault. Save URLs, notes, API keys and passwords with client-side AES-GCM.\n\n**URL:** https://sikpoket.vercel.app/\n**Dashboard:** https://sikpoket.vercel.app/dashboard/\n**Sitemap:** https://sikpoket.vercel.app/sitemap.xml\n**llms.txt:** https://sikpoket.vercel.app/llms.txt\n`,
+    '/about/index.md': `# About Sik — Builders of SikPoket\n\nSik builds local-first tools: SikPoket and SikOgami. Same Paper/Ink/Sick design.\n\nContact: hello@sikpoket.app\nGitHub: https://github.com/njrankitsam11-gif/SikPoket\n`,
+    '/contact/index.md': `# Contact Sik\n\n- Email: hello@sikpoket.app\n- GitHub: https://github.com/njrankitsam11-gif/SikPoket\n- Address: Remote, Global, 00000 US\n`,
+    '/privacy/index.md': `# Privacy — SikPoket Zero-Data\n\nEffective: 2026-08-17. Zero collection. All data in chrome.storage.local, encrypted AES-GCM.\n\nFull: https://sikpoket.vercel.app/privacy\n`,
+    '/dashboard/index.md': `# SikPoket Dashboard — Vault\n\nLocal-first vault: URLs, notes, API keys, passwords. Spaces with wallpapers, TF-IDF search.\n\nOpen: https://sikpoket.vercel.app/dashboard/\n`,
+  };
+  const content = mdMap[mdPath] || mdMap['/index.md'];
+  res.status(200).send(content);
 }
