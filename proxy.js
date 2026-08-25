@@ -1,4 +1,8 @@
 export default function proxy(request) {
+  // Avoid infinite loop: if we already proxied, pass through
+  if (request.headers.get('x-proxy-loop')) {
+    return;
+  }
   const accept = request.headers.get('accept') || '';
   const url = new URL(request.url);
   const pathname = url.pathname;
@@ -31,6 +35,16 @@ export default function proxy(request) {
     }
   }
 
-  // Passthrough: let Vercel handle static/rewrites (no response = continue)
-  return;
+  // For non-markdown, fetch static HTML to avoid proxy loop (matcher is clean URLs, not *.html)
+  let staticPath = null;
+  if (pathname === '/' || pathname === '/index.html') staticPath = '/index.html';
+  else if (pathname === '/about' || pathname === '/about/') staticPath = '/about/index.html';
+  else if (pathname === '/contact' || pathname === '/contact/') staticPath = '/contact/index.html';
+  else if (pathname === '/privacy' || pathname === '/privacy/') staticPath = '/privacy/index.html';
+  else if (pathname === '/dashboard' || pathname === '/dashboard/') staticPath = '/dashboard/index.html';
+  if (staticPath) {
+    const target = new URL(staticPath, request.url);
+    return fetch(target);
+  }
+  return fetch(request);
 }
