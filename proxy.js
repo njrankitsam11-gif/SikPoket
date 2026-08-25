@@ -37,6 +37,20 @@ export default function proxy(request) {
     }
   }
 
+  // MCP — proxy both GET and POST to /api/mcp
+  if (pathname === '/.well-known/mcp') {
+    const target = new URL('/api/mcp', request.url);
+    const init = {
+      method: request.method,
+      headers: request.headers,
+    };
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      init.body = request.body;
+      init.duplex = 'half';
+    }
+    return fetch(new Request(target, init));
+  }
+
   // For non-markdown, fetch static HTML to avoid proxy loop (matcher is clean URLs, not *.html)
   let staticPath = null;
   if (pathname === '/' || pathname === '/index.html') staticPath = '/index.html';

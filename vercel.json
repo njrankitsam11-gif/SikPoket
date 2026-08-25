@@ -65,7 +65,7 @@
   ],
   "proxy": {
     "entrypoint": "proxy.js",
-    "matcher": ["/", "/about", "/contact", "/privacy", "/dashboard", "/developers"]
+    "matcher": ["/", "/about", "/contact", "/privacy", "/dashboard", "/developers", "/.well-known/mcp"]
   },
   "rewrites": [
     {
