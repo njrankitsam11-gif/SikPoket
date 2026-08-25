@@ -13,6 +13,7 @@ export default function proxy(request) {
     '/contact/index.md': `# Contact Sik\n\n- Email: hello@sikpoket.app\n- GitHub: https://github.com/njrankitsam11-gif/SikPoket\n- Address: Remote, Global, 00000 US\n`,
     '/privacy/index.md': `# Privacy — SikPoket Zero-Data\n\nEffective: 2026-08-17. Zero collection. All data in chrome.storage.local, encrypted AES-GCM.\n\nFull: https://sikpoket.vercel.app/privacy\n`,
     '/dashboard/index.md': `# SikPoket Dashboard — Vault\n\nLocal-first vault: URLs, notes, API keys, passwords. Spaces with wallpapers, TF-IDF search.\n\nOpen: https://sikpoket.vercel.app/dashboard/\n`,
+    '/developers/index.md': `# Developers — SikPoket API, MCP & Vercel\n\nQuickstart: https://sikpoket.vercel.app/developers\nOpenAPI: https://sikpoket.vercel.app/openapi.json\nMCP: https://sikpoket.vercel.app/.well-known/mcp\nHealth: https://sikpoket.vercel.app/api/health\n`,
   };
 
   if (accept.includes('text/markdown')) {
@@ -22,6 +23,7 @@ export default function proxy(request) {
     else if (pathname === '/contact' || pathname === '/contact/') mdPath = '/contact/index.md';
     else if (pathname === '/privacy' || pathname === '/privacy/') mdPath = '/privacy/index.md';
     else if (pathname === '/dashboard' || pathname === '/dashboard/') mdPath = '/dashboard/index.md';
+    else if (pathname === '/developers' || pathname === '/developers/') mdPath = '/developers/index.md';
     if (mdPath && mdMap[mdPath]) {
       return new Response(mdMap[mdPath], {
         status: 200,
@@ -42,6 +44,7 @@ export default function proxy(request) {
   else if (pathname === '/contact' || pathname === '/contact/') staticPath = '/contact/index.html';
   else if (pathname === '/privacy' || pathname === '/privacy/') staticPath = '/privacy/index.html';
   else if (pathname === '/dashboard' || pathname === '/dashboard/') staticPath = '/dashboard/index.html';
+  else if (pathname === '/developers' || pathname === '/developers/') staticPath = '/developers/index.html';
   if (staticPath) {
     const target = new URL(staticPath, request.url);
     return fetch(target);

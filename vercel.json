@@ -45,11 +45,27 @@
         { "key": "Content-Type", "value": "text/markdown; charset=utf-8" },
         { "key": "Vary", "value": "Accept, Accept-Encoding" }
       ]
+    },
+    {
+      "source": "/openapi.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }, { "key": "Access-Control-Allow-Origin", "value": "*" }, { "key": "Vary", "value": "Accept, Accept-Encoding" }]
+    },
+    {
+      "source": "/developers",
+      "headers": [{ "key": "Vary", "value": "Accept, Accept-Encoding" }]
+    },
+    {
+      "source": "/developers/index.html",
+      "headers": [{ "key": "Vary", "value": "Accept, Accept-Encoding" }]
+    },
+    {
+      "source": "/api/health",
+      "headers": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }, { "key": "Vary", "value": "Accept, Accept-Encoding" }]
     }
   ],
   "proxy": {
     "entrypoint": "proxy.js",
-    "matcher": ["/", "/about", "/contact", "/privacy", "/dashboard"]
+    "matcher": ["/", "/about", "/contact", "/privacy", "/dashboard", "/developers"]
   },
   "rewrites": [
     {
@@ -77,7 +93,13 @@
       "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
       "destination": "/api/markdown?path=/dashboard/index.md"
     },
+    {
+      "source": "/developers",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "destination": "/api/markdown?path=/developers/index.md"
+    },
     { "source": "/.well-known/mcp", "destination": "/api/mcp" },
+    { "source": "/developers", "destination": "/developers/index.html" },
     { "source": "/about", "destination": "/about/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/privacy", "destination": "/privacy/index.html" },
@@ -89,7 +111,8 @@
     { "source": "/app.css", "destination": "/dashboard/app.css" },
     { "source": "/app.js", "destination": "/dashboard/app.js" },
     { "source": "/infographic", "destination": "/infographic.html" },
-    { "source": "/blueprint", "destination": "/infographic.html" }
+    { "source": "/blueprint", "destination": "/infographic.html" },
+    { "source": "/(.*)", "destination": "/api/404" }
   ],
   "redirects": []
 }

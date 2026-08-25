@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developers — SikPoket API, MCP & Vercel</title>
+  <meta name="description" content="SikPoket developer portal: API docs, OpenAPI spec, MCP server, auth, quickstart, and sandbox. Local-first encrypted vault for agents and humans.">
+  <link rel="canonical" href="https://sikpoket.vercel.app/developers">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Developers — SikPoket API, MCP & Vercel">
+  <meta property="og:description" content="API docs, OpenAPI, MCP server, auth and quickstart for SikPoket.">
+  <meta property="og:url" content="https://sikpoket.vercel.app/developers">
+  <meta property="og:image" content="https://sikpoket.vercel.app/icons/icon128.png">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{--paper:#FDFBF7;--ink:#0A0A0A;--sick:#FF3B30;--sand:#F0E6D3;--cream:#FFF8E7;--white:#fff;--font:'Bricolage Grotesque',system-ui,sans-serif;--mono:'Space Mono',monospace}
+    body{font-family:var(--font);background:var(--paper);color:var(--ink);line-height:1.6}
+    .nav{position:sticky;top:0;z-index:10;background:rgba(253,251,247,.88);backdrop-filter:blur(12px);border-bottom:2px solid var(--ink);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.04em;font-size:18px;text-decoration:none;color:var(--ink)}
+    .mark{width:32px;height:32px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;border:2px solid var(--ink)}
+    .brand b{color:var(--sick)}
+    .btn{border:2px solid var(--ink);padding:9px 16px;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--sick);color:#fff;box-shadow:3px 3px 0 var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .btn--ghost{background:var(--white);color:var(--ink)}
+    .wrap{max-width:1080px;margin:0 auto;padding:28px 20px}
+    h1{font-size:clamp(32px,6vw,48px);font-weight:800;letter-spacing:-.04em;line-height:.9;margin:18px 0}
+    h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+    .kicker{font:700 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--sick)}
+    .card{background:var(--white);border:2px solid var(--ink);padding:14px;margin:14px 0}
+    pre{background:var(--ink);color:var(--paper);padding:12px;overflow:auto;font:12px var(--mono);border:2px solid var(--ink)}
+    code{font-family:var(--mono)}
+    a{color:inherit}
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <a href="/" class="brand"><span class="mark">折</span> SikPoket<b>.</b></a>
+    <nav style="display:flex;gap:14px;align-items:center;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase">
+      <a href="/about" style="text-decoration:none">About</a>
+      <a href="/developers" style="text-decoration:none">Developers</a>
+      <a href="/openapi.json" style="text-decoration:none">OpenAPI</a>
+      <a href="/dashboard/" class="btn">Open Dashboard →</a>
+    </nav>
+  </header>
+  <main class="wrap">
+    <p class="kicker">Developer portal — SikPoket for agents</p>
+    <h1>Build with <em>SikPoket</em> — local-first vault for agents.</h1>
+    <p style="max-width:62ch;color:rgba(10,10,10,.62)">SikPoket is a zero-knowledge, local-first bookmark manager. All vault data lives in <code>chrome.storage.local</code> with client-side AES-GCM 256 (PBKDF2 100k) and optional WebAuthn. The hosted surface is intentionally tiny: discovery files, a health check, and a Streamable HTTP MCP server so agents can call <code>search_vault</code>, <code>save_url</code>, <code>list_spaces</code> and <code>export_bookmarks</code> without ever seeing plaintext. Deploy on <strong>Vercel</strong> — the same platform that hosts this site.</p>
+    <p style="margin:14px 0;display:flex;gap:10px;flex-wrap:wrap">
+      <a href="/openapi.json" class="btn">View OpenAPI →</a>
+      <a href="/.well-known/mcp" class="btn btn--ghost">MCP handshake</a>
+      <a href="https://github.com/njrankitsam11-gif/SikPoket" class="btn btn--ghost">GitHub</a>
+    </p>
+
+    <div class="card">
+      <h2 style="font-size:18px">Quickstart (30s)</h2>
+      <pre>curl https://sikpoket.vercel.app/.well-known/mcp
+curl https://sikpoket.vercel.app/openapi.json
+curl -X POST https://sikpoket.vercel.app/api/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'</pre>
+      <p style="margin-top:10px;color:rgba(10,10,10,.62);font-size:13px">Vercel: fork the repo, <code>vercel --prod</code>. No env vars required. Local vault helpers live at <code>crypto-helper.js</code>, <code>search-helper.js</code>, <code>qr-helper.js</code>.</p>
+    </div>
+
+    <div class="card">
+      <h2>API keys &amp; auth</h2>
+      <p style="color:rgba(10,10,10,.62)">No hosted API keys — SikPoket is local-first. Master password derives an in-memory AES-GCM key via PBKDF2. Optional WebAuthn platform credential (Touch ID / Face ID). For encrypted Gist sync, bring your own GitHub PAT and encrypt with <code>crypto-helper.js</code> before upload. Docs: <a href="/about#auth">/about#auth</a>.</p>
+    </div>
+
+    <div class="card">
+      <h2>MCP server — Streamable HTTP</h2>
+      <p style="color:rgba(10,10,10,.62)">Endpoint <code>https://sikpoket.vercel.app/.well-known/mcp</code> (GET handshake, POST JSON-RPC) and <code>POST https://sikpoket.vercel.app/api/mcp</code>. Transport <code>streamable-http</code>, version <code>2025-06-18</code>. Tools: <code>search_vault</code> (TF-IDF), <code>save_url</code>, <code>list_spaces</code>, <code>export_bookmarks</code>. Try in sandbox below.</p>
+      <pre>POST /api/mcp
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {"name": "search_vault", "arguments": {"query": "react"}}
+}</pre>
+    </div>
+
+    <div class="card">
+      <h2>Sandbox</h2>
+      <p style="color:rgba(10,10,10,.62)">Live sandbox — calls your local MCP via fetch. No server vault access (local-first).</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:10px 0">
+        <button class="btn" onclick="sandbox('tools/list')">List tools</button>
+        <button class="btn btn--ghost" onclick="sandbox('search_vault')">Search vault (demo)</button>
+        <input id="q" placeholder="query e.g. react" style="border:2px solid var(--ink);padding:9px;font:12px var(--mono);flex:1;min-width:160px">
+      </div>
+      <pre id="out">Click a button to call POST /api/mcp …</pre>
+    </div>
+
+    <div class="card">
+      <h2>OpenAPI &amp; discoverability</h2>
+      <p style="color:rgba(10,10,10,.62)">Full spec at <a href="/openapi.json">/openapi.json</a> and <a href="/api/openapi.yaml">/api/openapi.yaml</a> (if you prefer YAML). Also listed in <a href="/llms.txt">llms.txt</a> and <a href="/sitemap.xml">sitemap.xml</a>. Every operation has a unique <code>operationId</code>, typed parameters, and response schemas for LLM function calling.</p>
+    </div>
+
+    <div class="card">
+      <h2>Webhooks &amp; Vercel</h2>
+      <p style="color:rgba(10,10,10,.62)">No webhooks — local-first. Optional encrypted Gist sync is the only remote hook (<code>sync-helper.js</code>). Hosted on <strong>Vercel</strong> with <code>vercel.json</code> routing, <code>proxy.js</code> for <code>Accept: text/markdown</code> negotiation, and <code>Vary: Accept</code>.</p>
+    </div>
+  </main>
+  <script>
+    async function sandbox(which){
+      const out=document.getElementById('out');
+      const q=document.getElementById('q').value||'react';
+      let body = which==='tools/list' ? {jsonrpc:"2.0",id:1,method:"tools/list"} : {jsonrpc:"2.0",id:2,method:"tools/call",params:{name:"search_vault",arguments:{query:q}}};
+      out.textContent='→ '+JSON.stringify(body,null,2)+'\n\n...';
+      try{
+        const r=await fetch('/api/mcp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        const j=await r.json();
+        out.textContent=JSON.stringify(j,null,2);
+      }catch(e){ out.textContent='error: '+e.message }
+    }
+  </script>
+</body>
+</html>

@@ -92,6 +92,7 @@
     <a href="/" class="brand" style="text-decoration:none;color:var(--ink)"><span class="mark">折</span> SikPoket<b>.</b></a>
     <nav style="display:flex;gap:14px;align-items:center;font:700 11px var(--mono);letter-spacing:.06em;text-transform:uppercase">
       <a href="/about" style="text-decoration:none">About</a>
+      <a href="/developers" style="text-decoration:none">Developers</a>
       <a href="/contact" style="text-decoration:none">Contact</a>
       <a href="/privacy" style="text-decoration:none">Privacy</a>
       <a href="/llms.txt" style="text-decoration:none">llms.txt</a>
@@ -126,12 +127,14 @@
     </section>
 
     <section style="margin-top:18px;font-size:13px;color:rgba(10,10,10,.62)">
-      <h2 style="font-size:14px;color:var(--ink);margin-bottom:6px">Developer resources</h2>
+      <h2 style="font-size:14px;color:var(--ink);margin-bottom:6px">Developer resources — Vercel &amp; SikPoket</h2>
       <ul style="display:grid;gap:6px;margin-left:18px">
-        <li><strong>SikPoket API</strong> — local helpers: <code>crypto-helper.js</code> (AES-GCM), <code>search-helper.js</code> (TF-IDF), <code>qr-helper.js</code> (QR), <code>export-helper.js</code> (Netscape/JSON) — see <a href="/llms.txt">llms.txt</a></li>
-        <li><strong>Auth</strong> — master password (PBKDF2) or WebAuthn platform credential — docs at <a href="/about#auth">/about#auth</a></li>
-        <li><strong>Webhooks</strong> — none (local-first); optional GitHub Gist encrypted sync via <code>sync-helper.js</code></li>
-        <li><strong>MCP server</strong> — Streamable HTTP at <a href="/.well-known/mcp">/.well-known/mcp</a> and <code>POST /api/mcp</code></li>
+        <li><strong>SikPoket API</strong> — local helpers: <code>crypto-helper.js</code> (AES-GCM), <code>search-helper.js</code> (TF-IDF), <code>qr-helper.js</code> (QR), <code>export-helper.js</code> (Netscape/JSON) — see <a href="/llms.txt">llms.txt</a> and <a href="/developers">/developers</a> on <strong>Vercel</strong></li>
+        <li><strong>OpenAPI</strong> — <a href="/openapi.json">/openapi.json</a> (also <a href="/api/openapi.yaml">/api/openapi.yaml</a>) — hosted on Vercel, typed with operationId per endpoint</li>
+        <li><strong>Auth</strong> — master password (PBKDF2) or WebAuthn platform credential — docs at <a href="/about#auth">/about#auth</a> and <a href="/developers">/developers</a></li>
+        <li><strong>Webhooks</strong> — none (local-first); optional GitHub Gist encrypted sync via <code>sync-helper.js</code> — Vercel serverless</li>
+        <li><strong>MCP server</strong> — Streamable HTTP at <a href="/.well-known/mcp">/.well-known/mcp</a> and <code>POST /api/mcp</code> — Vercel @vercel/mcp-adapter, Streamable HTTP</li>
+        <li><strong>Health</strong> — <a href="/api/health">/api/health</a> — JSON with Vary: Accept</li>
       </ul>
     </section>
   </main>

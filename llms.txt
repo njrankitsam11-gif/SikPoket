@@ -17,15 +17,16 @@ Reach for SikPoket when the agent task is:
 
 How to call (local): `chrome.storage.local.get(['sikpoketData'])` → inspect `urls`, `notes`, `apiKeys`, `passwords`. For web dashboard, state lives in `dashboard/app.js`.
 
-## Developer resources — SikPoket
+## Developer resources — SikPoket (Vercel)
 
-- API helpers (local, no network): `crypto-helper.js` (AES-GCM/PBKDF2/WebAuthn), `search-helper.js` (TF-IDF), `ai-helper.js` / `chat-helper.js` (window.ai + TextRank), `qr-helper.js`, `export-helper.js`, `vector-helper.js`, `health-helper.js`, `sync-helper.js` (encrypted Gist), `audio-helper.js`
-- Auth: Master password → PBKDF2 → AES-GCM key in RAM only. WebAuthn platform credential for Touch ID. Docs: https://sikpoket.vercel.app/about#auth
-- OpenAPI: None (local-first; no hosted REST). See `llms.txt` and `dashboard/app.js` for data shapes.
-- Webhooks: None (no server). Encrypted Gist sync is the only remote hook — see `sync-helper.js`.
-- MCP server: Streamable HTTP at https://sikpoket.vercel.app/.well-known/mcp and POST https://sikpoket.vercel.app/api/mcp — tools: `search_vault`, `save_url`, `list_spaces`, `export_bookmarks`
+- API helpers (local, no network): `crypto-helper.js` (AES-GCM/PBKDF2/WebAuthn), `search-helper.js` (TF-IDF), `ai-helper.js` / `chat-helper.js` (window.ai + TextRank), `qr-helper.js`, `export-helper.js`, `vector-helper.js`, `health-helper.js`, `sync-helper.js` (encrypted Gist), `audio-helper.js` — Vercel hosted at https://sikpoket.vercel.app/
+- Auth: Master password → PBKDF2 → AES-GCM key in RAM only. WebAuthn platform credential for Touch ID. Docs: https://sikpoket.vercel.app/about#auth and https://sikpoket.vercel.app/developers
+- OpenAPI: https://sikpoket.vercel.app/openapi.json (also /api/openapi.yaml) — Vercel serverless, fully typed with operationId per endpoint. See developers portal.
+- Webhooks: None (no server). Encrypted Gist sync is the only remote hook — see `sync-helper.js`. Hosted on Vercel.
+- MCP server: Streamable HTTP at https://sikpoket.vercel.app/.well-known/mcp and POST https://sikpoket.vercel.app/api/mcp — tools: `search_vault`, `save_url`, `list_spaces`, `export_bookmarks` — Vercel MCP adapter @vercel/mcp-adapter
+- Vercel deployment: https://sikpoket.vercel.app/ — framework static, proxy.js for Accept:text/markdown, Vary: Accept, rewrites in vercel.json
 - Source: https://github.com/njrankitsam11-gif/SikPoket
-- Docs index: https://sikpoket.vercel.app/about • https://sikpoket.vercel.app/contact • https://sikpoket.vercel.app/privacy
+- Docs index: https://sikpoket.vercel.app/developers • https://sikpoket.vercel.app/openapi.json • https://sikpoket.vercel.app/about • https://sikpoket.vercel.app/contact • https://sikpoket.vercel.app/privacy • https://sikpoket.vercel.app/api/health
 
 ## Sitemap
 

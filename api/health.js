@@ -1,0 +1,41 @@
+export default function handler(req, res) {
+  res.setHeader('Vary', 'Accept, Accept-Encoding');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  if (req.method !== 'GET') {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.status(405).json({
+      error: 'Method Not Allowed',
+      code: 'METHOD_NOT_ALLOWED',
+      message: `Method ${req.method} not allowed for ${req.url}. Use GET.`,
+      hint: 'GET /api/health for health, GET /openapi.json for spec, POST /api/mcp for MCP',
+      status: 405,
+      docs: 'https://sikpoket.vercel.app/developers'
+    });
+    return;
+  }
+  // Support Accept negotiation: if client wants markdown, give markdown
+  const accept = (req.headers.accept || '').toLowerCase();
+  if (accept.includes('text/markdown')) {
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    res.status(200).send(`# SikPoket Health — ok
+
+- **status:** ok
+- **version:** 1.8.0
+- **uptime:** ${process.uptime().toFixed(1)}s
+- **endpoint:** https://sikpoket.vercel.app/api/health
+- **openapi:** https://sikpoket.vercel.app/openapi.json
+- **mcp:** https://sikpoket.vercel.app/.well-known/mcp
+`);
+    return;
+  }
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.status(200).json({
+    status: 'ok',
+    version: '1.8.0',
+    uptime: Number(process.uptime().toFixed(1)),
+    endpoint: 'https://sikpoket.vercel.app/api/health',
+    openapi: 'https://sikpoket.vercel.app/openapi.json',
+    mcp: 'https://sikpoket.vercel.app/.well-known/mcp'
+  });
+}

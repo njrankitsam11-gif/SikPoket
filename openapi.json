@@ -1,0 +1,300 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SikPoket API",
+    "version": "1.8.0",
+    "description": "Local-first encrypted bookmark vault — SikPoket exposes a Streamable HTTP MCP server and a small HTTP API for health and discovery. All vault data is client-side (chrome.storage.local, AES-GCM), so the hosted API is read-only discovery + MCP tools. See https://sikpoket.vercel.app/llms.txt and https://sikpoket.vercel.app/developers",
+    "contact": {
+      "name": "Sik",
+      "email": "hello@sikpoket.app",
+      "url": "https://sikpoket.vercel.app/contact"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/njrankitsam11-gif/SikPoket/blob/master/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://sikpoket.vercel.app",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    { "name": "mcp", "description": "Model Context Protocol — Streamable HTTP" },
+    { "name": "discovery", "description": "Sitemaps, llms.txt, OpenAPI" },
+    { "name": "health", "description": "Health and diagnostics" }
+  ],
+  "paths": {
+    "/.well-known/mcp": {
+      "get": {
+        "operationId": "getMcpHandshake",
+        "summary": "MCP handshake — discovery",
+        "description": "Returns MCP server manifest (Streamable HTTP). Use GET for discovery, POST for JSON-RPC. See https://modelcontextprotocol.io",
+        "tags": ["mcp"],
+        "responses": {
+          "200": {
+            "description": "MCP manifest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["mcp_version", "transport", "tools"],
+                  "properties": {
+                    "mcp_version": { "type": "string", "example": "2025-06-18" },
+                    "name": { "type": "string", "example": "sikpoket" },
+                    "transport": { "type": "string", "example": "streamable-http" },
+                    "endpoint": { "type": "string", "format": "uri", "example": "https://sikpoket.vercel.app/api/mcp" },
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name", "description"],
+                        "properties": {
+                          "name": { "type": "string" },
+                          "description": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "postMcpWellKnown",
+        "summary": "MCP Streamable HTTP via well-known",
+        "description": "Proxy to POST /api/mcp — JSON-RPC 2.0 for MCP tools. Supports initialize, tools/list, tools/call.",
+        "tags": ["mcp"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/McpJsonRpcRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpJsonRpcResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/api/mcp": {
+      "get": {
+        "operationId": "getMcp",
+        "summary": "MCP handshake (api)",
+        "description": "Same as GET /.well-known/mcp but canonical API endpoint. Returns 200 with MCP manifest.",
+        "tags": ["mcp"],
+        "responses": {
+          "200": {
+            "description": "MCP manifest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mcp_version": { "type": "string" },
+                    "tools": { "type": "array", "items": { "type": "object" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "postMcp",
+        "summary": "MCP Streamable HTTP JSON-RPC",
+        "description": "Invoke MCP tools. Local-first: tools operate on client vault, server echoes hint. Methods: initialize, tools/list, tools/call with params {name, arguments}.",
+        "tags": ["mcp"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/McpJsonRpcRequest" },
+              "examples": {
+                "toolsList": {
+                  "value": { "jsonrpc": "2.0", "id": 1, "method": "tools/list" }
+                },
+                "toolsCall": {
+                  "value": { "jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": { "name": "search_vault", "arguments": { "query": "react" } } }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JSON-RPC success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/McpJsonRpcResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Health check",
+        "description": "Returns service health and version. Useful for uptime checks.",
+        "tags": ["health"],
+        "responses": {
+          "200": {
+            "description": "Healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["status", "version"],
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "version": { "type": "string", "example": "1.8.0" },
+                    "uptime": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sitemap.xml": {
+      "get": {
+        "operationId": "getSitemap",
+        "summary": "Sitemap",
+        "description": "XML sitemap of all indexable URLs.",
+        "tags": ["discovery"],
+        "responses": {
+          "200": {
+            "description": "XML sitemap",
+            "content": {
+              "application/xml": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "operationId": "getLlmsTxt",
+        "summary": "LLMs.txt agent guide",
+        "description": "When to use SikPoket, tool list, and sitemap for agents.",
+        "tags": ["discovery"],
+        "responses": {
+          "200": {
+            "description": "llms.txt",
+            "content": {
+              "text/plain": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "getOpenApi",
+        "summary": "OpenAPI spec",
+        "description": "This document.",
+        "tags": ["discovery"],
+        "responses": {
+          "200": {
+            "description": "OpenAPI JSON",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "McpJsonRpcRequest": {
+        "type": "object",
+        "required": ["jsonrpc", "id", "method"],
+        "properties": {
+          "jsonrpc": { "type": "string", "example": "2.0" },
+          "id": { "type": "integer", "example": 1 },
+          "method": { "type": "string", "enum": ["initialize", "tools/list", "tools/call"], "example": "tools/list" },
+          "params": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "example": "search_vault" },
+              "arguments": { "type": "object", "additionalProperties": true }
+            }
+          }
+        }
+      },
+      "McpJsonRpcResponse": {
+        "type": "object",
+        "required": ["jsonrpc", "id"],
+        "properties": {
+          "jsonrpc": { "type": "string", "example": "2.0" },
+          "id": { "type": "integer", "example": 1 },
+          "result": {
+            "type": "object",
+            "properties": {
+              "protocolVersion": { "type": "string" },
+              "capabilities": { "type": "object" },
+              "serverInfo": { "type": "object" },
+              "tools": { "type": "array", "items": { "type": "object" } },
+              "content": { "type": "array", "items": { "type": "object" } }
+            }
+          },
+          "error": { "type": "object" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error", "code", "message", "hint", "status"],
+        "properties": {
+          "error": { "type": "string", "example": "Not Found" },
+          "code": { "type": "string", "example": "RESOURCE_NOT_FOUND" },
+          "message": { "type": "string" },
+          "hint": { "type": "string" },
+          "status": { "type": "integer", "example": 404 },
+          "docs": { "type": "string", "format": "uri" }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request — JSON error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not found — JSON error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  }
+}
