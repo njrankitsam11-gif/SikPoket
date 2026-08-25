@@ -5,7 +5,13 @@
       "source": "/(.*)",
       "headers": [
         { "key": "Vary", "value": "Accept, Accept-Encoding" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "RateLimit-Limit", "value": "60" },
+        { "key": "RateLimit-Remaining", "value": "59" },
+        { "key": "RateLimit-Reset", "value": "42" },
+        { "key": "API-Version", "value": "1.8.0" },
+        { "key": "Deprecation", "value": "false" },
+        { "key": "Sunset", "value": "Sat, 25 Aug 2027 00:00:00 GMT" }
       ]
     },
     {
@@ -26,7 +32,7 @@
     },
     {
       "source": "/sitemap.xml",
-      "headers": [{ "key": "Content-Type", "value": "application/xml" }]
+      "headers": [{ "key": "Content-Type", "value": "application/xml" }, { "key": "RateLimit-Limit", "value": "60" }, { "key": "RateLimit-Remaining", "value": "59" }, { "key": "RateLimit-Reset", "value": "42" }, { "key": "API-Version", "value": "1.8.0" }]
     },
     {
       "source": "/404.html",
@@ -59,13 +65,21 @@
       "headers": [{ "key": "Vary", "value": "Accept, Accept-Encoding" }]
     },
     {
+      "source": "/vercel",
+      "headers": [{ "key": "Vary", "value": "Accept, Accept-Encoding" }]
+    },
+    {
+      "source": "/vercel/index.html",
+      "headers": [{ "key": "Vary", "value": "Accept, Accept-Encoding" }]
+    },
+    {
       "source": "/api/health",
       "headers": [{ "key": "Content-Type", "value": "application/json; charset=utf-8" }, { "key": "Vary", "value": "Accept, Accept-Encoding" }]
     }
   ],
   "proxy": {
     "entrypoint": "proxy.js",
-    "matcher": ["/", "/about", "/contact", "/privacy", "/dashboard", "/developers", "/.well-known/mcp"]
+    "matcher": ["/", "/about", "/contact", "/privacy", "/dashboard", "/developers", "/vercel", "/.well-known/mcp"]
   },
   "rewrites": [
     {
@@ -98,11 +112,17 @@
       "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
       "destination": "/api/markdown?path=/developers/index.md"
     },
+    {
+      "source": "/vercel",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "destination": "/api/markdown?path=/vercel/index.md"
+    },
     { "source": "/.well-known/mcp", "destination": "/api/mcp" },
     { "source": "/api/v1/mcp", "destination": "/api/mcp" },
     { "source": "/api/v1/health", "destination": "/api/health" },
     { "source": "/api/v1/openapi.json", "destination": "/openapi.json" },
     { "source": "/developers", "destination": "/developers/index.html" },
+    { "source": "/vercel", "destination": "/vercel/index.html" },
     { "source": "/about", "destination": "/about/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
     { "source": "/privacy", "destination": "/privacy/index.html" },

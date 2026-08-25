@@ -11,6 +11,7 @@ export default function proxy(request) {
     '/privacy/index.md': `# Privacy — SikPoket Zero-Data\n\nEffective: 2026-08-17. Zero collection. All data in chrome.storage.local, encrypted AES-GCM.\n\nFull: https://sikpoket.vercel.app/privacy\n`,
     '/dashboard/index.md': `# SikPoket Dashboard — Vault\n\nLocal-first vault: URLs, notes, API keys, passwords. Spaces with wallpapers, TF-IDF search.\n\nOpen: https://sikpoket.vercel.app/dashboard/\n`,
     '/developers/index.md': `# Developers — SikPoket API, MCP & Vercel\n\nQuickstart: https://sikpoket.vercel.app/developers\nOpenAPI: https://sikpoket.vercel.app/openapi.json\nMCP: https://sikpoket.vercel.app/.well-known/mcp\nHealth: https://sikpoket.vercel.app/api/health\n`,
+    '/vercel/index.md': `# Vercel — SikPoket on Vercel\n\nSikPoket on Vercel at https://sikpoket.vercel.app — vercel.json, proxy.js, /api/mcp, /api/health, RateLimit, Vary: Accept.\n\nSee https://sikpoket.vercel.app/developers and https://sikpoket.vercel.app/openapi.json\n`,
   };
 
   if (accept.includes('text/markdown')) {
@@ -21,6 +22,7 @@ export default function proxy(request) {
     else if (pathname === '/privacy' || pathname === '/privacy/') mdPath = '/privacy/index.md';
     else if (pathname === '/dashboard' || pathname === '/dashboard/') mdPath = '/dashboard/index.md';
     else if (pathname === '/developers' || pathname === '/developers/') mdPath = '/developers/index.md';
+    else if (pathname === '/vercel' || pathname === '/vercel/') mdPath = '/vercel/index.md';
     if (mdPath && mdMap[mdPath]) {
       return new Response(mdMap[mdPath], {
         status: 200,

@@ -20,8 +20,12 @@
       "description": "Production (unversioned, defaults to v1)"
     },
     {
+      "url": "https://sikpoket.vercel.app/v1",
+      "description": "Versioned API v1 — path versioning (/v1/)"
+    },
+    {
       "url": "https://sikpoket.vercel.app/api/v1",
-      "description": "Versioned API v1 — preferred"
+      "description": "Versioned API v1 — alias"
     }
   ],
   "tags": [
@@ -281,20 +285,31 @@
       "get": {
         "operationId": "getSitemap",
         "summary": "Sitemap",
-        "description": "XML sitemap of all indexable URLs.",
+        "description": "XML sitemap of all indexable URLs. SikPoket on Vercel.",
         "tags": ["discovery"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "responses": {
           "200": {
             "description": "XML sitemap",
             "headers": {
-              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" }
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" },
+              "API-Version": { "$ref": "#/components/headers/ApiVersion" }
             },
             "content": {
               "application/xml": {
-                "schema": { "type": "string", "description": "XML sitemap string" }
+                "schema": {
+                  "type": "object",
+                  "description": "Sitemap response",
+                  "properties": {
+                    "urlset": { "type": "string", "description": "XML urlset" }
+                  }
+                }
               }
             }
           },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
           "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
@@ -303,17 +318,30 @@
       "get": {
         "operationId": "getLlmsTxt",
         "summary": "LLMs.txt agent guide",
-        "description": "When to use SikPoket, tool list, and sitemap for agents.",
+        "description": "When to use SikPoket, tool list, and sitemap for agents. SikPoket on Vercel.",
         "tags": ["discovery"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "responses": {
           "200": {
             "description": "llms.txt",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" }
+            },
             "content": {
               "text/plain": {
-                "schema": { "type": "string", "description": "llms.txt content" }
+                "schema": {
+                  "type": "object",
+                  "description": "llms.txt guide",
+                  "properties": {
+                    "whenToUse": { "type": "string" },
+                    "sitemap": { "type": "string", "format": "uri" }
+                  }
+                }
               }
             }
-          }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
@@ -321,17 +349,32 @@
       "get": {
         "operationId": "getOpenApi",
         "summary": "OpenAPI spec",
-        "description": "This document. Versioned.",
+        "description": "This document. Versioned via API-Version header and /v1/ path. SikPoket on Vercel.",
         "tags": ["discovery"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "responses": {
           "200": {
             "description": "OpenAPI JSON",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "API-Version": { "$ref": "#/components/headers/ApiVersion" }
+            },
             "content": {
               "application/json": {
-                "schema": { "type": "object", "description": "OpenAPI 3.1 document" }
+                "schema": {
+                  "type": "object",
+                  "description": "OpenAPI 3.1 document with SikPoket API",
+                  "properties": {
+                    "openapi": { "type": "string" },
+                    "info": { "type": "object" },
+                    "paths": { "type": "object" }
+                  },
+                  "required": ["openapi", "info"]
+                }
               }
             }
-          }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
@@ -339,17 +382,30 @@
       "get": {
         "operationId": "getDevelopersPortal",
         "summary": "Developer portal",
-        "description": "HTML portal with API keys, quickstart, sandbox. Vercel hosted.",
+        "description": "HTML portal with API keys, quickstart, sandbox. Vercel hosted SikPoket.",
         "tags": ["discovery"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "responses": {
           "200": {
             "description": "HTML portal",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" }
+            },
             "content": {
               "text/html": {
-                "schema": { "type": "string", "description": "HTML string" }
+                "schema": {
+                  "type": "object",
+                  "description": "Developer portal HTML",
+                  "properties": {
+                    "title": { "type": "string" },
+                    "content": { "type": "string" }
+                  }
+                }
               }
             }
-          }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     }

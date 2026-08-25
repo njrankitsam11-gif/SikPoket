@@ -18,12 +18,18 @@ export default async function handler(req, res) {
   // GET/HEAD — handshake / discovery (used by Ora audit)
   if (req.method === 'GET' || req.method === 'HEAD') {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    // Ensure HEAD returns headers without body
+    if (req.method === 'HEAD') {
+      res.status(200).end();
+      return;
+    }
     res.status(200).json({
       mcp_version: '2025-06-18',
       name: 'sikpoket',
       displayName: 'SikPoket',
       description: 'Local-first encrypted bookmark vault — search_vault, save_url, list_spaces, export_bookmarks',
       transport: 'streamable-http',
+      url: 'https://sikpoket.vercel.app/.well-known/mcp',
       endpoint: 'https://sikpoket.vercel.app/api/mcp',
       well_known: 'https://sikpoket.vercel.app/.well-known/mcp',
       capabilities: ['tools', 'resources'],

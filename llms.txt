@@ -24,9 +24,10 @@ How to call (local): `chrome.storage.local.get(['sikpoketData'])` → inspect `u
 - OpenAPI: https://sikpoket.vercel.app/openapi.json (also /api/openapi.yaml) — Vercel serverless, fully typed with operationId per endpoint. See developers portal.
 - Webhooks: None (no server). Encrypted Gist sync is the only remote hook — see `sync-helper.js`. Hosted on Vercel.
 - MCP server: Streamable HTTP at https://sikpoket.vercel.app/.well-known/mcp and POST https://sikpoket.vercel.app/api/mcp — tools: `search_vault`, `save_url`, `list_spaces`, `export_bookmarks` — Vercel MCP adapter @vercel/mcp-adapter
-- Vercel deployment: https://sikpoket.vercel.app/ — framework static, proxy.js for Accept:text/markdown, Vary: Accept, rewrites in vercel.json
+- Vercel deployment: https://sikpoket.vercel.app/ — framework static, proxy.js for Accept:text/markdown, Vary: Accept, rewrites in vercel.json — dedicated Vercel page at https://sikpoket.vercel.app/vercel with Vercel docs
+- Vercel API versioning: /api/v1/mcp and /api/v1/health via header API-Version, Deprecation/Sunset, RateLimit headers
 - Source: https://github.com/njrankitsam11-gif/SikPoket
-- Docs index: https://sikpoket.vercel.app/developers • https://sikpoket.vercel.app/openapi.json • https://sikpoket.vercel.app/about • https://sikpoket.vercel.app/contact • https://sikpoket.vercel.app/privacy • https://sikpoket.vercel.app/api/health
+- Docs index: https://sikpoket.vercel.app/developers • https://sikpoket.vercel.app/vercel • https://sikpoket.vercel.app/openapi.json • https://sikpoket.vercel.app/about • https://sikpoket.vercel.app/contact • https://sikpoket.vercel.app/privacy • https://sikpoket.vercel.app/api/health • https://sikpoket.vercel.app/api/v1/health
 
 ## Sitemap
 

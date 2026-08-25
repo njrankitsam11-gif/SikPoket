@@ -13,4 +13,5 @@
   <url><loc>https://sikpoket.vercel.app/api/health</loc><lastmod>2026-08-25</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://sikpoket.vercel.app/api/v1/mcp</loc><lastmod>2026-08-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://sikpoket.vercel.app/api/v1/health</loc><lastmod>2026-08-25</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>
+  <url><loc>https://sikpoket.vercel.app/vercel</loc><lastmod>2026-08-25</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>
