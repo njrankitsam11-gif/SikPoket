@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 export default function proxy(request) {
   const accept = request.headers.get('accept') || '';
   const url = new URL(request.url);
@@ -32,6 +31,6 @@ export default function proxy(request) {
     }
   }
 
-  // Passthrough for non-markdown: let Vercel handle via rewrites/static
-  return NextResponse.next();
+  // Passthrough: let Vercel handle static/rewrites (no response = continue)
+  return;
 }
