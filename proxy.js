@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 export default function proxy(request) {
   const accept = request.headers.get('accept') || '';
   const url = new URL(request.url);
@@ -31,6 +32,6 @@ export default function proxy(request) {
     }
   }
 
-  // For MCP POST to /.well-known/mcp, let the rewrite handle it via vercel.json (proxy just passes through)
-  return fetch(request);
+  // Passthrough for non-markdown: let Vercel handle via rewrites/static
+  return NextResponse.next();
 }
