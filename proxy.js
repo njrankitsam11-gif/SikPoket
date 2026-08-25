@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { next, rewrite } from '@vercel/functions';
 export default function proxy(request) {
   const accept = request.headers.get('accept') || '';
   const url = new URL(request.url);
@@ -35,51 +34,11 @@ export default function proxy(request) {
     }
   }
 
-  // MCP — proxy both GET and POST to /api/mcp
+  // MCP — rewrite both GET and POST to /api/mcp (preserves method/body)
   if (pathname === '/.well-known/mcp') {
-    const target = new URL('/api/mcp', request.url);
-    const init = {
-      method: request.method,
-      headers: request.headers,
-    };
-    if (request.method !== 'GET' && request.method !== 'HEAD') {
-      init.body = request.body;
-      init.duplex = 'half';
-    }
-    return fetch(new Request(target, init));
+    return rewrite(new URL('/api/mcp', request.url));
   }
 
-  // For non-markdown, serve static HTML directly to avoid fetch loop / 520 for external IPs
-  const htmlMap = {
-    '/': '/index.html',
-    '/index.html': '/index.html',
-    '/about': '/about/index.html',
-    '/about/': '/about/index.html',
-    '/contact': '/contact/index.html',
-    '/contact/': '/contact/index.html',
-    '/privacy': '/privacy/index.html',
-    '/privacy/': '/privacy/index.html',
-    '/dashboard': '/dashboard/index.html',
-    '/dashboard/': '/dashboard/index.html',
-    '/developers': '/developers/index.html',
-    '/developers/': '/developers/index.html',
-  };
-  if (htmlMap[pathname]) {
-    try {
-      const filePath = path.join(process.cwd(), htmlMap[pathname].replace(/^\//, ''));
-      const html = fs.readFileSync(filePath, 'utf8');
-      return new Response(html, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Vary': 'Accept, Accept-Encoding',
-          'Cache-Control': 'public, max-age=0, must-revalidate',
-        },
-      });
-    } catch (e) {
-      // fall through to fetch
-    }
-  }
-  // MCP already handled above; for other paths, let Vercel handle (will go to api/404 via rewrites)
-  return;
+  // For non-markdown, continue to static/rewrites (api/404 for unknown)
+  return next();
 }
