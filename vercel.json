@@ -47,6 +47,10 @@
       ]
     }
   ],
+  "proxy": {
+    "entrypoint": "proxy.js",
+    "matcher": ["/", "/about", "/contact", "/privacy", "/dashboard", "/.well-known/mcp"]
+  },
   "rewrites": [
     {
       "source": "/",
