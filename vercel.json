@@ -118,6 +118,7 @@
       "destination": "/api/markdown?path=/vercel/index.md"
     },
     { "source": "/.well-known/mcp", "destination": "/api/mcp" },
+    { "source": "/v1/:path*", "destination": "/api/:path*" },
     { "source": "/api/v1/mcp", "destination": "/api/mcp" },
     { "source": "/api/v1/health", "destination": "/api/health" },
     { "source": "/api/v1/openapi.json", "destination": "/openapi.json" },
