@@ -5,10 +5,14 @@ export default function handler(req, res) {
 
   res.setHeader('Vary', 'Accept, Accept-Encoding');
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.setHeader('RateLimit', '60;w=60');
+  res.setHeader('RateLimit-Policy', '60;w=60;burst=10');
   res.setHeader('RateLimit-Limit', '60');
   res.setHeader('RateLimit-Remaining', '59');
   res.setHeader('RateLimit-Reset', '42');
+  res.setHeader('Retry-After', '42');
   res.setHeader('API-Version', '1.8.0');
+  res.setHeader('Deprecation', 'false');
 
   if (isJson) {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');

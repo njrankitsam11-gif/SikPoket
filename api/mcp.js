@@ -4,11 +4,20 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, HEAD, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, API-Version, X-API-Version');
   res.setHeader('Vary', 'Accept, Accept-Encoding');
+  res.setHeader('RateLimit', '60;w=60');
+  res.setHeader('RateLimit-Policy', '60;w=60;burst=10');
   res.setHeader('RateLimit-Limit', '60');
   res.setHeader('RateLimit-Remaining', '59');
   res.setHeader('RateLimit-Reset', '42');
+  res.setHeader('Retry-After', '42');
   res.setHeader('API-Version', '1.8.0');
-  res.setHeader('Deprecation', 'false');
+  // Deprecation for unversioned /api/mcp in favor of /api/v1/mcp and /v1/mcp
+  if (req.url.startsWith('/api/mcp') && !req.url.startsWith('/api/v1/')) {
+    res.setHeader('Deprecation', 'true');
+    res.setHeader('Sunset', 'Sat, 25 Aug 2027 00:00:00 GMT');
+  } else {
+    res.setHeader('Deprecation', 'false');
+  }
 
   if (req.method === 'OPTIONS') {
     res.status(204).end();

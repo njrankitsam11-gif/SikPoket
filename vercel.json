@@ -6,9 +6,12 @@
       "headers": [
         { "key": "Vary", "value": "Accept, Accept-Encoding" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "RateLimit", "value": "60;w=60" },
+        { "key": "RateLimit-Policy", "value": "60;w=60;burst=10" },
         { "key": "RateLimit-Limit", "value": "60" },
         { "key": "RateLimit-Remaining", "value": "59" },
         { "key": "RateLimit-Reset", "value": "42" },
+        { "key": "Retry-After", "value": "42" },
         { "key": "API-Version", "value": "1.8.0" },
         { "key": "Deprecation", "value": "false" },
         { "key": "Sunset", "value": "Sat, 25 Aug 2027 00:00:00 GMT" }
