@@ -128,13 +128,15 @@
 
     <section style="margin-top:18px;font-size:13px;color:rgba(10,10,10,.62)">
       <h2 style="font-size:14px;color:var(--ink);margin-bottom:6px">Developer resources — Vercel &amp; SikPoket</h2>
+      <p style="margin-bottom:8px">SikPoket is deployed on <strong>Vercel</strong> — the same platform that powers <code>vercel.json</code> routing, <code>proxy.js</code> middleware, and serverless functions at <code>/api/mcp</code> and <code>/api/health</code>. All resources below are hosted on <strong>Vercel</strong> at <code>sikpoket.vercel.app</code>.</p>
       <ul style="display:grid;gap:6px;margin-left:18px">
-        <li><strong>SikPoket API</strong> — local helpers: <code>crypto-helper.js</code> (AES-GCM), <code>search-helper.js</code> (TF-IDF), <code>qr-helper.js</code> (QR), <code>export-helper.js</code> (Netscape/JSON) — see <a href="/llms.txt">llms.txt</a> and <a href="/developers">/developers</a> on <strong>Vercel</strong></li>
-        <li><strong>OpenAPI</strong> — <a href="/openapi.json">/openapi.json</a> (also <a href="/api/openapi.yaml">/api/openapi.yaml</a>) — hosted on Vercel, typed with operationId per endpoint</li>
-        <li><strong>Auth</strong> — master password (PBKDF2) or WebAuthn platform credential — docs at <a href="/about#auth">/about#auth</a> and <a href="/developers">/developers</a></li>
-        <li><strong>Webhooks</strong> — none (local-first); optional GitHub Gist encrypted sync via <code>sync-helper.js</code> — Vercel serverless</li>
-        <li><strong>MCP server</strong> — Streamable HTTP at <a href="/.well-known/mcp">/.well-known/mcp</a> and <code>POST /api/mcp</code> — Vercel @vercel/mcp-adapter, Streamable HTTP</li>
-        <li><strong>Health</strong> — <a href="/api/health">/api/health</a> — JSON with Vary: Accept</li>
+        <li><strong>Vercel deployment</strong> — <code>https://sikpoket.vercel.app</code> on Vercel, <code>vercel.json</code> with <code>Vary: Accept</code>, <code>proxy.js</code> for <code>Accept: text/markdown</code>. See <a href="/developers">Vercel developers portal</a></li>
+        <li><strong>SikPoket API — Vercel serverless</strong> — local helpers: <code>crypto-helper.js</code> (AES-GCM), <code>search-helper.js</code> (TF-IDF), <code>qr-helper.js</code> (QR), <code>export-helper.js</code> (Netscape/JSON) — see <a href="/llms.txt">llms.txt</a> and <a href="/developers">/developers</a> on <strong>Vercel</strong></li>
+        <li><strong>OpenAPI 3.1 — Vercel</strong> — <a href="/openapi.json">/openapi.json</a> versioned at <a href="/api/v1/mcp">/api/v1/mcp</a> with <code>API-Version</code> header, <code>Deprecation</code>/<code>Sunset</code>, and <code>RateLimit</code> headers — hosted on Vercel</li>
+        <li><strong>Auth — Vercel</strong> — master password (PBKDF2) or WebAuthn platform credential — docs at <a href="/about#auth">/about#auth</a> and <a href="/developers">/developers</a></li>
+        <li><strong>Webhooks — Vercel</strong> — none (local-first); optional GitHub Gist encrypted sync via <code>sync-helper.js</code> — Vercel serverless</li>
+        <li><strong>MCP server — Vercel @vercel/mcp-adapter</strong> — Streamable HTTP at <a href="/.well-known/mcp">/.well-known/mcp</a> (live handshake) and <code>POST /api/mcp</code> and <code>POST /api/v1/mcp</code> — Vercel Streamable HTTP</li>
+        <li><strong>Health — Vercel</strong> — <a href="/api/health">/api/health</a> and <a href="/api/v1/health">/api/v1/health</a> — JSON with <code>RateLimit-Limit</code> and <code>Vary: Accept</code> on Vercel</li>
       </ul>
     </section>
   </main>

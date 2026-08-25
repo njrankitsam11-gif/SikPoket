@@ -3,7 +3,7 @@
   "info": {
     "title": "SikPoket API",
     "version": "1.8.0",
-    "description": "Local-first encrypted bookmark vault — SikPoket exposes a Streamable HTTP MCP server and a small HTTP API for health and discovery. All vault data is client-side (chrome.storage.local, AES-GCM), so the hosted API is read-only discovery + MCP tools. See https://sikpoket.vercel.app/llms.txt and https://sikpoket.vercel.app/developers",
+    "description": "Local-first encrypted bookmark vault — SikPoket exposes a Streamable HTTP MCP server and a small HTTP API for health and discovery. All vault data is client-side (chrome.storage.local, AES-GCM), so the hosted API is read-only discovery + MCP tools. Versioning via URL path (/api/v1/) and header (API-Version). Deprecation via Sunset/Deprecation headers. RateLimit headers on all API responses. See https://sikpoket.vercel.app/llms.txt and https://sikpoket.vercel.app/developers",
     "contact": {
       "name": "Sik",
       "email": "hello@sikpoket.app",
@@ -17,7 +17,11 @@
   "servers": [
     {
       "url": "https://sikpoket.vercel.app",
-      "description": "Production"
+      "description": "Production (unversioned, defaults to v1)"
+    },
+    {
+      "url": "https://sikpoket.vercel.app/api/v1",
+      "description": "Versioned API v1 — preferred"
     }
   ],
   "tags": [
@@ -30,11 +34,18 @@
       "get": {
         "operationId": "getMcpHandshake",
         "summary": "MCP handshake — discovery",
-        "description": "Returns MCP server manifest (Streamable HTTP). Use GET for discovery, POST for JSON-RPC. See https://modelcontextprotocol.io",
+        "description": "Returns MCP server manifest (Streamable HTTP). Use GET for discovery, POST for JSON-RPC. Versioned via API-Version header (1.8.0). See https://modelcontextprotocol.io",
         "tags": ["mcp"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "responses": {
           "200": {
             "description": "MCP manifest",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" },
+              "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitReset" },
+              "API-Version": { "$ref": "#/components/headers/ApiVersion" }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -51,8 +62,17 @@
                         "type": "object",
                         "required": ["name", "description"],
                         "properties": {
-                          "name": { "type": "string" },
-                          "description": { "type": "string" }
+                          "name": { "type": "string", "description": "Tool name for function calling" },
+                          "description": { "type": "string", "description": "Human-readable tool description" },
+                          "inputSchema": {
+                            "type": "object",
+                            "description": "JSON Schema for tool arguments",
+                            "properties": {
+                              "type": { "type": "string" },
+                              "properties": { "type": "object", "additionalProperties": true },
+                              "required": { "type": "array", "items": { "type": "string" } }
+                            }
+                          }
                         }
                       }
                     }
@@ -60,14 +80,17 @@
                 }
               }
             }
-          }
+          },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       },
       "post": {
         "operationId": "postMcpWellKnown",
         "summary": "MCP Streamable HTTP via well-known",
-        "description": "Proxy to POST /api/mcp — JSON-RPC 2.0 for MCP tools. Supports initialize, tools/list, tools/call.",
+        "description": "Proxy to POST /api/mcp — JSON-RPC 2.0 for MCP tools. Supports initialize, tools/list, tools/call. Versioned.",
         "tags": ["mcp"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "requestBody": {
           "required": true,
           "content": {
@@ -79,6 +102,11 @@
         "responses": {
           "200": {
             "description": "JSON-RPC response",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" },
+              "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitReset" }
+            },
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/McpJsonRpcResponse" }
@@ -86,7 +114,9 @@
             }
           },
           "400": { "$ref": "#/components/responses/BadRequest" },
-          "404": { "$ref": "#/components/responses/NotFound" }
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
@@ -94,30 +124,51 @@
       "get": {
         "operationId": "getMcp",
         "summary": "MCP handshake (api)",
-        "description": "Same as GET /.well-known/mcp but canonical API endpoint. Returns 200 with MCP manifest.",
+        "description": "Same as GET /.well-known/mcp but canonical API endpoint. Returns 200 with MCP manifest. Versioned.",
         "tags": ["mcp"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "responses": {
           "200": {
             "description": "MCP manifest",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" },
+              "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitReset" }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": ["mcp_version", "transport", "tools"],
                   "properties": {
-                    "mcp_version": { "type": "string" },
-                    "tools": { "type": "array", "items": { "type": "object" } }
+                    "mcp_version": { "type": "string", "example": "2025-06-18" },
+                    "transport": { "type": "string", "example": "streamable-http" },
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["name", "description"],
+                        "properties": {
+                          "name": { "type": "string" },
+                          "description": { "type": "string" },
+                          "inputSchema": { "type": "object", "description": "Typed input schema" }
+                        }
+                      }
+                    }
                   }
                 }
               }
             }
-          }
+          },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
         }
       },
       "post": {
         "operationId": "postMcp",
         "summary": "MCP Streamable HTTP JSON-RPC",
-        "description": "Invoke MCP tools. Local-first: tools operate on client vault, server echoes hint. Methods: initialize, tools/list, tools/call with params {name, arguments}.",
+        "description": "Invoke MCP tools. Local-first: tools operate on client vault, server echoes hint. Methods: initialize, tools/list, tools/call with params {name, arguments}. Versioned.",
         "tags": ["mcp"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "requestBody": {
           "required": true,
           "content": {
@@ -125,9 +176,11 @@
               "schema": { "$ref": "#/components/schemas/McpJsonRpcRequest" },
               "examples": {
                 "toolsList": {
+                  "summary": "List tools",
                   "value": { "jsonrpc": "2.0", "id": 1, "method": "tools/list" }
                 },
                 "toolsCall": {
+                  "summary": "Call search_vault",
                   "value": { "jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": { "name": "search_vault", "arguments": { "query": "react" } } }
                 }
               }
@@ -137,13 +190,52 @@
         "responses": {
           "200": {
             "description": "JSON-RPC success",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" },
+              "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitReset" }
+            },
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/McpJsonRpcResponse" }
               }
             }
           },
-          "400": { "$ref": "#/components/responses/BadRequest" }
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/mcp": {
+      "get": {
+        "operationId": "getMcpV1",
+        "summary": "MCP handshake v1 (versioned path)",
+        "description": "Versioned alias for GET /api/mcp. Prefer /api/v1/mcp for versioned clients.",
+        "tags": ["mcp"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
+        "responses": {
+          "200": {
+            "description": "MCP manifest v1",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "API-Version": { "$ref": "#/components/headers/ApiVersion" },
+              "Deprecation": { "$ref": "#/components/headers/Deprecation" },
+              "Sunset": { "$ref": "#/components/headers/Sunset" }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["mcp_version", "transport"],
+                  "properties": {
+                    "mcp_version": { "type": "string" },
+                    "transport": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -151,25 +243,37 @@
       "get": {
         "operationId": "getHealth",
         "summary": "Health check",
-        "description": "Returns service health and version. Useful for uptime checks.",
+        "description": "Returns service health and version. Useful for uptime checks. Rate limited 60/min.",
         "tags": ["health"],
+        "parameters": [{ "$ref": "#/components/parameters/ApiVersionHeader" }],
         "responses": {
           "200": {
             "description": "Healthy",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+              "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" },
+              "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitReset" },
+              "API-Version": { "$ref": "#/components/headers/ApiVersion" }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "required": ["status", "version"],
                   "properties": {
-                    "status": { "type": "string", "example": "ok" },
-                    "version": { "type": "string", "example": "1.8.0" },
-                    "uptime": { "type": "number" }
+                    "status": { "type": "string", "example": "ok", "description": "Health status" },
+                    "version": { "type": "string", "example": "1.8.0", "description": "Semver" },
+                    "uptime": { "type": "number", "example": 123.4, "description": "Uptime seconds" },
+                    "endpoint": { "type": "string", "format": "uri" },
+                    "openapi": { "type": "string", "format": "uri" },
+                    "mcp": { "type": "string", "format": "uri" }
                   }
                 }
               }
             }
-          }
+          },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
@@ -182,12 +286,16 @@
         "responses": {
           "200": {
             "description": "XML sitemap",
+            "headers": {
+              "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" }
+            },
             "content": {
               "application/xml": {
-                "schema": { "type": "string" }
+                "schema": { "type": "string", "description": "XML sitemap string" }
               }
             }
-          }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
     },
@@ -202,7 +310,7 @@
             "description": "llms.txt",
             "content": {
               "text/plain": {
-                "schema": { "type": "string" }
+                "schema": { "type": "string", "description": "llms.txt content" }
               }
             }
           }
@@ -213,14 +321,32 @@
       "get": {
         "operationId": "getOpenApi",
         "summary": "OpenAPI spec",
-        "description": "This document.",
+        "description": "This document. Versioned.",
         "tags": ["discovery"],
         "responses": {
           "200": {
             "description": "OpenAPI JSON",
             "content": {
               "application/json": {
-                "schema": { "type": "object" }
+                "schema": { "type": "object", "description": "OpenAPI 3.1 document" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developers": {
+      "get": {
+        "operationId": "getDevelopersPortal",
+        "summary": "Developer portal",
+        "description": "HTML portal with API keys, quickstart, sandbox. Vercel hosted.",
+        "tags": ["discovery"],
+        "responses": {
+          "200": {
+            "description": "HTML portal",
+            "content": {
+              "text/html": {
+                "schema": { "type": "string", "description": "HTML string" }
               }
             }
           }
@@ -229,19 +355,59 @@
     }
   },
   "components": {
+    "parameters": {
+      "ApiVersionHeader": {
+        "name": "API-Version",
+        "in": "header",
+        "description": "API version, e.g. 1.8.0 or v1. Defaults to v1. Use X-API-Version alias supported.",
+        "required": false,
+        "schema": { "type": "string", "example": "1.8.0" }
+      }
+    },
+    "headers": {
+      "RateLimitLimit": {
+        "description": "Max requests per window (60/min)",
+        "schema": { "type": "integer", "example": 60 }
+      },
+      "RateLimitRemaining": {
+        "description": "Remaining requests in window",
+        "schema": { "type": "integer", "example": 59 }
+      },
+      "RateLimitReset": {
+        "description": "Seconds until window resets",
+        "schema": { "type": "integer", "example": 42 }
+      },
+      "ApiVersion": {
+        "description": "Current API version",
+        "schema": { "type": "string", "example": "1.8.0" }
+      },
+      "Deprecation": {
+        "description": "Deprecation flag, RFC 9745",
+        "schema": { "type": "string", "example": "true" }
+      },
+      "Sunset": {
+        "description": "Sunset date for deprecated version, RFC 8594",
+        "schema": { "type": "string", "format": "date-time", "example": "2027-08-25T00:00:00Z" }
+      },
+      "RetryAfter": {
+        "description": "Seconds to wait before retry after 429",
+        "schema": { "type": "integer", "example": 60 }
+      }
+    },
     "schemas": {
       "McpJsonRpcRequest": {
         "type": "object",
         "required": ["jsonrpc", "id", "method"],
         "properties": {
-          "jsonrpc": { "type": "string", "example": "2.0" },
-          "id": { "type": "integer", "example": 1 },
-          "method": { "type": "string", "enum": ["initialize", "tools/list", "tools/call"], "example": "tools/list" },
+          "jsonrpc": { "type": "string", "example": "2.0", "description": "JSON-RPC version" },
+          "id": { "type": "integer", "example": 1, "description": "Request ID" },
+          "method": { "type": "string", "enum": ["initialize", "tools/list", "tools/call"], "example": "tools/list", "description": "MCP method" },
           "params": {
             "type": "object",
+            "description": "Method params",
             "properties": {
-              "name": { "type": "string", "example": "search_vault" },
-              "arguments": { "type": "object", "additionalProperties": true }
+              "name": { "type": "string", "example": "search_vault", "description": "Tool name" },
+              "arguments": { "type": "object", "additionalProperties": true, "description": "Tool arguments, typed per tool" }
             }
           }
         }
@@ -254,41 +420,97 @@
           "id": { "type": "integer", "example": 1 },
           "result": {
             "type": "object",
+            "description": "Result object with protocolVersion, capabilities, tools",
             "properties": {
-              "protocolVersion": { "type": "string" },
-              "capabilities": { "type": "object" },
-              "serverInfo": { "type": "object" },
-              "tools": { "type": "array", "items": { "type": "object" } },
+              "protocolVersion": { "type": "string", "example": "2025-06-18" },
+              "capabilities": { "type": "object", "description": "Server capabilities" },
+              "serverInfo": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "version": { "type": "string" }
+                }
+              },
+              "tools": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "description"],
+                  "properties": {
+                    "name": { "type": "string" },
+                    "description": { "type": "string" },
+                    "inputSchema": { "type": "object", "description": "JSON Schema for tool" }
+                  }
+                }
+              },
               "content": { "type": "array", "items": { "type": "object" } }
             }
           },
-          "error": { "type": "object" }
+          "error": { "type": "object", "description": "JSON-RPC error" }
         }
       },
       "Error": {
         "type": "object",
         "required": ["error", "code", "message", "hint", "status"],
         "properties": {
-          "error": { "type": "string", "example": "Not Found" },
-          "code": { "type": "string", "example": "RESOURCE_NOT_FOUND" },
-          "message": { "type": "string" },
-          "hint": { "type": "string" },
-          "status": { "type": "integer", "example": 404 },
-          "docs": { "type": "string", "format": "uri" }
+          "error": { "type": "string", "example": "Not Found", "description": "Human error title" },
+          "code": { "type": "string", "example": "RESOURCE_NOT_FOUND", "description": "Machine code" },
+          "message": { "type": "string", "description": "Detailed message" },
+          "hint": { "type": "string", "description": "Recovery hint" },
+          "status": { "type": "integer", "example": 404, "description": "HTTP status" },
+          "docs": { "type": "string", "format": "uri", "description": "Docs URL" }
         }
       }
     },
     "responses": {
       "BadRequest": {
         "description": "Bad request — JSON error",
+        "headers": {
+          "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+          "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" }
+        },
         "content": {
           "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          },
+          "application/problem+json": {
             "schema": { "$ref": "#/components/schemas/Error" }
           }
         }
       },
       "NotFound": {
         "description": "Not found — JSON error",
+        "headers": {
+          "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          },
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Too many requests — rate limited",
+        "headers": {
+          "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" },
+          "RateLimit-Remaining": { "$ref": "#/components/headers/RateLimitRemaining" },
+          "RateLimit-Reset": { "$ref": "#/components/headers/RateLimitReset" },
+          "Retry-After": { "$ref": "#/components/headers/RetryAfter" }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal error — JSON error",
+        "headers": {
+          "RateLimit-Limit": { "$ref": "#/components/headers/RateLimitLimit" }
+        },
         "content": {
           "application/json": {
             "schema": { "$ref": "#/components/schemas/Error" }

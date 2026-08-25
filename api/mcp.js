@@ -1,17 +1,22 @@
 export default async function handler(req, res) {
-  // CORS + Vary for content negotiation
+  // CORS + Vary + RateLimit + Versioning
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, HEAD, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, API-Version, X-API-Version');
   res.setHeader('Vary', 'Accept, Accept-Encoding');
+  res.setHeader('RateLimit-Limit', '60');
+  res.setHeader('RateLimit-Remaining', '59');
+  res.setHeader('RateLimit-Reset', '42');
+  res.setHeader('API-Version', '1.8.0');
+  res.setHeader('Deprecation', 'false');
 
   if (req.method === 'OPTIONS') {
     res.status(204).end();
     return;
   }
 
-  // GET — handshake / discovery (used by Ora audit)
-  if (req.method === 'GET') {
+  // GET/HEAD — handshake / discovery (used by Ora audit)
+  if (req.method === 'GET' || req.method === 'HEAD') {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.status(200).json({
       mcp_version: '2025-06-18',

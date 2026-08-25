@@ -2,6 +2,10 @@ export default function handler(req, res) {
   res.setHeader('Vary', 'Accept, Accept-Encoding');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.setHeader('RateLimit-Limit', '60');
+  res.setHeader('RateLimit-Remaining', '59');
+  res.setHeader('RateLimit-Reset', '42');
+  res.setHeader('API-Version', '1.8.0');
   if (req.method !== 'GET') {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.status(405).json({

@@ -99,6 +99,9 @@
       "destination": "/api/markdown?path=/developers/index.md"
     },
     { "source": "/.well-known/mcp", "destination": "/api/mcp" },
+    { "source": "/api/v1/mcp", "destination": "/api/mcp" },
+    { "source": "/api/v1/health", "destination": "/api/health" },
+    { "source": "/api/v1/openapi.json", "destination": "/openapi.json" },
     { "source": "/developers", "destination": "/developers/index.html" },
     { "source": "/about", "destination": "/about/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
