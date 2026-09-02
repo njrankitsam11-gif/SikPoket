@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { mdMap } from '../lib/markdown-content.js';
 
 export default function handler(req, res) {
   res.setHeader('Vary', 'Accept, Accept-Encoding');
@@ -28,20 +27,14 @@ export default function handler(req, res) {
     else if (pathname.startsWith('/contact')) mdPath = '/contact/index.md';
     else if (pathname.startsWith('/privacy')) mdPath = '/privacy/index.md';
     else if (pathname.startsWith('/dashboard')) mdPath = '/dashboard/index.md';
+    else if (pathname.startsWith('/developers')) mdPath = '/developers/index.md';
+    else if (pathname.startsWith('/vercel')) mdPath = '/vercel/index.md';
     else mdPath = '/index.md';
   }
 
   // Ensure leading slash and .md
   if (!mdPath.startsWith('/')) mdPath = '/' + mdPath;
 
-  // Serve hardcoded markdown to avoid filesystem issues on Vercel
-  const mdMap = {
-    '/index.md': `# SikPoket — Encrypted Bookmark Manager & Knowledge Vault\n\n> Zero-knowledge, local-first bookmark vault. Save URLs, notes, API keys and passwords with client-side AES-GCM.\n\n**URL:** https://sikpoket.vercel.app/\n**Dashboard:** https://sikpoket.vercel.app/dashboard/\n**Sitemap:** https://sikpoket.vercel.app/sitemap.xml\n**llms.txt:** https://sikpoket.vercel.app/llms.txt\n`,
-    '/about/index.md': `# About Sik — Builders of SikPoket\n\nSik builds local-first tools: SikPoket and SikOgami. Same Paper/Ink/Sick design.\n\nContact: hello@sikpoket.app\nGitHub: https://github.com/njrankitsam11-gif/SikPoket\n`,
-    '/contact/index.md': `# Contact Sik\n\n- Email: hello@sikpoket.app\n- GitHub: https://github.com/njrankitsam11-gif/SikPoket\n- Address: Remote, Global, 00000 US\n`,
-    '/privacy/index.md': `# Privacy — SikPoket Zero-Data\n\nEffective: 2026-08-17. Zero collection. All data in chrome.storage.local, encrypted AES-GCM.\n\nFull: https://sikpoket.vercel.app/privacy\n`,
-    '/dashboard/index.md': `# SikPoket Dashboard — Vault\n\nLocal-first vault: URLs, notes, API keys, passwords. Spaces with wallpapers, TF-IDF search.\n\nOpen: https://sikpoket.vercel.app/dashboard/\n`,
-  };
   const content = mdMap[mdPath] || mdMap['/index.md'];
   res.status(200).send(content);
 }

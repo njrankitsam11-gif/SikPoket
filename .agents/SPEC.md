@@ -62,8 +62,10 @@ SikPoket/
 ├── api/
 │   ├── mcp.js                    # MCP server (JSON-RPC, hand-rolled, no SDK)
 │   ├── health.js                 # /api/health
-│   ├── markdown.js               # Markdown content-negotiation handler (mostly dead — see backend.md)
+│   ├── markdown.js               # Markdown content-negotiation handler (fallback — proxy.js answers first)
 │   └── 404.js                    # Catch-all 404, 3-way content negotiation
+├── lib/
+│   └── markdown-content.js       # Shared mdMap — single source of truth for proxy.js + api/markdown.js
 ├── .well-known/mcp               # Static MCP manifest — unreachable in prod (proxy.js always wins)
 ├── proxy.js                      # Vercel proxy/middleware: markdown negotiation + MCP rewrite
 ├── vercel.json                   # Routing, headers, rewrites, proxy config
@@ -161,7 +163,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 6. ~~`sync-helper.js` (GitHub Gist E2E backup) and `archive-helper.js` (offline snapshots) were fully implemented with zero callers anywhere.~~ **Removed 2026-09-02** — both files deleted, along with their `manifest.json`/`scripts/verify-build.js`/`scripts/package.js` references and the `<script>` tag for `archive-helper.js` in `dashboard/index.html`. GitHub Gist sync claims corrected in `index.html`, `about/`, `privacy/`, `developers/`, `llms.txt`, `infographic.html`, and `SIKPOKET_COMPLETE_BLUEPRINT.md`.
 7. ~~`export-helper.js` and `vector-helper.js` were loaded in popup/sidepanel but never called there; `ai-helper.js` was loaded in the dashboard but never called there.~~ **Fixed 2026-09-02** — removed the dead `<script>` tags from `popup.html`/`sidepanel.html` (export-helper.js, vector-helper.js) and `dashboard/index.html` (ai-helper.js). Each file remains loaded (and works) only where it's actually used: export/vector in the dashboard, AI summarization in the popup and side panel.
 8. ~~The popup's "Cloud Sync ☁ / Firebase" Settings block stored a config blob to `localStorage` that nothing else in the repo read.~~ **Removed 2026-09-02** — the whole non-functional Settings-modal section (textarea, Save/Clear buttons, fake "✅ saved" alert), its `sikpoketFirebaseConfig` localStorage key, and now-orphaned CSS deleted from `popup.html`/`popup.js`/`popup.css`. It was actively misleading (gave a false success confirmation) and directly contradicted the "no cloud sync of any kind" claim in the privacy policy.
-9. `api/markdown.js`'s markdown-serving logic is dead code in production for all 7 negotiated pages — `proxy.js`'s own inline (and more complete) markdown map always answers first. Its own map is also missing 2 of the 7 pages, so if `proxy.js` were ever bypassed, `/developers` and `/vercel` markdown would silently wrong-serve `/index.md`.
+9. ~~`api/markdown.js`'s markdown-serving logic is dead code in production for all 7 negotiated pages — `proxy.js`'s own inline (and more complete) markdown map always answers first. Its own map is also missing 2 of the 7 pages, so if `proxy.js` were ever bypassed, `/developers` and `/vercel` markdown would silently wrong-serve `/index.md`.~~ **Fixed 2026-09-02** — `proxy.js` and `api/markdown.js` now both import a single shared `mdMap` from `lib/markdown-content.js` instead of maintaining separate hand-copied literals. `proxy.js` still answers first in production (intentional, unchanged), but `api/markdown.js` can no longer drift out of sync with it — same data, one source of truth. ([backend.md](backend.md))
 10. `.well-known/mcp` as a static file is unreachable in production (proxy always rewrites to `api/mcp.js`) and its tool defs have already drifted from the live handler (missing `inputSchema`).
 
 **By-design but worth flagging explicitly:**
@@ -209,6 +211,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 | 2026-09-02 | Removed `sync-helper.js` and `archive-helper.js` (fully built, zero callers, per user decision) — deleted the files, their `manifest.json`/build-script/`<script>` references, and corrected GitHub Gist sync claims across the marketing site and blueprint docs | ✅ |
 | 2026-09-02 | Fix: removed dead `<script>` loads — `export-helper.js`/`vector-helper.js` from `popup.html`/`sidepanel.html`, `ai-helper.js` from `dashboard/index.html` — none were ever called in those contexts; each helper still loads where it's actually used | ✅ |
 | 2026-09-02 | Removed the popup's non-functional "Cloud Sync ☁ / Firebase" Settings block — misleading UI that gave a false "saved" confirmation but never actually synced anything (no Firebase SDK anywhere); contradicted the privacy policy's "no cloud sync" claim | ✅ |
+| 2026-09-02 | Fix: extracted `proxy.js`'s and `api/markdown.js`'s duplicate `mdMap` into a shared `lib/markdown-content.js` — `api/markdown.js`'s copy was missing 2 of 7 entries (would've silently wrong-served `/index.md` for `/developers`/`/vercel` if ever reached); also removed its unused `fs`/`path` imports and extended its pathname-fallback inference to cover all 7 pages | ✅ |
 
 ---
 
