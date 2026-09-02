@@ -45,7 +45,7 @@ Injected on `<all_urls>`. Two jobs:
 
 Fixed-size (400×560–640px) browser-action popup. Script includes, in order: `crypto-helper.js`, `qr-helper.js`, `ai-helper.js`, `popup.js`. (`export-helper.js`/`vector-helper.js` were removed from this list 2026-09-02 — see below.)
 
-Sections: unlock overlay, full-screen reader-mode overlay (font/theme controls, AI-summary box), header (brand, side-panel/wallpaper/help/select-mode/settings/lock buttons, search, filter pills), 4 tabs (URLs / Keys / Passwords / Notes, each with list + inline "+Add" form + tag autocomplete), bulk-action bar, footer (Guide / Export / Open Dashboard), and 4 modals: Wallpaper, Settings (Guide callout, duplicate scanner, biometric section, Cloud Sync/Firebase textarea, Tag Manager, shortcuts cheat-sheet, bookmarklet, HTML/JSON export), the 6-tab Guide/Manual modal, and a QR modal.
+Sections: unlock overlay, full-screen reader-mode overlay (font/theme controls, AI-summary box), header (brand, side-panel/wallpaper/help/select-mode/settings/lock buttons, search, filter pills), 4 tabs (URLs / Keys / Passwords / Notes, each with list + inline "+Add" form + tag autocomplete), bulk-action bar, footer (Guide / Export / Open Dashboard), and 4 modals: Wallpaper, Settings (Guide callout, duplicate scanner, biometric section, Tag Manager, shortcuts cheat-sheet, bookmarklet, HTML/JSON export — the non-functional "Cloud Sync/Firebase" block was removed 2026-09-02), the 6-tab Guide/Manual modal, and a QR modal.
 
 Key functions in `popup.js` (`allData` is the single in-memory source of truth, always kept fresh):
 
@@ -228,7 +228,6 @@ The only non-crypto helper genuinely wired into **both** popup/sidepanel and das
 - `sik_theme` (default `'forest'`; also `'obsidian'`, legacy `'sunset'`/`'solar'`).
 - `sikpoketReaderFontSize` (default 15), `sikpoketReaderFontFamily` (default `sans-serif`), `sikpoketReaderTheme` (default `sepia`).
 - `sikpoketBiometricEnabled`, `sikpoketBiometricCredId`, `sikpoketBioKey`, `sikpoketWrappedPassword` — biometric chain, identical across `unlock.js` and `popup.js`.
-- `sikpoketFirebaseConfig` — written/read by the Settings-modal "Cloud Sync" block; **nothing else in the repo consumes it and no Firebase SDK is loaded anywhere** — a dead-end sync stub (the only one left, now that `sync-helper.js` has been removed — see `SPEC.md` § Known Issues #6).
 - `sikpoketReminder_<type>_<id>` — per-item reminder due-timestamp cache (mirrors a `chrome.alarms` entry of the same name).
 
 **`sessionStorage`**

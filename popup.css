@@ -353,8 +353,6 @@ html[data-theme="obsidian"] .sp-header, html.dark .sp-header { background: rgba(
   display: flex; align-items: center; justify-content: center;
   border-color: var(--ink);
 }
-.sp-sync { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: var(--c-txt3); text-align: right; min-height: 11px; margin-top: 4px; }
-
 /* ═══════════════════════════════════════════════
    TABS — 2px ink border bottom, mono
    ═══════════════════════════════════════════════ */
@@ -594,13 +592,6 @@ a.sp-card-title:hover { color: var(--sick); }
 .sp-setting-block:last-child { border-bottom: none; }
 .sp-setting-label { font-family: var(--font); font-size: 12px; font-weight: 800; color: var(--ink); margin-bottom: 5px; letter-spacing: -0.02em; }
 .sp-setting-desc { font-family: var(--font-mono); font-size: 11px; color: var(--c-txt2); line-height: 1.55; margin-bottom: 8px; }
-.sp-setting-textarea {
-  width: 100%; padding: 8px 10px; background: var(--white);
-  border: 2px solid var(--ink); border-radius: 0;
-  color: var(--ink); font-size: 11px; font-family: var(--font-mono);
-  resize: vertical; transition: all .15s;
-}
-.sp-setting-textarea:focus { outline: none; box-shadow: 2px 2px 0px var(--ink); }
 .sp-setting-actions { display: flex; gap: 6px; margin-top: 8px; }
 .sp-setting-btn {
   padding: 7px 14px; background: var(--white); border: 2px solid var(--ink);

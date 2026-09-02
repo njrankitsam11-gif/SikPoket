@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const lockBtn = $('lock-btn');
   const settingsBtn = $('settings-btn');
   const settingsModal = $('settings-modal');
-  const syncStatus = $('sync-status');
   const filterTag = $('filter-tag');
   const filterStatus = $('filter-status');
   const sortOrder = $('sort-order');
@@ -270,8 +269,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   $('sp-bookmarklet-link')?.addEventListener('click', e => e.preventDefault());
-  $('save-firebase-config')?.addEventListener('click', saveFirebaseConfig);
-  $('clear-firebase-config')?.addEventListener('click', clearFirebaseConfig);
   $('find-duplicates-btn')?.addEventListener('click', renderDuplicates);
 
   /* --- Tag suggestions --- */
@@ -359,7 +356,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderCurrentTab();
     buildTagFilter();
     renderTagManager();
-    loadSyncConfig();
   }
 
   function updateTabCounts() {
@@ -1075,30 +1071,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderTagManager();
       });
     });
-  }
-
-  /* --- Cloud Sync config --- */
-
-  function loadSyncConfig() {
-    try {
-      const c = localStorage.getItem('sikpoketFirebaseConfig');
-      if (c && $('firebase-config')) $('firebase-config').value = JSON.stringify(JSON.parse(c), null, 2);
-    } catch {}
-  }
-
-  function saveFirebaseConfig() {
-    try {
-      const config = JSON.parse($('firebase-config')?.value?.trim() || '');
-      localStorage.setItem('sikpoketFirebaseConfig', JSON.stringify(config));
-      alert('✅ Firebase config saved. Reload to apply.');
-    } catch { alert('❌ Invalid JSON. Please paste the full Firebase config object.'); }
-  }
-
-  function clearFirebaseConfig() {
-    localStorage.removeItem('sikpoketFirebaseConfig');
-    if ($('firebase-config')) $('firebase-config').value = '';
-    if (syncStatus) { syncStatus.textContent = ''; syncStatus.className = 'sync-status'; }
-    alert('Firebase config cleared.');
   }
 
   /* --- Keyboard Shortcuts --- */

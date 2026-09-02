@@ -122,7 +122,6 @@
     <select id="filter-status" class="sp-hidden"><option value="active">Active</option><option value="archived">Archive</option><option value="favorites">Favorites</option></select>
     <select id="filter-tag" class="sp-hidden"><option value="">All Tags</option></select>
     <select id="sort-order" class="sp-hidden"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="name">A–Z</option></select>
-    <div id="sync-status" class="sp-sync"></div>
   </header>
 
   <!-- ══ TABS ══════════════════════════════════ -->
@@ -291,19 +290,6 @@
         <div class="sp-setting-label">⚡ Fingerprint / Touch ID</div>
         <p class="sp-setting-desc">Unlock your vault instantly without typing your password.</p>
         <button id="toggle-biometric-btn" class="sp-setting-btn">👁 Set Up Fingerprint</button>
-      </div>
-
-      <div class="sp-setting-block">
-        <div class="sp-setting-label">☁ Cloud Sync</div>
-        <p class="sp-setting-desc">Paste your Firebase config to sync across devices.</p>
-        <textarea id="firebase-config" class="sp-setting-textarea" placeholder='{"apiKey":"...","authDomain":"..."}' rows="3"></textarea>
-        <div class="sp-setting-actions">
-          <button id="save-firebase-config" class="sp-setting-btn">Save Config</button>
-          <button id="clear-firebase-config" class="sp-setting-btn sp-danger">Clear</button>
-        </div>
-        <div id="sync-account" class="sp-hidden sp-setting-desc">
-          Signed in as <strong id="sync-email"></strong>
-        </div>
       </div>
 
       <div class="sp-setting-block">

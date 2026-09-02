@@ -125,7 +125,6 @@ Full per-key detail lives in [`extension.md`](extension.md#storage-key-inventory
 | `sikpoket_users_db`, `sikpoket_<username>` | `localStorage` | `dashboard/standalone.html` only | Separate, parallel auth/data scheme — not used by the primary dashboard |
 | `sik_theme`, `sikpoketReaderFontSize/FontFamily/Theme`, `sik_collapsed_sections` | `localStorage` | popup/dashboard UI prefs | Device-local, not vault data |
 | `sikpoketBiometricEnabled/CredId/BioKey/WrappedPassword` | `localStorage` | `unlock.js` + `popup.js` | Biometric unlock chain |
-| `sikpoketFirebaseConfig` | `localStorage` | popup Settings modal | Dead-end stub, no Firebase SDK loaded anywhere |
 | `sikpoketMasterPassword` | `sessionStorage` | popup/unlock.js | Plaintext, **scoped per top-level browsing context** — popup, side panel, and `unlock.html` each need an independent unlock |
 
 **Two independent encryption postures coexist**: the extension popup encrypts `apiKeys`/`passwords` with AES-GCM derived from the master password; the dashboard has **no crypto layer at all** and stores its own key/password items as plain strings. Be careful when describing "the vault" as a single security boundary — it isn't one.
@@ -161,7 +160,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 **Orphaned / dead code:**
 6. ~~`sync-helper.js` (GitHub Gist E2E backup) and `archive-helper.js` (offline snapshots) were fully implemented with zero callers anywhere.~~ **Removed 2026-09-02** — both files deleted, along with their `manifest.json`/`scripts/verify-build.js`/`scripts/package.js` references and the `<script>` tag for `archive-helper.js` in `dashboard/index.html`. GitHub Gist sync claims corrected in `index.html`, `about/`, `privacy/`, `developers/`, `llms.txt`, `infographic.html`, and `SIKPOKET_COMPLETE_BLUEPRINT.md`.
 7. ~~`export-helper.js` and `vector-helper.js` were loaded in popup/sidepanel but never called there; `ai-helper.js` was loaded in the dashboard but never called there.~~ **Fixed 2026-09-02** — removed the dead `<script>` tags from `popup.html`/`sidepanel.html` (export-helper.js, vector-helper.js) and `dashboard/index.html` (ai-helper.js). Each file remains loaded (and works) only where it's actually used: export/vector in the dashboard, AI summarization in the popup and side panel.
-8. The popup's "Cloud Sync ☁ / Firebase" Settings block stores a config blob to `localStorage` that nothing else in the repo reads — a second, independent dead-end sync stub.
+8. ~~The popup's "Cloud Sync ☁ / Firebase" Settings block stored a config blob to `localStorage` that nothing else in the repo read.~~ **Removed 2026-09-02** — the whole non-functional Settings-modal section (textarea, Save/Clear buttons, fake "✅ saved" alert), its `sikpoketFirebaseConfig` localStorage key, and now-orphaned CSS deleted from `popup.html`/`popup.js`/`popup.css`. It was actively misleading (gave a false success confirmation) and directly contradicted the "no cloud sync of any kind" claim in the privacy policy.
 9. `api/markdown.js`'s markdown-serving logic is dead code in production for all 7 negotiated pages — `proxy.js`'s own inline (and more complete) markdown map always answers first. Its own map is also missing 2 of the 7 pages, so if `proxy.js` were ever bypassed, `/developers` and `/vercel` markdown would silently wrong-serve `/index.md`.
 10. `.well-known/mcp` as a static file is unreachable in production (proxy always rewrites to `api/mcp.js`) and its tool defs have already drifted from the live handler (missing `inputSchema`).
 
@@ -209,6 +208,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 | 2026-09-02 | Fix: `syncFromExtensionStorage()` no longer live-syncs `apiKeys`/`passwords` into the dashboard (it had no way to decrypt them — was writing an unusable encrypted-blob object as `.value`, which editing/saving would silently corrupt into the literal string `"[object Object]"`); `urls`/`notes` still sync live | ✅ |
 | 2026-09-02 | Removed `sync-helper.js` and `archive-helper.js` (fully built, zero callers, per user decision) — deleted the files, their `manifest.json`/build-script/`<script>` references, and corrected GitHub Gist sync claims across the marketing site and blueprint docs | ✅ |
 | 2026-09-02 | Fix: removed dead `<script>` loads — `export-helper.js`/`vector-helper.js` from `popup.html`/`sidepanel.html`, `ai-helper.js` from `dashboard/index.html` — none were ever called in those contexts; each helper still loads where it's actually used | ✅ |
+| 2026-09-02 | Removed the popup's non-functional "Cloud Sync ☁ / Firebase" Settings block — misleading UI that gave a false "saved" confirmation but never actually synced anything (no Firebase SDK anywhere); contradicted the privacy policy's "no cloud sync" claim | ✅ |
 
 ---
 
