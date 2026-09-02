@@ -2,8 +2,6 @@
    SikPoket Dashboard — Spaces + Wallpapers
    ===================================================== */
 
-// Use user-scoped storage key + add logout 
-
 const TYPE_META = {
   url:{icon:'🔗',label:'URL',placeholder:'🔗'},
   note:{icon:'📝',label:'Note',placeholder:'📝'},
@@ -995,10 +993,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('import-file').addEventListener('change',importFile);
   document.getElementById('tag-strip-clear').addEventListener('click',()=>{state.tag=null;updateTagStrip();render();});
   document.getElementById('add-space-btn').addEventListener('click', openAddSpace);
-  document.getElementById('logout-btn')?.addEventListener('click', () => {
-    sessionStorage.removeItem('sikpoket_user');
-    window.location.href = 'auth.html';
-  });
   initCollapsibleSections();
   document.getElementById('btn-delete-space-modal')?.addEventListener('click', () => {
     const editId = document.getElementById('space-edit-id')?.value;
@@ -1741,9 +1735,7 @@ function editFocused() {
 
 function deleteFocused() {
   const item = getFocusedItem();
-  if (item && confirm(`Delete "${item.title || item.name || 'item'}"?`)) {
-    deleteItem(item.id);
-  }
+  if (item) confirmDelete(item.id);
 }
 
 /* ── 2. KEYBOARD SHORTCUTS MODAL ───────────────────────────── */

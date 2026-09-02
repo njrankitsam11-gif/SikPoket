@@ -1,363 +1,225 @@
-# SikPoket — Codebase Specification
+# SikPoket — Codebase Specification (Index)
 
-> **Purpose**: This file is the authoritative reference for the SikPoket project. Update the relevant section after every module or feature completion. The AI agent reads this at the start of every session to restore full context.
+> **Purpose**: authoritative architecture reference for the SikPoket project, read at the start of every Claude Code session (via the root [`CLAUDE.md`](../CLAUDE.md)) so context survives across sessions. This file is the index; deep detail lives in the linked docs below. **Update the relevant doc after finishing any feature or module** — see § How to Update at the bottom.
+>
+> Last full rewrite: 2026-09-02, verified against source at v1.8.0. The previous version of this file (last touched at v1.1) was stale on nearly every count — file map, auth model, feature list — because ~5 phases of work landed without spec updates. Don't let that happen again.
 
 ---
 
 ## 1. Project Overview
 
-**SikPoket** is a Chrome Extension (Manifest V3) that acts as a secure personal vault and bookmark manager.
+**SikPoket** is a local-first, encrypted personal bookmark/vault manager shipped as **three surfaces from one repo**:
+
+| Surface | Entry points | Detail doc |
+|---|---|---|
+| Chrome Extension (MV3) | `manifest.json`, `background.js`, `content.js`, `popup.html`/`.js`, `sidepanel.html`, `unlock.html`, 17 root helper `.js` files | [`extension.md`](extension.md) |
+| Dashboard SPA | `dashboard/index.html` + `app.js` (primary), `dashboard/standalone.html` (frozen fork) | [`dashboard.md`](dashboard.md) |
+| Vercel backend + marketing site | `vercel.json`, `proxy.js`, `api/*.js`, MCP server, static pages, build/verify scripts | [`backend.md`](backend.md) |
 
 | Property | Value |
 |---|---|
-| Extension name | SikPoket — Secure Bookmark Manager |
-| Version | 1.1 |
+| Version | **1.8.0** (`manifest.json` / `package.json`) |
 | Manifest version | 3 |
-| Primary language | Vanilla JS (no build step, no framework) |
-| Storage | `chrome.storage.local` (extension data), `localStorage` (settings, auth, biometrics), `sessionStorage` (session unlock) |
-| Encryption | AES-GCM 256 via Web Crypto API (PBKDF2 key derivation) |
-| Biometrics | WebAuthn (platform authenticator — Touch ID / Windows Hello) |
+| Primary language | Vanilla JS, no build step, no framework (`package.json` has exactly one dependency: `@vercel/functions`) |
+| Encryption | AES-256-GCM via Web Crypto, PBKDF2 key derivation (100,000 iterations) — **extension popup only**, not the dashboard |
+| Biometrics | WebAuthn platform authenticator (Touch ID / Windows Hello), via a standalone `unlock.html` tab |
+| Deployment | Vercel (`sikpoket.vercel.app`), also distributed as a Chrome extension zip |
+| Chrome Web Store ID | `blmcoemlhjbiffhinamoocngmoojgdp` |
 
 ---
 
-## 2. File Map
+## 2. Repository Map
 
 ```
 SikPoket/
-├── manifest.json           # MV3 manifest
-├── background.js           # Service worker: context menus, badge count, message relay
-├── content.js              # Injected into all pages: toast notifications, bookmarklet listener
-├── crypto-helper.js        # CryptoHelper (AES-GCM encrypt/decrypt) + BiometricHelper (WebAuthn)
-├── popup.html              # Main extension popup UI
-├── popup.css               # Full styling for popup UI (23KB, dark theme)
-├── popup.js                # Popup logic (~1087 lines)
-├── unlock.html             # Standalone tab for biometric unlock (fallback when popup WebAuthn fails)
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── dashboard/
-    ├── index.html          # Dashboard SPA (requires auth)
-    ├── app.js              # Dashboard logic: Spaces, items, CRUD, import/export
-    ├── app.css             # Dashboard styling (19KB, dark glassmorphism theme)
-    ├── auth.html           # Login/register page for dashboard
-    ├── auth.js             # Multi-user auth with SHA-256 password hashing
-    └── standalone.html     # Standalone version of dashboard (61KB self-contained)
+├── manifest.json                # MV3 manifest, v1.8.0
+├── background.js                # Service worker: context menus, badge, omnibox, alarms, sessions
+├── content.js                   # Injected everywhere: Shadow-DOM toast, bookmarklet listener
+├── popup.html / popup.css / popup.js   # Main browser-action popup (~1707 lines of logic)
+├── sidepanel.html                # Docked side panel (partial feature parity — see extension.md)
+├── unlock.html / unlock.js       # Standalone tab for WebAuthn/Touch ID unlock
+├── crypto-helper.js              # CryptoHelper (AES-GCM/PBKDF2) + BiometricHelper (WebAuthn)
+├── ai-helper.js                  # On-device Prompt-API summarization + local TextRank fallback
+├── audio-helper.js               # Procedural ambient soundscapes (dashboard only)
+├── chat-helper.js                # "Ask your vault" Prompt-API chat (side panel only)
+├── sync-helper.js                # GitHub Gist E2E sync — built, fully orphaned (no UI wiring)
+├── search-helper.js              # TF-ranked full-text search (dashboard only)
+├── health-helper.js              # Broken-link scanner (works in background.js; broken in dashboard)
+├── graph-helper.js               # Canvas force-directed Knowledge Graph (dashboard only)
+├── reader-helper.js              # Reading time, content cleanup, SpeechSynthesis TTS (dashboard only)
+├── wikilink-helper.js            # [[WikiLink]] parsing + backlink index (dashboard only)
+├── tagger-helper.js              # Domain/keyword auto-tagging + Smart Spaces predicates
+├── archive-helper.js             # Offline page snapshots — built, fully orphaned (no callers)
+├── dedup-helper.js               # URL-normalizing duplicate detector/merger (dashboard only)
+├── feed-helper.js                # RSS/Atom parsing (dashboard only)
+├── export-helper.js              # Obsidian vault + Notion CSV export, hand-rolled ZIP writer
+├── vector-helper.js              # TF + char-3gram "semantic" search/clustering
+├── qr-helper.js                  # Dependency-free QR encoder + Netscape bookmark export
+├── icons/                        # 16/48/128px extension icons
+├── dashboard/
+│   ├── index.html / app.js / app.css   # Primary dashboard SPA (no auth, single vault)
+│   ├── standalone.html                 # Frozen fork with its OWN multi-user auth — see dashboard.md
+│   ├── sw.js / theme-init.js / manifest.webmanifest   # PWA infra — effectively disabled, see dashboard.md
+│   └── index.md                        # Markdown twin for content negotiation
+├── api/
+│   ├── mcp.js                    # MCP server (JSON-RPC, hand-rolled, no SDK)
+│   ├── health.js                 # /api/health
+│   ├── markdown.js               # Markdown content-negotiation handler (mostly dead — see backend.md)
+│   └── 404.js                    # Catch-all 404, 3-way content negotiation
+├── .well-known/mcp               # Static MCP manifest — unreachable in prod (proxy.js always wins)
+├── proxy.js                      # Vercel proxy/middleware: markdown negotiation + MCP rewrite
+├── vercel.json                   # Routing, headers, rewrites, proxy config
+├── openapi.json                  # OpenAPI 3.1 spec for the API surface
+├── llms.txt / robots.txt / sitemap.xml   # Agent/crawler discoverability files
+├── about/ contact/ privacy/ developers/ vercel/   # Marketing pages, each dir/index.html + dir/index.md
+├── infographic.html              # Long-form interactive architecture/roadmap one-pager
+├── 404.html                      # Static markdown-as-.html file (see backend.md)
+├── scripts/
+│   ├── verify-build.js           # MV3 integrity checker (used by package.js)
+│   ├── verify-agentic.js         # Mirrors the external "Ora" agent-discoverability audit
+│   ├── package.js                # Builds the Chrome Web Store zip
+│   └── generate-assets.js        # Generates (stale-branded) store promo art
+└── .agents/                      # This spec — SPEC.md (index) + extension.md/dashboard.md/backend.md
 ```
 
 ---
 
-## 3. Architecture
-
-### 3.1 Data Model
-
-**Extension storage** (`chrome.storage.local`) key: `sikpoketData`
-```js
-{
-  urls: [
-    { id: string, url: string, title: string, tags: string[], createdAt: number, archived: bool, favorite: bool }
-  ],
-  apiKeys: [
-    { id: string, name: string, key: EncryptedObject, tags: string[], createdAt: number, archived: bool, favorite: bool }
-  ],
-  passwords: [
-    { id: string, name: string, username: string, password: EncryptedObject, tags: string[], createdAt: number, archived: bool, favorite: bool }
-  ],
-  notes: [
-    { id: string, title: string, content: string, tags: string[], createdAt: number, archived: bool, favorite: bool, url?: string }
-  ]
-}
-```
-
-**EncryptedObject** (from `CryptoHelper.encrypt`):
-```js
-{ salt: number[], iv: number[], data: number[] }
-```
-
-**Dashboard storage** (`localStorage`) key: `sikpoket_<username>`
-```js
-{
-  spaces: [{ id: string, name: string, wallpaper: string, wallpaperOpacity?: number, wallpaperBlur?: number, items: DashboardItem[] }],
-  activeSpace: string  // space id
-}
-```
-
-**DashboardItem** (unified, unencrypted in dashboard):
-```js
-{ id: string, type: 'url'|'note'|'key'|'password', createdAt: number, favorite: bool, archived: bool, tags: string[],
-  url?: string, title?: string,       // url
-  content?: string,                   // note
-  name?: string, value?: string,      // key / password
-  username?: string                   // password
-}
-```
-
-### 3.2 Security Model
-
-- **Master password** (extension): Any string entered on first use. Stored only in `sessionStorage.sikpoketMasterPassword` for the session. Clears on lock/reload. Used as AES-GCM encryption key for `apiKeys` and `passwords`.
-- **Biometrics**: Optional. Registers a WebAuthn platform credential. A random `bioKey` (128-bit) is stored in `localStorage.sikpoketBioKey`. The master password is wrapped (`CryptoHelper.encrypt`) with `bioKey` and stored in `localStorage.sikpoketWrappedPassword`. On biometric unlock, the `bioKey` is used to decrypt the wrapped password.
-- **Dashboard auth**: SHA-256 hashing with a per-user random salt. User DB stored in `localStorage.sikpoket_users_db`. Sessions in `sessionStorage.sikpoket_user`. Dashboard passwords are plain text after being decrypted from the extension.
-
-### 3.3 Communication Flow
+## 3. Architecture — how the three surfaces relate
 
 ```
-Extension popup → background.js → chrome.storage.local
-                                 ↓
-                       Badge count (active item total)
+┌─────────────────────────────┐        chrome.storage.local        ┌──────────────────────────┐
+│   Chrome Extension (MV3)    │ ◄─────────  sikpoketData  ────────► │      Dashboard SPA        │
+│  popup / sidepanel / unlock │             (no postMessage,        │  dashboard/index.html +   │
+│  background.js (SW)         │              only storage +         │  app.js                   │
+│  content.js (all pages)     │              onChanged listener)    │  (no auth, no crypto)     │
+└──────────────┬───────────────┘                                    └───────────┬──────────────┘
+               │ web_accessible_resources                                        │ same origin,
+               │ (17 root helpers loaded into extension pages)                   │ chrome-extension://<id>
+               ▼                                                                 ▼
+     unlock.html (separate tab, WebAuthn needs a real hostname)         dashboard/standalone.html
+                                                                          (frozen fork, own
+                                                                           multi-user auth,
+                                                                           localStorage only)
 
-Context menu (right-click) → background.js.saveItem()
-                           → content.js: showToast(type, item)
-
-popup.js (dashboardExport) → chrome.tabs.create(dashboard/index.html)
-                           → chrome.tabs.sendMessage / chrome.storage bridge → app.js
+┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│                              Vercel (sikpoket.vercel.app) — independent                     │
+│  proxy.js → vercel.json rewrites → api/mcp.js | api/health.js | api/markdown.js | api/404.js│
+│  Static marketing pages (about/contact/privacy/developers/vercel) + dashboard/ hosted copy   │
+│  MCP server: manifest + JSON-RPC handshake, tools/call is a non-functional stub (no server-  │
+│  side vault — the real vault only ever lives in chrome.storage.local on-device)             │
+└───────────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+The Vercel layer and the extension are **not integrated** beyond serving the extension's own dashboard as a static page and hosting marketing/API surface — there is no server-side account system, no server-side vault, and the MCP tools cannot actually read or write a user's data (by design: local-first).
 
 ---
 
-## 4. Modules
+## 4. Storage & Data Model — master inventory
 
-### 4.1 `background.js` — Service Worker
-**Status**: ✅ Complete
+Full per-key detail lives in [`extension.md`](extension.md#storage-key-inventory-extension-side) and [`dashboard.md`](dashboard.md#data-persistence--exact-keys). Summary:
 
-- Registers 4 context menus: `save-link`, `save-selection`, `save-highlight`, `save-page`
-- `saveItem(type, item)` — appends to `chrome.storage.local.sikpoketData[type]`
-- `updateBadgeCount()` — counts non-archived items across all 4 types, sets badge text (purple `#7c6af7`)
-- Relays `item-saved` message back to the originating tab (for toast)
-- Listens for `save-item-external` message from `content.js` (bookmarklet flow)
-- **NEW**: `save-highlight` context menu: saves selected text as a note with `tags:['highlight']`, `color:'purple'`, and `url: tab.url`
-- **NEW**: `chrome.alarms.onAlarm` handler: fires `chrome.notifications.create` when a reminder alarm triggers
+| Key | Storage | Written by | Shape |
+|---|---|---|---|
+| `sikpoketData` | `chrome.storage.local` | popup, content.js | `{urls[], apiKeys[], passwords[], notes[]}` — secrets AES-GCM encrypted |
+| `sikpoketDashboardData` | `chrome.storage.local` / `localStorage` | dashboard `save()`, popup `dashboardExport()` | `{spaces:[{id,items[]}], activeSpace}` — secrets **plaintext**, and inconsistently so (see dashboard.md) |
+| `sikpoketSessions` | `chrome.storage.local` | background.js | `[{id,name,tabs[],createdAt}]` — write-only, never rendered/restored by any UI |
+| `sikpoketBrokenLinks` | `chrome.storage.local` | `HealthHelper.scanAll()` via background.js only | `string[]` of item IDs |
+| `sikpoket_users_db`, `sikpoket_<username>` | `localStorage` | `dashboard/standalone.html` only | Separate, parallel auth/data scheme — not used by the primary dashboard |
+| `sik_theme`, `sikpoketReaderFontSize/FontFamily/Theme`, `sik_collapsed_sections` | `localStorage` | popup/dashboard UI prefs | Device-local, not vault data |
+| `sikpoketBiometricEnabled/CredId/BioKey/WrappedPassword` | `localStorage` | `unlock.js` + `popup.js` | Biometric unlock chain |
+| `sikpoketFirebaseConfig` | `localStorage` | popup Settings modal | Dead-end stub, no Firebase SDK loaded anywhere |
+| `sikpoketMasterPassword` | `sessionStorage` | popup/unlock.js | Plaintext, **scoped per top-level browsing context** — popup, side panel, and `unlock.html` each need an independent unlock |
+| `archive_snap_<id>` | `chrome.storage.local` | `ArchiveHelper` | Dead — never written (orphaned module) |
 
-### 4.2 `content.js` — Content Script
-**Status**: ✅ Complete
-
-- Injected on all URLs
-- Listens for `item-saved` message → renders a Shadow DOM toast card (310px, dark glass)
-- Toast features: tag input (comma-separated), auto-dismiss (7s), fade-out animation
-- `saveTags()` reads chrome.storage, finds item by id+type, appends new tags
-- Listens for `window.CustomEvent('sikpoket-save-request')` → bookmarklet URL save
-
-### 4.3 `crypto-helper.js` — Crypto & Biometrics
-**Status**: ✅ Complete
-
-**CryptoHelper**:
-- `generateSalt()` → `Uint8Array(16)`
-- `deriveKey(password, salt)` → `PBKDF2, 100k iterations, SHA-256 → AES-GCM-256`
-- `encrypt(data, password)` → returns `{salt, iv, data}` all as `number[]`
-- `decrypt(encryptedObj, password)` → returns original JS object
-
-**BiometricHelper**:
-- `isAvailable()` → checks `PublicKeyCredential` and platform authenticator
-- `register()` → `navigator.credentials.create` with `rpId: 'localhost'`
-- `authenticate(credentialIdB64)` → `navigator.credentials.get`
-- `_translateError(e)` → friendly error messages for WebAuthn error names
-- ⚠️ WebAuthn rpId is `localhost` — only works in a full browser tab (not the extension popup)
-
-### 4.4 `popup.html` / `popup.js` — Main Popup
-**Status**: ✅ Complete
-
-**UI Sections**:
-- Unlock screen (overlaid, class `show` toggled): password input → `sessionStorage`
-- Tabs: URLs | Keys | Passwords | Notes (data-tab attribute drives sections)
-- Header: search input, filter pills (All/Favorites/Archived), sort cycle button
-- Per-tab: `.sp-list` container, "Add" toggle button, inline `.sp-form`
-- Footer: Export JSON, Open Dashboard
-- Settings modal: Biometrics, Cloud Sync (Firebase config textarea), Tag Manager, Shortcuts, Bookmarklet
-
-**Key Functions** (`popup.js`):
-
-| Function | Description |
-|---|---|
-| `loadAllData()` | Loads from chrome.storage, normalizes fields, renders |
-| `getFilteredItems()` | Applies status/tag/search/sort filters across all 4 types |
-| `renderUrls/ApiKeys/Passwords/Notes()` | Renders item cards with favicons/icons and action buttons |
-| `saveUrl/ApiKey/Password/Note()` | Saves new items; encrypts sensitive fields via CryptoHelper |
-| `saveArticle()` | Extracts current tab content via `chrome.scripting`, saves as note with `article` tag |
-| `dashboardExport()` | Opens dashboard tab, decrypts all secrets, passes data via storage bridge |
-| `editItemTags()` | Prompt-based tag editing |
-| `toggleFavorite/Archive()` | Toggle item flags, save, re-render |
-| `deleteItem()` | Confirm → filter out → save |
-| `openReaderMode(note)` | Fullscreen reader overlay for notes/articles |
-| `setupReaderControls()` | Font size/family, theme tabs, scroll progress bar |
-| `renderTagManager()` | Settings modal: tag list with item counts, rename, delete |
-| `handleKeyboardShortcuts()` | Ctrl+1–4 tabs, Ctrl+F search, Ctrl+L lock, Ctrl+B batch, Ctrl+H / ? guide, Esc |
-| `checkBiometricAvailability()` | Always shows biometric section, button redirects to unlock.html |
-| `buildTagFilter/buildTagSuggestions()` | Populates hidden `<select>` and inline suggestions dropdowns |
-| `toggleSelectMode()/applyBulkAction()` | Batch selection toggle, bulk favorite, archive, delete |
-| `findDuplicates()/renderDuplicates()` | Groups duplicate URLs and supports one-click Keep Newest |
-| `openReminderPopover()/handleAlarm()` | Reminders with datetime popover, chrome.alarms, and desktop notifications |
-
-**User Guide Options (`#guide-modal` & Dashboard)**:
-- Header 📖 icon button (`#help-btn`) and footer `"📖 How to Use"` link open an interactive guide modal
-- 6 Interactive Guide Sections: Quick Start, 5 Ways to Save, Vault & Encryption, Pro Tools, Dashboard & Spaces, Shortcuts Cheat Sheet
-- Dashboard sidebar includes a dedicated `"How to Use"` navigation tool rendering rich step cards and live shortcut references
-- Accessible via shortcut <kbd>Ctrl+H</kbd> or <kbd>?</kbd> anytime
-- Themes: dark (default in state, `sepia` is default prefs), light
-- Font sizes: 11–28px, persisted to `localStorage.sikpoketReaderFontSize`
-- Font families: sans-serif / serif, persisted to `localStorage.sikpoketReaderFontFamily`
-- Scroll progress bar at top
-
-### 4.5 `unlock.html` — Standalone Unlock Page
-**Status**: ✅ Complete
-
-- Opened in a new tab when biometric fails in popup context
-- Register: creates WebAuthn credential, generates `bioKey`, encrypts master password, stores in `localStorage`
-- Unlock: authenticates with Touch ID, decrypts wrapped password, writes `sessionStorage.sikpoketMasterPassword`
-- Auto-triggers unlock after 200ms if credential already registered
-
-### 4.6 `dashboard/auth.html` + `auth.js` — Dashboard Auth
-**Status**: ✅ Complete
-
-- Login/register mode toggle with SHA-256 + per-user salt
-- User DB: `localStorage.sikpoket_users_db = { [username]: { hash, salt, createdAt } }`
-- On first register: `seedUserData(username)` creates 3 demo spaces
-- Session: `sessionStorage.sikpoket_user = username`
-- Auth guard in `dashboard/index.html` (inline script) redirects to auth.html if no session
-
-### 4.7 `dashboard/index.html` + `app.js` — Dashboard SPA
-**Status**: ✅ Complete
-
-**State Object**:
-```js
-state = {
-  spaces: [],       // [{id, name, wallpaper, items}]
-  activeSpace: null, // space id
-  collection: 'all',
-  tag: null,
-  search: '',
-  sort: 'newest',
-  viewMode: 'grid',
-  editId: null
-}
-```
-
-**Collections** (sidebar nav): `all`, `favorites`, `archived`, `urls`, `notes`, `keys`, `passwords`
-
-**Key Functions**:
-
-| Function | Description |
-|---|---|
-| `load()` | Loads from localStorage; merges chrome.storage bridge data if available |
-| `save()` | Persists state to localStorage |
-| `getFiltered()` | Filters items by collection, tag, search, sort |
-| `render()` | Renders `content-area` as grid or list |
-| `cardHtml(item, listMode)` | Generates full item card HTML |
-| `updateBadges()` | Updates sidebar badge counts |
-| `updateSpaceList()` | Renders space switcher in sidebar |
-| `renderSidebarTags()` | Tag list with counts in sidebar |
-| `openAdd/openEdit/closeModal()` | CRUD modal for items |
-| `handleFormSubmit()` | Creates/updates items, calls `save(); render()` |
-| `openAddSpace/handleSpaceSubmit()` | Space CRUD with name, curated mood presets, local image file upload, and atmosphere sliders |
-| `renderWallpaperPresets()` | Generates curated mood presets gallery (Cyberpunk, Lo-Fi, Cosmos, Forest, Sunset, Ocean, etc.) |
-| `setupWallpaperStudioControls()` | Local file FileReader base64 loader, custom link input, live preview, opacity & blur sliders |
-| `deleteActiveSpace()` | Removes active space (min 1 required) |
-| `exportItems/importFile()` | JSON export v2 (with spaces structure) / import with merge |
-| `seedDemo()` | Seeds 3 demo spaces if no items exist |
-| `toast(msg, type)` | Bottom toast notification (2.5s auto-dismiss) |
-
-**Spaces & Wallpaper Studio**:
-- Each space: `{ id, name, wallpaper (URL / base64), wallpaperOpacity: number, wallpaperBlur: number, items[] }`
-- Wallpaper Studio modal with 38+ curated mood presets (Anime & Pixel Art, Nature & Landscapes, Cosmos & Space, Urban & Cyberpunk, Cozy & Lo-Fi, Minimal & Studio), local computer file uploader (`FileReader` Base64), custom image URL input
-- Real-time atmosphere controls: **Opacity (5%–65%)** and **Depth Blur (0px–16px)** with live preview
-- Topbar **"🖼️ Wallpaper"** quick switcher button
-- Space switcher in sidebar; active space highlighted with `active` class
-- Keyboard shortcuts: `N` = new item, `Esc` = close modal, `Ctrl+Delete` = delete active space
+**Two independent encryption postures coexist**: the extension popup encrypts `apiKeys`/`passwords` with AES-GCM derived from the master password; the dashboard has **no crypto layer at all** and stores its own key/password items as plain strings. Be careful when describing "the vault" as a single security boundary — it isn't one.
 
 ---
 
-## 5. Styling / Design System
+## 5. Module Status
 
-### Popup (`popup.css`)
-- **Theme**: Deep dark (`#0a0a0f` bg, `#141418` surface)
-- **Brand color**: `#7c6af7` (purple-violet)
-- **Font**: System UI / Inter fallback
-- **Width**: 380px fixed
-- **CSS prefix**: `sp-` (sp-card, sp-tab, sp-btn-primary, sp-modal, etc.)
-- Animations: `.shake` for wrong password, `slideIn/fadeOut` for toasts
-
-### Dashboard (`app.css`)
-- **Theme**: Dark glassmorphism (`--bg: #0c0e12`, `--surface: #1b1d23`)
-- **Brand**: `--primary: #6b7cf0` (indigo)
-- **Font**: Plus Jakarta Sans (Google Fonts) with Inter fallback
-- **Layout**: 240px fixed sidebar + flex main content
-- **Grid**: responsive 3-col card grid with `card-favicon`, `card-title-row`, `card-footer`
-- **Glassmorphism**: `backdrop-filter: blur(12px)` on cards/modals
-
----
-
-## 6. Permissions
-
-| Permission | Usage |
-|---|---|
-| `storage` | All data persistence via `chrome.storage.local` |
-| `tabs` | Tab creation (dashboard, unlock page), active tab metadata |
-| `activeTab` | Current page URL/title for article save |
-| `scripting` | `chrome.scripting.executeScript` for article content extraction |
-| `contextMenus` | Right-click save menus |
-| `downloads` | Listed in manifest (not actively used in v1.1) |
-| `<all_urls>` (host) | Content script injection on all pages |
-
----
-
-### 3.1 Instant Vault Lock
-- Triggered by clicking `#lock-btn` in header or pressing Ctrl+L / Cmd+L.
-- `lock()` clears `masterPassword = null`, removes `sessionStorage.sikpoketMasterPassword`, resets `unlockInput`, immediately adds `.show` to `#unlock-overlay`, and auto-focuses `#unlock-input`.
-- Encrypted secrets are masked immediately.
-
-### 3.2 Non-Blocking Unlock Screen
-- On initial load or when locked, `#unlock-overlay` is displayed with high `z-index: 9999`.
-- All tab listeners, form toggles, search bars, and shortcuts remain active and attached without hanging promises.
-- Typing the master password and clicking "Unlock" (or pressing Enter) executes `doUnlock(pw)`, which removes `#unlock-overlay` and decrypts active vault items.
-- Fallback button "Open Full Unlock Page" opens `unlock.html` for platform Touch ID / biometric verification.
-
----
-
-## 4. Feature Completion Log
-
-| Date | Feature / Module | Status |
+| Area | Status | Detail |
 |---|---|---|
-| Initial | Core popup: URLs, API Keys, Passwords, Notes | ✅ Done |
-| Initial | AES-GCM encryption for sensitive fields | ✅ Done |
-| Initial | Context menu save (link, selection, highlight, page) | ✅ Done |
-| Initial | Content script toast with inline tag input | ✅ Done |
-| Initial | Badge count on extension icon | ✅ Done |
-| Initial | Reader mode for notes (themes, font, scroll progress) | ✅ Done |
-| Initial | Dashboard SPA with Spaces + Wallpapers | ✅ Done |
-| Initial | Dashboard multi-user auth (SHA-256 + salt + guest demo) | ✅ Done |
-| Initial | Biometric/Touch ID unlock via unlock.html tab | ✅ Done |
-| Initial | Tag manager, tag suggestions, bookmarklet | ✅ Done |
-| Initial | Export (JSON) / Import (JSON merge) | ✅ Done |
-| Module 1 | Duplicate URL Detector ("Scan for Duplicates", "Keep Newest", "Delete All") | ✅ Done |
-| Module 2 | Batch Processing & Multi-Select Bar (Bulk favorite, archive, delete) | ✅ Done |
-| Module 3 | Text Highlights (Context menu quote cards with color swatches) | ✅ Done |
-| Module 4 | Layout Modes (Grid, List, and dynamic Masonry column view) | ✅ Done |
-| Module 5 | Reminders & Native Notifications (chrome.alarms + chrome.notifications) | ✅ Done |
-| Module 6 | Broken Link Diagnostic Scanner | ✅ Done |
-| Pro | Space & Wallpaper Studio (38+ Curated Mood Presets & Local File Upload) | ✅ Done |
-| Guide | Interactive User Manual with Shortcuts & Diagnostic Tools | ✅ Done |
-| Fix | Instant Lock / Unlock Architecture Refactor (Ctrl+L / Cmd+L + overlay z-index) | ✅ Done |
+| Extension core (manifest, background, content, popup, unlock) | ✅ Stable | [`extension.md`](extension.md) |
+| Side panel | ⚠️ Partial — Sessions tab can save but never list/restore; no add-item forms; drag-drop zone unwired; stale version string | [`extension.md`](extension.md#sidepanelhtml-241-lines--confirmed-new-since-the-pre-18-spec) |
+| Helper modules (17 files) | ⚠️ Mixed — 2 fully orphaned (`sync-helper.js`, `archive-helper.js`), several dead-loaded in a context that never calls them | [`extension.md`](extension.md#helper-wiring-matrix) |
+| Dashboard SPA (`app.js`) | ✅ Feature-rich; the vim-crash, broken-links, and logout bugs are fixed — other known gaps (secret-encryption inconsistency, orphaned helpers) remain, see § 6 | [`dashboard.md`](dashboard.md) |
+| Dashboard standalone build | ⚠️ Frozen fork, several phases behind, own auth system | [`dashboard.md`](dashboard.md#standalonehtml--frozen-fork-not-kept-in-sync) |
+| Vercel routing / MCP / API | ✅ Live and scoring well on the Ora audit, ⚠️ MCP tools are non-functional stubs, some drift between discovery docs | [`backend.md`](backend.md) |
+| Marketing site | ✅ Complete, content-negotiated (.html/.md pairs) | [`backend.md`](backend.md#static-marketing-site--content-negotiation) |
+| Build/verify scripts | ✅ Working | [`backend.md`](backend.md#buildverify-scripts--the-ora-agent-discoverability-audit) |
 
 ---
 
-## 9. Conventions / Patterns
+## 6. Cross-Cutting Known Issues
 
-- IDs: `Date.now().toString()` (popup) or `Date.now().toString(36) + random` (dashboard)
-- Tags: always lowercase, comma-separated input, parsed by `.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)`
-- HTML escaping: `esc()` helper via tmp DOM node (popup) or regex replace (dashboard)
-- Mutations always immediately persisted:
-  - Popup: `saveAndRefresh()` (calls `chrome.storage.local.set + updateTabCounts + renderCurrentTab + buildTagFilter + renderTagManager`)
-  - Dashboard: `save(); render();` (localStorage + re-render)
-- Settings, prefs, and biometrics stored in `localStorage`; actual vault data in `chrome.storage.local`
-- The popup `allData` object is the single source of truth in memory; never stale between operations
+Consolidated from all three detail docs — check here first before assuming a feature works as advertised.
+
+**Real bugs (will misbehave or crash):**
+1. ~~Dashboard vim shortcut `D` (`deleteFocused()`) calls an undefined `deleteItem()` → `ReferenceError`.~~ **Fixed 2026-09-02** — now calls `confirmDelete(item.id)`. ([dashboard.md](dashboard.md))
+2. ~~Dashboard's "Broken Links" scanner always reports clean — `health-helper.js` was never `<script>`-loaded into `dashboard/index.html` despite `app.js` calling `window.HealthHelper.scanAll()`.~~ **Fixed 2026-09-02** — script tag added; the scan now runs for real (it can still only detect timeouts/offline, not actual 404/500s — that's an inherent limitation of the `no-cors` HEAD-fetch approach, not a wiring bug). ([dashboard.md](dashboard.md), [extension.md](extension.md))
+3. ~~Dashboard's "Logout" button links to a nonexistent `dashboard/auth.html` (404) — leftover from the removed multi-user auth system.~~ **Fixed 2026-09-02** — button, its click handler, and a now-dead CSS rule removed; the primary dashboard has no session to log out of. ([dashboard.md](dashboard.md))
+4. `graph-helper.js` physics: `edge.target.target?.mass` typo (should be `edge.target.mass`) causes every edge's target node to get an unscaled force nudge instead of a mass-scaled one. Cosmetic today, real bug if the physics is extended. ([extension.md](extension.md))
+5. Secret-encryption inconsistency: the dashboard's live extension-sync path copies encrypted blobs into a `.value` field without decrypting them (unusable), while the explicit popup "Export to Dashboard" button decrypts first, and items created directly in the dashboard are unencrypted plain strings. Three different postures for the same field. ([dashboard.md](dashboard.md))
+
+**Orphaned / dead code:**
+6. `sync-helper.js` (GitHub Gist E2E backup) and `archive-helper.js` (offline snapshots) are fully implemented with zero callers anywhere — features described in marketing copy that don't actually exist in any UI.
+7. `export-helper.js` and `vector-helper.js` are loaded in popup/sidepanel but never called there (dashboard-only in practice); `ai-helper.js` is loaded in the dashboard but never called there (popup-only in practice).
+8. The popup's "Cloud Sync ☁ / Firebase" Settings block stores a config blob to `localStorage` that nothing else in the repo reads — a second, independent dead-end sync stub.
+9. `api/markdown.js`'s markdown-serving logic is dead code in production for all 7 negotiated pages — `proxy.js`'s own inline (and more complete) markdown map always answers first. Its own map is also missing 2 of the 7 pages, so if `proxy.js` were ever bypassed, `/developers` and `/vercel` markdown would silently wrong-serve `/index.md`.
+10. `.well-known/mcp` as a static file is unreachable in production (proxy always rewrites to `api/mcp.js`) and its tool defs have already drifted from the live handler (missing `inputSchema`).
+
+**By-design but worth flagging explicitly:**
+11. All `RateLimit-*`/`Retry-After` headers across the Vercel layer are hardcoded literals — no real rate limiting exists anywhere; `429` is never returned.
+12. MCP `tools/call` never executes real logic — always a canned echo, regardless of tool name or arguments. Intentional (no server-side vault), but the manifest/OpenAPI imply more capability than exists.
+13. `contact/`/`privacy/` marketing pages contain content explicitly (and honestly, in code comments) padded/shaped to satisfy LLM "is this a real, trustworthy org" heuristics — a deliberate AEO-style practice tied to the Ora audit, not a bug, but unusual enough to call out.
+14. Two independent duplicate-detectors and two independent search implementations exist (popup's are simpler/weaker versions of the dashboard's `DedupHelper`/`SearchHelper`) — not bugs, but don't assume fixing one fixes the other.
+15. `sessionStorage`-scoped master password means popup, side panel, and `unlock.html` each require independent unlocking, even though they share an origin and vault — surprising but working as designed.
 
 ---
 
-## 10. How to Update This Spec
+## 7. Conventions / Patterns
+
+- IDs: `Date.now().toString()` (popup) or `Date.now().toString(36) + random` (dashboard `genId()`).
+- Tags: always lowercase, comma-separated input, parsed via `.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)`.
+- HTML escaping: `esc()` helper (temp DOM node in popup, regex replace in dashboard).
+- Mutations persisted immediately, never batched: popup's `saveAndRefresh()` (storage set + badge/tab-count + re-render + tag-filter rebuild); dashboard's `save(); render();`.
+- Helper modules use an IIFE `(function(global){...})(window)` pattern and attach to `window.<Name>` — **except** `crypto-helper.js`, which is a bare top-level `const` (works because it's always loaded as a classic, non-module script), and `health-helper.js`, which binds to `self`/`this` because it also runs inside the service worker via `importScripts()` where `window` doesn't exist.
+- Settings/prefs/biometrics → `localStorage`; actual vault data → `chrome.storage.local` (extension) or `localStorage` (dashboard, when running outside the extension).
+- No build step anywhere — every file is served/loaded as-is. Verify with `node scripts/verify-build.js` before packaging.
+
+---
+
+## 8. Feature Completion Log
+
+| Date / Phase | Feature | Status |
+|---|---|---|
+| Initial | Core popup: URLs, API Keys, Passwords, Notes + AES-GCM encryption | ✅ |
+| Initial | Context menu save, content-script toast, badge count | ✅ |
+| Initial | Reader mode, dashboard SPA with Spaces + Wallpapers | ✅ |
+| Initial | Dashboard multi-user auth (SHA-256 + salt) | ⚠️ Later removed from primary dashboard, survives only in `standalone.html` |
+| Initial | Biometric/Touch ID unlock via `unlock.html` | ✅ |
+| Module 1–6 (pre-1.6) | Duplicate detector, batch processing, text highlights, layout modes, reminders/notifications, broken-link scanner | ✅ (broken-link scanner later regressed in the dashboard — see § 6) |
+| Phase 8 (v1.6.0) | Bi-directional WikiLinks, Semantic Smart Spaces, Offline Page Archiver | ⚠️ Archiver shipped as dead code (`archive-helper.js`, zero callers) |
+| Phase 9 (v1.7.0) | Vim navigation, 1-click duplicate cleaner, RSS watcher | ✅ (Vim `D` key crash fixed 2026-09-02, see § 6) |
+| Phase 10 (v1.8.0) | Obsidian Vault Exporter, Notion CSV Export, Semantic Vector Search, auto-rendered store PNGs | ✅ (store PNGs are brand-stale, see backend.md) |
+| — | Side Panel (Sessions + Assistant tabs) | ⚠️ Partial — see § 5 |
+| "Is Agentic" push | `.well-known/mcp`, `api/mcp.js`, OpenAPI 3.1, `/developers` portal, `llms.txt`, JSON-LD, trust-anchor pages, RateLimit/Deprecation headers, `/v1` versioning | ✅ Live, mirrors the external Ora audit rubric — see `backend.md` |
+| 2026-09-02 | **Full spec rewrite** — `.agents/SPEC.md` + `extension.md`/`dashboard.md`/`backend.md` created from a full-codebase read, replacing the stale v1.1-era spec | ✅ |
+| 2026-09-02 | Fix: `dashboard/app.js` `deleteFocused()` (vim key `D`) called an undefined `deleteItem()`, crashing with `ReferenceError`; now calls `confirmDelete(item.id)` | ✅ |
+| 2026-09-02 | Fix: `health-helper.js` was missing from `dashboard/index.html`'s script list, so the dashboard's "Broken Links" scan always no-op'd; script tag added, scan now runs for real | ✅ |
+| 2026-09-02 | Fix: removed the dashboard's broken "Logout" button (linked to a nonexistent `auth.html`), its click handler, a dead CSS rule, and a stray misleading comment — leftovers from the removed multi-user auth system | ✅ |
+
+---
+
+## 9. How to Update This Spec
 
 After completing any feature or module:
-1. Update the relevant **Section 4.x** for the module
-2. Add a row to the **Feature Completion Log** (Section 8)
-3. Note any new bugs or known issues in **Section 7**
-4. If a new file is added, update the **File Map** (Section 2)
 
-**Spec location**: `/Users/sam/.gemini/antigravity-ide/brain/812d8857-c792-4350-8075-c321a2bb2bf5/SPEC.md`  
-**Project root**: `/Users/sam/Desktop/SikPoket/`
+1. **Identify which surface changed** — extension, dashboard, or backend/marketing — and update the corresponding detail doc (`extension.md`, `dashboard.md`, or `backend.md`) directly: update the relevant function/module description, storage keys, and wiring notes.
+2. **If a bug you fixed is listed in § 6 (Cross-Cutting Known Issues)**, remove that entry (or mark it fixed) here in `SPEC.md`.
+3. **If new dead code, orphaned modules, or cross-file inconsistencies are introduced**, add them to § 6 rather than letting a future session rediscover them the hard way.
+4. **Add a row to § 8 (Feature Completion Log)** with the date and a one-line status.
+5. **If a new top-level file/directory is added**, update § 2 (Repository Map) and, if it's substantial, consider whether it needs its own entry in one of the detail docs.
+6. **If the version number bumps**, update it in § 1 here — note that `manifest.json`, `package.json`, and several hardcoded strings in `api/mcp.js`/`api/health.js`/`vercel.json` all currently need to be bumped independently (see `backend.md` § Known Issues #3); this is itself worth fixing someday.
+
+Keep entries terse and factual — this file is optimized for a future Claude session to regain full context quickly, not for human narrative prose.
