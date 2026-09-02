@@ -326,7 +326,7 @@
         const fy = (dy / dist) * force;
 
         if (!edge.source.isFixed) { edge.source.vx += fx / edge.source.mass; edge.source.vy += fy / edge.source.mass; }
-        if (!edge.target.isFixed) { edge.target.vx -= fx / edge.target.target?.mass || 1; edge.target.vy -= fy / edge.target.target?.mass || 1; }
+        if (!edge.target.isFixed) { edge.target.vx -= fx / edge.target.mass; edge.target.vy -= fy / edge.target.mass; }
       }
 
       // 3. Integrate Velocity & Apply Damping

@@ -150,11 +150,11 @@ TF-style ranked full-text search (`tokenize`, `_buildItemProfile`, `search(query
 
 Bound via `self`/`this` (not `window`) because it's also loaded via `importScripts()` in `background.js` (works correctly there, weekly alarm). **Fixed 2026-09-02**: `health-helper.js` was never `<script>`-tagged into `dashboard/index.html`, so `dashboard/app.js`'s `scanBrokenLinks()` call to `window.HealthHelper.scanAll()` always hit `undefined` and the dashboard's "Broken Links" collection always reported clean regardless of actual link health. The script tag has been added; the dashboard scan now runs for real (with the timeout-only detection limitation noted above).
 
-### graph-helper.js (444 lines) — `KnowledgeGraph` class — **has a physics bug**
+### graph-helper.js (444 lines) — `KnowledgeGraph` class
 
 Dependency-free Canvas force-directed graph (nodes = items/tags/domains, edges = tag/domain/wikilink relations). Constructor takes `{nodeRadius, repulsion, springLength, springStrength, damping, centerGravity, onNodeClick, onNodeHover}`. `setData(items)` builds item nodes (colored/iconed by type), tag nodes, domain nodes (2+ shared items only), and — if `window.WikiLinkHelper` is present — direct wikilink edges.
 
-**Bug** (tracked in [issue #4](https://github.com/njrankitsam11-gif/SikPoket/issues/4)): in `_stepPhysics()`, the target-side velocity update divides by `edge.target.target?.mass` instead of `edge.target.mass`. Since edges only have `.source`/`.target` (no nested `.target.target`), this is always `undefined`, so `NaN || 1` silently falls back to `1` — every edge's target node gets a flat force nudge instead of a mass-scaled one. The source side is correct; only the target side is wrong. Cosmetic (graph still renders and settles), but a real correctness bug if anyone extends the physics.
+**Fixed 2026-09-02** ([issue #4](https://github.com/njrankitsam11-gif/SikPoket/issues/4)): `_stepPhysics()`'s target-side velocity update previously divided by `edge.target.target?.mass` instead of `edge.target.mass`. Since edges only have `.source`/`.target` (no nested `.target.target`), that was always `undefined`, so `NaN || 1` silently fell back to `1` — every edge's target node got a flat force nudge instead of a mass-scaled one, while the source side was already correct. Now both sides divide by the node's actual `.mass` (1.5 for item nodes, 2.0 for tag nodes, 2.2 for domain nodes), matching the source-side pattern with no fallback needed.
 
 Dashboard-only.
 
@@ -215,7 +215,7 @@ The only non-crypto helper genuinely wired into **both** popup/sidepanel and das
 | sync-helper.js | ❌ | — | ❌ | — | **Orphaned everywhere** |
 | search-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | health-helper.js | ❌ | — | ✅ (fixed 2026-09-02) | ✅ | Works in background.js and dashboard |
-| graph-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only (has physics bug) |
+| graph-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | reader-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | wikilink-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | tagger-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
