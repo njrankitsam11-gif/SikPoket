@@ -154,7 +154,7 @@ Bound via `self`/`this` (not `window`) because it's also loaded via `importScrip
 
 Dependency-free Canvas force-directed graph (nodes = items/tags/domains, edges = tag/domain/wikilink relations). Constructor takes `{nodeRadius, repulsion, springLength, springStrength, damping, centerGravity, onNodeClick, onNodeHover}`. `setData(items)` builds item nodes (colored/iconed by type), tag nodes, domain nodes (2+ shared items only), and — if `window.WikiLinkHelper` is present — direct wikilink edges.
 
-**Bug**: in `_stepPhysics()`, the target-side velocity update divides by `edge.target.target?.mass` instead of `edge.target.mass`. Since edges only have `.source`/`.target` (no nested `.target.target`), this is always `undefined`, so `NaN || 1` silently falls back to `1` — every edge's target node gets a flat force nudge instead of a mass-scaled one. The source side is correct; only the target side is wrong. Cosmetic (graph still renders and settles), but a real correctness bug if anyone extends the physics.
+**Bug** (tracked in [issue #4](https://github.com/njrankitsam11-gif/SikPoket/issues/4)): in `_stepPhysics()`, the target-side velocity update divides by `edge.target.target?.mass` instead of `edge.target.mass`. Since edges only have `.source`/`.target` (no nested `.target.target`), this is always `undefined`, so `NaN || 1` silently falls back to `1` — every edge's target node gets a flat force nudge instead of a mass-scaled one. The source side is correct; only the target side is wrong. Cosmetic (graph still renders and settles), but a real correctness bug if anyone extends the physics.
 
 Dashboard-only.
 
