@@ -47,11 +47,14 @@ async function syncFromExtensionStorage() {
       if (!active && state.spaces.length) active = state.spaces[0];
       if (active) {
         if (!active.items) active.items = [];
+        // apiKeys/passwords are intentionally excluded here: sikpoketData stores them
+        // CryptoHelper-encrypted, and the dashboard has no master password or crypto
+        // layer to decrypt with, so copying them live produced an unusable encrypted
+        // blob as the item's value. Use the extension popup's "Export to Dashboard"
+        // button for secrets instead, which decrypts them first.
         const allExtItems = [
           ...(res.sikpoketData.urls || []).map(u => ({ id: u.id || genId(), type: 'url', title: u.title || u.url, url: u.url, tags: u.tags || [], favorite: !!u.favorite, archived: !!u.archived, createdAt: u.createdAt || Date.now() })),
-          ...(res.sikpoketData.notes || []).map(n => ({ id: n.id || genId(), type: 'note', title: n.title || 'Note', content: n.content || n.text || '', tags: n.tags || [], favorite: !!n.favorite, archived: !!n.archived, createdAt: n.createdAt || Date.now() })),
-          ...(res.sikpoketData.apiKeys || []).map(k => ({ id: k.id || genId(), type: 'key', name: k.name || k.title || 'API Key', username: k.service || k.username || '', value: k.key || k.value || '', tags: k.tags || [], favorite: !!k.favorite, archived: !!k.archived, createdAt: k.createdAt || Date.now() })),
-          ...(res.sikpoketData.passwords || []).map(p => ({ id: p.id || genId(), type: 'password', name: p.name || p.title || 'Password', username: p.username || '', value: p.password || p.value || '', tags: p.tags || [], favorite: !!p.favorite, archived: !!p.archived, createdAt: p.createdAt || Date.now() }))
+          ...(res.sikpoketData.notes || []).map(n => ({ id: n.id || genId(), type: 'note', title: n.title || 'Note', content: n.content || n.text || '', tags: n.tags || [], favorite: !!n.favorite, archived: !!n.archived, createdAt: n.createdAt || Date.now() }))
         ];
 
         const existingKeys = new Set();

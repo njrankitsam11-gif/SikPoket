@@ -121,7 +121,7 @@ Full per-key detail lives in [`extension.md`](extension.md#storage-key-inventory
 | Key | Storage | Written by | Shape |
 |---|---|---|---|
 | `sikpoketData` | `chrome.storage.local` | popup, content.js | `{urls[], apiKeys[], passwords[], notes[]}` — secrets AES-GCM encrypted |
-| `sikpoketDashboardData` | `chrome.storage.local` / `localStorage` | dashboard `save()`, popup `dashboardExport()` | `{spaces:[{id,items[]}], activeSpace}` — secrets **plaintext**, and inconsistently so (see dashboard.md) |
+| `sikpoketDashboardData` | `chrome.storage.local` / `localStorage` | dashboard `save()`, popup `dashboardExport()` | `{spaces:[{id,items[]}], activeSpace}` — secrets always **plaintext** here (no crypto layer in the dashboard, by design); `apiKeys`/`passwords` no longer live-sync from the encrypted `sikpoketData` (see dashboard.md) |
 | `sikpoketSessions` | `chrome.storage.local` | background.js | `[{id,name,tabs[],createdAt}]` — write-only, never rendered/restored by any UI |
 | `sikpoketBrokenLinks` | `chrome.storage.local` | `HealthHelper.scanAll()` via background.js only | `string[]` of item IDs |
 | `sikpoket_users_db`, `sikpoket_<username>` | `localStorage` | `dashboard/standalone.html` only | Separate, parallel auth/data scheme — not used by the primary dashboard |
@@ -142,7 +142,7 @@ Full per-key detail lives in [`extension.md`](extension.md#storage-key-inventory
 | Extension core (manifest, background, content, popup, unlock) | ✅ Stable | [`extension.md`](extension.md) |
 | Side panel | ⚠️ Partial — Sessions tab can save but never list/restore; no add-item forms; drag-drop zone unwired; stale version string | [`extension.md`](extension.md#sidepanelhtml-241-lines--confirmed-new-since-the-pre-18-spec) |
 | Helper modules (17 files) | ⚠️ Mixed — 2 fully orphaned (`sync-helper.js`, `archive-helper.js`), several dead-loaded in a context that never calls them | [`extension.md`](extension.md#helper-wiring-matrix) |
-| Dashboard SPA (`app.js`) | ✅ Feature-rich; the vim-crash, broken-links, and logout bugs are fixed — other known gaps (secret-encryption inconsistency, orphaned helpers) remain, see § 6 | [`dashboard.md`](dashboard.md) |
+| Dashboard SPA (`app.js`) | ✅ Feature-rich; the vim-crash, broken-links, logout, and secret-sync bugs are fixed — other known gaps (orphaned helpers, no crypto layer by design) remain, see § 6 | [`dashboard.md`](dashboard.md) |
 | Dashboard standalone build | ⚠️ Frozen fork, several phases behind, own auth system | [`dashboard.md`](dashboard.md#standalonehtml--frozen-fork-not-kept-in-sync) |
 | Vercel routing / MCP / API | ✅ Live and scoring well on the Ora audit, ⚠️ MCP tools are non-functional stubs, some drift between discovery docs | [`backend.md`](backend.md) |
 | Marketing site | ✅ Complete, content-negotiated (.html/.md pairs) | [`backend.md`](backend.md#static-marketing-site--content-negotiation) |
@@ -159,7 +159,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 2. ~~Dashboard's "Broken Links" scanner always reports clean — `health-helper.js` was never `<script>`-loaded into `dashboard/index.html` despite `app.js` calling `window.HealthHelper.scanAll()`.~~ **Fixed 2026-09-02** — script tag added; the scan now runs for real (it can still only detect timeouts/offline, not actual 404/500s — that's an inherent limitation of the `no-cors` HEAD-fetch approach, not a wiring bug). ([dashboard.md](dashboard.md), [extension.md](extension.md))
 3. ~~Dashboard's "Logout" button links to a nonexistent `dashboard/auth.html` (404) — leftover from the removed multi-user auth system.~~ **Fixed 2026-09-02** — button, its click handler, and a now-dead CSS rule removed; the primary dashboard has no session to log out of. ([dashboard.md](dashboard.md))
 4. ~~`graph-helper.js` physics: `edge.target.target?.mass` typo causes every edge's target node to get an unscaled force nudge instead of a mass-scaled one.~~ **Fixed 2026-09-02** — now divides by `edge.target.mass`, matching the source-side pattern. Closes [issue #4](https://github.com/njrankitsam11-gif/SikPoket/issues/4). ([extension.md](extension.md))
-5. Secret-encryption inconsistency: the dashboard's live extension-sync path copies encrypted blobs into a `.value` field without decrypting them (unusable), while the explicit popup "Export to Dashboard" button decrypts first, and items created directly in the dashboard are unencrypted plain strings. Three different postures for the same field. ([dashboard.md](dashboard.md))
+5. ~~Secret-encryption inconsistency: the dashboard's live extension-sync path copied encrypted blobs into a `.value` field without decrypting them (unusable).~~ **Fixed 2026-09-02** — `apiKeys`/`passwords` are no longer included in the automatic live sync at all (the dashboard has no way to decrypt them); only `urls`/`notes` sync live now. Secrets reach the dashboard only via the popup's explicit "Export to Dashboard" button (decrypted) or direct dashboard creation (plaintext from the start) — both are plaintext-at-rest in the dashboard, which remains an unchanged architectural fact, not a bug. ([dashboard.md](dashboard.md))
 
 **Orphaned / dead code:**
 6. `sync-helper.js` (GitHub Gist E2E backup) and `archive-helper.js` (offline snapshots) are fully implemented with zero callers anywhere — features described in marketing copy that don't actually exist in any UI.
@@ -209,6 +209,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 | 2026-09-02 | Fix: `health-helper.js` was missing from `dashboard/index.html`'s script list, so the dashboard's "Broken Links" scan always no-op'd; script tag added, scan now runs for real | ✅ |
 | 2026-09-02 | Fix: removed the dashboard's broken "Logout" button (linked to a nonexistent `auth.html`), its click handler, a dead CSS rule, and a stray misleading comment — leftovers from the removed multi-user auth system | ✅ |
 | 2026-09-02 | Fix: `graph-helper.js` spring physics divided by `edge.target.target?.mass` (always `NaN`→`1`) instead of `edge.target.mass`; now matches the source-side pattern. Closes [issue #4](https://github.com/njrankitsam11-gif/SikPoket/issues/4) | ✅ |
+| 2026-09-02 | Fix: `syncFromExtensionStorage()` no longer live-syncs `apiKeys`/`passwords` into the dashboard (it had no way to decrypt them — was writing an unusable encrypted-blob object as `.value`, which editing/saving would silently corrupt into the literal string `"[object Object]"`); `urls`/`notes` still sync live | ✅ |
 
 ---
 

@@ -109,7 +109,7 @@ All resolved centrally in `getFiltered()`; `render()` special-cases `graph`/`rss
 2. `save()` writes `chrome.storage.local.set({sikpoketDashboardData: {spaces, activeSpace}})`.
 3. `chrome.storage.onChanged` listener re-runs `syncFromExtensionStorage()` + full re-render whenever `sikpoketData` **or** `sikpoketDashboardData` changes in another context (popup, another dashboard tab).
 
-`syncFromExtensionStorage()` reads the raw popup shape (`sikpoketData: {urls, notes, apiKeys, passwords}`) and converts each entry into the dashboard's unified item schema, deduping by id/url before unshifting into the active space.
+`syncFromExtensionStorage()` reads the raw popup shape (`sikpoketData: {urls, notes, apiKeys, passwords}`) and converts `urls`/`notes` into the dashboard's unified item schema, deduping by id/url before unshifting into the active space. `apiKeys`/`passwords` are deliberately **not** included — see the Security-relevant note below.
 
 Separately, `popup.js`'s `dashboardExport()` opens the dashboard tab, tries `chrome.tabs.sendMessage` (always silently ignored — no listener), then falls back to `chrome.storage.local.set({sikpoketDashboardData: items})` with a **flat array**, not the `{spaces, activeSpace}` shape — `load()`'s `Array.isArray(data)` branch handles this by wrapping it into a synthetic "Default" space.
 
@@ -127,7 +127,7 @@ Outside the extension (`chrome.storage` undefined, e.g. the hosted `/dashboard/`
 | `sik_collapsed_sections` | `initCollapsibleSections()` | `localStorage` | JSON array of collapsed sidebar section ids |
 | `sikpoket_user` | logout handler only (removeItem) | `sessionStorage` | Dead/vestigial |
 
-**Security-relevant note**: the live sync path (`syncFromExtensionStorage()`) copies `apiKeys[].key` / `passwords[].password` straight into the dashboard item's `.value` field **without decryption** (no `CryptoHelper` in the dashboard at all) — so a key/password added via the popup while a dashboard tab is already open shows up as an unusable encrypted blob. Items created *directly* in the dashboard's own modal are stored as **plain unencrypted strings**. Items exported via the popup's explicit `dashboardExport()` button *are* decrypted first. Net effect: the dashboard's own vault items for `key`/`password` types have weaker protection than the popup's, and the two sync paths (live vs. explicit-export) disagree on whether the value is encrypted.
+**Security-relevant note**: `apiKeys`/`passwords` are excluded from the automatic live sync (`syncFromExtensionStorage()`) — **fixed 2026-09-02**; previously it copied `apiKeys[].key`/`passwords[].password` straight into the dashboard item's `.value` field without decryption (no `CryptoHelper` in the dashboard at all), so a key/password added via the popup while a dashboard tab was already open showed up as an unusable encrypted blob, and editing/saving that item would silently persist the literal string `"[object Object]"` over the real value. `urls`/`notes` still sync live (no encryption concern there). The two remaining, now-consistent postures: items exported via the popup's explicit `dashboardExport()` button arrive **decrypted** (readable plaintext in the dashboard), and items created *directly* in the dashboard's own modal are **plain unencrypted strings** from the start. Both postures are plaintext-at-rest in `sikpoketDashboardData` — that's an unchanged, still-true architectural fact (the dashboard has no crypto layer or master password of its own), not something this fix addresses. Use the popup for anything that needs the AES-GCM/PBKDF2 protection.
 
 ---
 
@@ -166,5 +166,5 @@ Evidence this is a legacy snapshot, not a mirror:
 3. ~~`health-helper.js` never `<script>`-loaded here despite `scanBrokenLinks()` calling `window.HealthHelper.scanAll()`.~~ **Fixed 2026-09-02** — added `<script src="../health-helper.js">` to `dashboard/index.html`. "Broken Links" now performs a real scan (still only detects timeouts/offline, not real 404/500s — see `extension.md`'s `health-helper.js` entry, that limitation is in the helper itself, not the wiring).
 4. `archive-helper.js` loaded but zero callers — dead include.
 5. `ai-helper.js` loaded but zero callers here (it's a popup-only feature).
-6. Secret-encryption inconsistency between live sync and explicit export (see § Data persistence above) — dashboard's own key/password items are weaker than the popup's.
+6. ~~Secret-encryption inconsistency between live sync and explicit export.~~ **Fixed 2026-09-02** — `syncFromExtensionStorage()` no longer live-syncs `apiKeys`/`passwords` at all (see § Data persistence above); the dashboard's key/password items are still plaintext-at-rest by design (no crypto layer there), which is unchanged.
 7. Inline `onclick="..."` handlers for `openRssReader`/`removeRssFeed`/`mergeCluster` (with awkward `JSON.stringify(...).replace(/"/g,'&quot;')` escaping) — inconsistent with the addEventListener-delegation pattern used elsewhere.

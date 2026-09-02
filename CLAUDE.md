@@ -17,7 +17,7 @@ When you finish a feature, fix, or module: update the relevant `.agents/*.md` do
 ## Known traps worth knowing before you touch code
 
 - Two helpers (`sync-helper.js`, `archive-helper.js`) are fully built but have zero callers anywhere — don't assume a feature exists just because marketing copy or a helper file describes it. See `SPEC.md § Known Issues` for the full list before reporting something as broken — it may already be a documented, understood gap.
-- The dashboard's own key/password items have weaker protection than the extension popup's (no crypto layer there at all); the live extension→dashboard sync path can hand the dashboard an unusable encrypted blob instead of decrypting it first.
+- The dashboard has no crypto layer at all — key/password items created there, or exported via the popup's "Export to Dashboard" button, are always plaintext-at-rest in `sikpoketDashboardData`. `apiKeys`/`passwords` no longer live-sync from the encrypted `sikpoketData` (fixed 2026-09-02 — the dashboard had no way to decrypt them anyway); only `urls`/`notes` sync live.
 - Every `RateLimit-*` header in the Vercel layer is a hardcoded literal — there is no real rate limiting.
 
 ## Commands
