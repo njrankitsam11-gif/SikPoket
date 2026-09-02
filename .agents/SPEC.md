@@ -138,7 +138,7 @@ Full per-key detail lives in [`extension.md`](extension.md#storage-key-inventory
 |---|---|---|
 | Extension core (manifest, background, content, popup, unlock) | ✅ Stable | [`extension.md`](extension.md) |
 | Side panel | ⚠️ Partial — Sessions tab can save but never list/restore; no add-item forms; drag-drop zone unwired; stale version string | [`extension.md`](extension.md#sidepanelhtml-241-lines--confirmed-new-since-the-pre-18-spec) |
-| Helper modules (15 files) | ⚠️ Mixed — `sync-helper.js`/`archive-helper.js` removed 2026-09-02 (were fully orphaned); several remaining ones are dead-loaded in a context that never calls them | [`extension.md`](extension.md#helper-wiring-matrix) |
+| Helper modules (15 files) | ✅ Clean — `sync-helper.js`/`archive-helper.js` removed (were fully orphaned); dead `<script>` loads of `export-helper.js`/`vector-helper.js`/`ai-helper.js` in the wrong context removed 2026-09-02. Every remaining helper is loaded only where it's actually called | [`extension.md`](extension.md#helper-wiring-matrix) |
 | Dashboard SPA (`app.js`) | ✅ Feature-rich; the vim-crash, broken-links, logout, and secret-sync bugs are fixed — other known gaps (orphaned helpers, no crypto layer by design) remain, see § 6 | [`dashboard.md`](dashboard.md) |
 | Dashboard standalone build | ⚠️ Frozen fork, several phases behind, own auth system | [`dashboard.md`](dashboard.md#standalonehtml--frozen-fork-not-kept-in-sync) |
 | Vercel routing / MCP / API | ✅ Live and scoring well on the Ora audit, ⚠️ MCP tools are non-functional stubs, some drift between discovery docs | [`backend.md`](backend.md) |
@@ -160,7 +160,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 
 **Orphaned / dead code:**
 6. ~~`sync-helper.js` (GitHub Gist E2E backup) and `archive-helper.js` (offline snapshots) were fully implemented with zero callers anywhere.~~ **Removed 2026-09-02** — both files deleted, along with their `manifest.json`/`scripts/verify-build.js`/`scripts/package.js` references and the `<script>` tag for `archive-helper.js` in `dashboard/index.html`. GitHub Gist sync claims corrected in `index.html`, `about/`, `privacy/`, `developers/`, `llms.txt`, `infographic.html`, and `SIKPOKET_COMPLETE_BLUEPRINT.md`.
-7. `export-helper.js` and `vector-helper.js` are loaded in popup/sidepanel but never called there (dashboard-only in practice); `ai-helper.js` is loaded in the dashboard but never called there (popup-only in practice).
+7. ~~`export-helper.js` and `vector-helper.js` were loaded in popup/sidepanel but never called there; `ai-helper.js` was loaded in the dashboard but never called there.~~ **Fixed 2026-09-02** — removed the dead `<script>` tags from `popup.html`/`sidepanel.html` (export-helper.js, vector-helper.js) and `dashboard/index.html` (ai-helper.js). Each file remains loaded (and works) only where it's actually used: export/vector in the dashboard, AI summarization in the popup and side panel.
 8. The popup's "Cloud Sync ☁ / Firebase" Settings block stores a config blob to `localStorage` that nothing else in the repo reads — a second, independent dead-end sync stub.
 9. `api/markdown.js`'s markdown-serving logic is dead code in production for all 7 negotiated pages — `proxy.js`'s own inline (and more complete) markdown map always answers first. Its own map is also missing 2 of the 7 pages, so if `proxy.js` were ever bypassed, `/developers` and `/vercel` markdown would silently wrong-serve `/index.md`.
 10. `.well-known/mcp` as a static file is unreachable in production (proxy always rewrites to `api/mcp.js`) and its tool defs have already drifted from the live handler (missing `inputSchema`).
@@ -208,6 +208,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 | 2026-09-02 | Fix: `graph-helper.js` spring physics divided by `edge.target.target?.mass` (always `NaN`→`1`) instead of `edge.target.mass`; now matches the source-side pattern. Closes [issue #4](https://github.com/njrankitsam11-gif/SikPoket/issues/4) | ✅ |
 | 2026-09-02 | Fix: `syncFromExtensionStorage()` no longer live-syncs `apiKeys`/`passwords` into the dashboard (it had no way to decrypt them — was writing an unusable encrypted-blob object as `.value`, which editing/saving would silently corrupt into the literal string `"[object Object]"`); `urls`/`notes` still sync live | ✅ |
 | 2026-09-02 | Removed `sync-helper.js` and `archive-helper.js` (fully built, zero callers, per user decision) — deleted the files, their `manifest.json`/build-script/`<script>` references, and corrected GitHub Gist sync claims across the marketing site and blueprint docs | ✅ |
+| 2026-09-02 | Fix: removed dead `<script>` loads — `export-helper.js`/`vector-helper.js` from `popup.html`/`sidepanel.html`, `ai-helper.js` from `dashboard/index.html` — none were ever called in those contexts; each helper still loads where it's actually used | ✅ |
 
 ---
 

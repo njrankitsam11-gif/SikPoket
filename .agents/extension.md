@@ -43,7 +43,7 @@ Injected on `<all_urls>`. Two jobs:
 
 ## popup.html (551 lines) / popup.js (1707 lines) / popup.css
 
-Fixed-size (400×560–640px) browser-action popup. Script includes, in order: `crypto-helper.js`, `qr-helper.js`, `ai-helper.js`, `export-helper.js`, `vector-helper.js`, `popup.js`.
+Fixed-size (400×560–640px) browser-action popup. Script includes, in order: `crypto-helper.js`, `qr-helper.js`, `ai-helper.js`, `popup.js`. (`export-helper.js`/`vector-helper.js` were removed from this list 2026-09-02 — see below.)
 
 Sections: unlock overlay, full-screen reader-mode overlay (font/theme controls, AI-summary box), header (brand, side-panel/wallpaper/help/select-mode/settings/lock buttons, search, filter pills), 4 tabs (URLs / Keys / Passwords / Notes, each with list + inline "+Add" form + tag autocomplete), bulk-action bar, footer (Guide / Export / Open Dashboard), and 4 modals: Wallpaper, Settings (Guide callout, duplicate scanner, biometric section, Cloud Sync/Firebase textarea, Tag Manager, shortcuts cheat-sheet, bookmarklet, HTML/JSON export), the 6-tab Guide/Manual modal, and a QR modal.
 
@@ -69,7 +69,7 @@ Key functions in `popup.js` (`allData` is the single in-memory source of truth, 
 | `handleChat` / `appendChatMessage` | Wraps `ChatHelper`; guarded by DOM element existence, so effectively **side-panel-only** despite living in the shared `popup.js` |
 | `exportData()` / `exportHtmlBookmarks()` | Own JSON export (secrets replaced with literal `'ENCRYPTED'`) and Netscape HTML export via `QRCodeGenerator.exportNetscapeBookmarks` — **does not use `ExportHelper`** |
 
-**`export-helper.js` and `vector-helper.js` are loaded here but never referenced by `popup.js`** — confirmed dead weight in this context (they're alive in the dashboard).
+**Fixed 2026-09-02**: `export-helper.js` and `vector-helper.js` were loaded here but never referenced by `popup.js` — confirmed dead weight. Their `<script>` tags have been removed from `popup.html` and `sidepanel.html`; both remain loaded (and used) in the dashboard.
 
 ---
 
@@ -124,7 +124,7 @@ On-device summarization via Chrome's Prompt API (`window.ai.languageModel` / `wi
 - `summarizeArticle(title, content, maxBullets=3)` — Prompt API first, else `localTextRankSummary()` (stop-word-filtered frequency scoring + first-sentence position boost).
 - `suggestTags(title, content, url, maxTags=5)` — frequency keywords + domain-derived tag.
 
-Used by: popup's reader-mode "✨ AI Summary". Loaded but **unused** in the dashboard.
+Used by: popup's reader-mode "✨ AI Summary". Previously also loaded but unused in the dashboard — that dead `<script>` tag was removed 2026-09-02.
 
 ### audio-helper.js (161 lines) — `AudioHelper`
 
@@ -176,11 +176,11 @@ RSS 2.0 / Atom parsing via `DOMParser`. `parseFeedXml()`, `fetchFeed(url)`. A co
 
 ### export-helper.js (295 lines) — `ExportHelper`
 
-Obsidian-vault Markdown export (YAML frontmatter + body), Notion CSV export, and a hand-rolled zero-dependency ZIP writer (full PKZIP local/central-directory headers, CRC32 table, store-only/no compression). `exportObsidianVaultZip()` handles filename collisions. Dashboard-only in practice — loaded but unreferenced in popup/sidepanel.
+Obsidian-vault Markdown export (YAML frontmatter + body), Notion CSV export, and a hand-rolled zero-dependency ZIP writer (full PKZIP local/central-directory headers, CRC32 table, store-only/no compression). `exportObsidianVaultZip()` handles filename collisions. Dashboard-only — its dead `<script>` tag in `popup.html`/`sidepanel.html` (loaded but never referenced) was removed 2026-09-02.
 
 ### vector-helper.js (303 lines) — `VectorHelper`
 
-Sparse-vector "semantic" search: TF-weighted bag-of-words **plus character 3-grams** for fuzzy/typo tolerance (not real embeddings). Field weights: tags ×4.0, title ×3.5, space ×2.0, summary ×2.5, content ×1.5, url ×1.0. `cosineSimilarity`, `findSimilar(item, all, topK)`, `semanticSearch(query, items, topK)`, `clusterItems(items, numClusters)` (K-Means++ with auto-labeled cluster names). Dashboard-only in practice — loaded but unreferenced in popup/sidepanel.
+Sparse-vector "semantic" search: TF-weighted bag-of-words **plus character 3-grams** for fuzzy/typo tolerance (not real embeddings). Field weights: tags ×4.0, title ×3.5, space ×2.0, summary ×2.5, content ×1.5, url ×1.0. `cosineSimilarity`, `findSimilar(item, all, topK)`, `semanticSearch(query, items, topK)`, `clusterItems(items, numClusters)` (K-Means++ with auto-labeled cluster names). Dashboard-only — its dead `<script>` tag in `popup.html`/`sidepanel.html` (loaded but never referenced) was removed 2026-09-02.
 
 ### qr-helper.js (564 lines) — `QRCodeGenerator`
 
@@ -199,10 +199,10 @@ The only non-crypto helper genuinely wired into **both** popup/sidepanel and das
 |---|:---:|:---:|:---:|:---:|---|
 | crypto-helper.js | ✅ | ✅ | ❌ | — | Popup/side-panel only |
 | qr-helper.js | ✅ | ✅ | ✅ | ✅ | Fully wired everywhere |
-| ai-helper.js | ✅ | ✅ | ✅ | ❌ | Popup-only in practice |
+| ai-helper.js | ✅ | ✅ | ❌ (removed 2026-09-02) | — | Popup/side-panel only |
 | chat-helper.js | ✅ (sidepanel) | ✅ | ❌ | — | Side-panel-only |
-| export-helper.js | ✅ | ❌ | ✅ | ✅ | Dashboard-only in practice |
-| vector-helper.js | ✅ | ❌ | ✅ | ✅ | Dashboard-only in practice |
+| export-helper.js | ❌ (removed 2026-09-02) | — | ✅ | ✅ | Dashboard-only |
+| vector-helper.js | ❌ (removed 2026-09-02) | — | ✅ | ✅ | Dashboard-only |
 | audio-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | search-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | health-helper.js | ❌ | — | ✅ (fixed 2026-09-02) | ✅ | Works in background.js and dashboard |
