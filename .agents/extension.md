@@ -1,6 +1,6 @@
 # SikPoket — Chrome Extension Core Reference
 
-> Detail doc for the extension surface (manifest, service worker, content script, popup, side panel, unlock page, and all 17 root-level helper modules). Indexed from [`SPEC.md`](SPEC.md). Verified against source on 2026-09-02 at v1.8.0.
+> Detail doc for the extension surface (manifest, service worker, content script, popup, side panel, unlock page, and all 15 root-level helper modules). Indexed from [`SPEC.md`](SPEC.md). Verified against source on 2026-09-02 at v1.8.0; `sync-helper.js`/`archive-helper.js` removed the same day (see SPEC.md § Known Issues #6).
 
 ---
 
@@ -12,7 +12,7 @@
 - `content_scripts`: `content.js` on `<all_urls>`, default run_at, no CSS.
 - `side_panel.default_path = "sidepanel.html"`.
 - `commands`: `_execute_action` (Ctrl+Shift+S, native popup open) and `toggle-side-panel` (Ctrl+Shift+E, handled in `background.js`).
-- `web_accessible_resources`: one entry (`matches: <all_urls>`) listing the dashboard bundle (`dashboard/index.html`, `app.js`, `app.css`, `manifest.webmanifest`), `popup.css`, all 17 helper `.js` files, icons, `sidepanel.html`, `unlock.html`, `unlock.js`.
+- `web_accessible_resources`: one entry (`matches: <all_urls>`) listing the dashboard bundle (`dashboard/index.html`, `app.js`, `app.css`, `manifest.webmanifest`), `popup.css`, all 15 helper `.js` files, icons, `sidepanel.html`, `unlock.html`, `unlock.js`.
   - **Not listed** (so not servable from inside the extension, static-hosting only): `dashboard/standalone.html`, `dashboard/sw.js`, `dashboard/theme-init.js`.
 
 ---
@@ -136,10 +136,6 @@ Dashboard-only feature — not loaded in popup/sidepanel.
 
 Thin Prompt API wrapper for "ask your vault." `initSession(contextItems)` builds a system prompt capped at ~25,000 chars (character count, not real tokens); `prompt(message)`; `destroy()`. Side-panel-only in practice (see `sidepanel.html` above).
 
-### sync-helper.js (111 lines) — `SyncHelper` — **fully orphaned**
-
-Complete, working end-to-end-encrypted GitHub Gist backup/restore (`validateToken`, `pushToGist`, `pullFromGist`, using `CryptoHelper` + gist file `sikpoket-vault.enc.json`). **Not `<script>`-loaded anywhere in the actual app** (not popup, sidepanel, dashboard, or unlock) — referenced only in marketing prose (`index.html`, `about/`, `developers/`). A fully-built feature with zero UI wiring.
-
 ### search-helper.js (106 lines) — `SearchHelper`
 
 TF-style ranked full-text search (`tokenize`, `_buildItemProfile`, `search(query, items)` — implicit AND across query tokens, exact/partial term weighting, title-match bonus). Dashboard-only; the popup has its own separate, simpler substring filter (`getFilteredItems`).
@@ -169,10 +165,6 @@ Obsidian-style `[[Target|Alias]]` parsing. `extractLinks(text)`, `buildLinkIndex
 ### tagger-helper.js (105 lines) — `TaggerHelper`
 
 `DOMAIN_TAG_RULES` (19 hardcoded hostname→tags mappings) + `KEYWORD_RULES` (6 regex rules) power `suggestTags(item)`. `SmartSpaces` predicates — `isQuickRead`, `isResearch`, `isDev`, `isInbox` — back the dashboard's Smart Spaces sidebar collections. Dashboard-only; the popup's tag suggestions are just "previously used tags," no domain/keyword intelligence.
-
-### archive-helper.js (63 lines) — `ArchiveHelper` — **fully orphaned**
-
-`createSnapshot`/`saveSnapshot`/`getSnapshot`/`hasSnapshot`, keyed `archive_snap_<itemId>` in `chrome.storage.local`. Loaded in the dashboard but **zero callers anywhere in the repo**. The "Offline Page Archiver" feature this implies does not exist in any UI.
 
 ### dedup-helper.js (124 lines) — `DedupHelper`
 
@@ -212,14 +204,12 @@ The only non-crypto helper genuinely wired into **both** popup/sidepanel and das
 | export-helper.js | ✅ | ❌ | ✅ | ✅ | Dashboard-only in practice |
 | vector-helper.js | ✅ | ❌ | ✅ | ✅ | Dashboard-only in practice |
 | audio-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
-| sync-helper.js | ❌ | — | ❌ | — | **Orphaned everywhere** |
 | search-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | health-helper.js | ❌ | — | ✅ (fixed 2026-09-02) | ✅ | Works in background.js and dashboard |
 | graph-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | reader-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | wikilink-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | tagger-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
-| archive-helper.js | ❌ | — | ✅ | ❌ | **Orphaned everywhere** |
 | dedup-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 | feed-helper.js | ❌ | — | ✅ | ✅ | Dashboard-only |
 
@@ -231,15 +221,14 @@ The only non-crypto helper genuinely wired into **both** popup/sidepanel and das
 - `sikpoketData` — `{urls[], apiKeys[], passwords[], notes[]}`. Common fields: `{id, title/name, tags[], createdAt, archived, favorite}`. `apiKeys[].key` / `passwords[].password` are `CryptoHelper`-encrypted `{salt,iv,data}` blobs; `passwords[].username` is plaintext.
 - `sikpoketDashboardData` — `{spaces:[{id, items[]}], activeSpace}`. Item shape uses `type:'url'|'note'|'key'|'password'` (different convention than `sikpoketData`'s array-key convention) with **plaintext** `name/value/username` — see Known Issues.
 - `sikpoketSessions` — `[{id, name, tabs:[{url,title,favIconUrl}], createdAt}]` — write-only from the UI's current perspective (see background.js notes).
-- `sikpoketBrokenLinks` — `string[]` of item IDs (written by `HealthHelper.scanAll`, only ever populated from `background.js`'s weekly alarm, not from the dashboard).
+- `sikpoketBrokenLinks` — `string[]` of item IDs (written by `HealthHelper.scanAll`, from either `background.js`'s weekly alarm or the dashboard's on-demand "Broken Links" scan — both wired since 2026-09-02).
 - `sikpoketWallpaperUrl`, `sikpoketWallpaperOpacity` — popup/sidepanel wallpaper prefs.
-- `archive_snap_<itemId>` — dead, never written (`ArchiveHelper` orphaned).
 
 **`localStorage`** (shared across all `chrome-extension://<id>` pages)
 - `sik_theme` (default `'forest'`; also `'obsidian'`, legacy `'sunset'`/`'solar'`).
 - `sikpoketReaderFontSize` (default 15), `sikpoketReaderFontFamily` (default `sans-serif`), `sikpoketReaderTheme` (default `sepia`).
 - `sikpoketBiometricEnabled`, `sikpoketBiometricCredId`, `sikpoketBioKey`, `sikpoketWrappedPassword` — biometric chain, identical across `unlock.js` and `popup.js`.
-- `sikpoketFirebaseConfig` — written/read by the Settings-modal "Cloud Sync" block; **nothing else in the repo consumes it and no Firebase SDK is loaded anywhere** — a second, independent dead-end sync stub alongside `sync-helper.js`.
+- `sikpoketFirebaseConfig` — written/read by the Settings-modal "Cloud Sync" block; **nothing else in the repo consumes it and no Firebase SDK is loaded anywhere** — a dead-end sync stub (the only one left, now that `sync-helper.js` has been removed — see `SPEC.md` § Known Issues #6).
 - `sikpoketReminder_<type>_<id>` — per-item reminder due-timestamp cache (mirrors a `chrome.alarms` entry of the same name).
 
 **`sessionStorage`**

@@ -12,7 +12,7 @@
 
 | Surface | Entry points | Detail doc |
 |---|---|---|
-| Chrome Extension (MV3) | `manifest.json`, `background.js`, `content.js`, `popup.html`/`.js`, `sidepanel.html`, `unlock.html`, 17 root helper `.js` files | [`extension.md`](extension.md) |
+| Chrome Extension (MV3) | `manifest.json`, `background.js`, `content.js`, `popup.html`/`.js`, `sidepanel.html`, `unlock.html`, 15 root helper `.js` files | [`extension.md`](extension.md) |
 | Dashboard SPA | `dashboard/index.html` + `app.js` (primary), `dashboard/standalone.html` (frozen fork) | [`dashboard.md`](dashboard.md) |
 | Vercel backend + marketing site | `vercel.json`, `proxy.js`, `api/*.js`, MCP server, static pages, build/verify scripts | [`backend.md`](backend.md) |
 
@@ -42,14 +42,12 @@ SikPoket/
 ├── ai-helper.js                  # On-device Prompt-API summarization + local TextRank fallback
 ├── audio-helper.js               # Procedural ambient soundscapes (dashboard only)
 ├── chat-helper.js                # "Ask your vault" Prompt-API chat (side panel only)
-├── sync-helper.js                # GitHub Gist E2E sync — built, fully orphaned (no UI wiring)
 ├── search-helper.js              # TF-ranked full-text search (dashboard only)
-├── health-helper.js              # Broken-link scanner (works in background.js; broken in dashboard)
+├── health-helper.js              # Broken-link scanner (background.js + dashboard, both wired)
 ├── graph-helper.js               # Canvas force-directed Knowledge Graph (dashboard only)
 ├── reader-helper.js              # Reading time, content cleanup, SpeechSynthesis TTS (dashboard only)
 ├── wikilink-helper.js            # [[WikiLink]] parsing + backlink index (dashboard only)
 ├── tagger-helper.js              # Domain/keyword auto-tagging + Smart Spaces predicates
-├── archive-helper.js             # Offline page snapshots — built, fully orphaned (no callers)
 ├── dedup-helper.js               # URL-normalizing duplicate detector/merger (dashboard only)
 ├── feed-helper.js                # RSS/Atom parsing (dashboard only)
 ├── export-helper.js              # Obsidian vault + Notion CSV export, hand-rolled ZIP writer
@@ -94,7 +92,7 @@ SikPoket/
 │  content.js (all pages)     │              onChanged listener)    │  (no auth, no crypto)     │
 └──────────────┬───────────────┘                                    └───────────┬──────────────┘
                │ web_accessible_resources                                        │ same origin,
-               │ (17 root helpers loaded into extension pages)                   │ chrome-extension://<id>
+               │ (15 root helpers loaded into extension pages)                   │ chrome-extension://<id>
                ▼                                                                 ▼
      unlock.html (separate tab, WebAuthn needs a real hostname)         dashboard/standalone.html
                                                                           (frozen fork, own
@@ -129,7 +127,6 @@ Full per-key detail lives in [`extension.md`](extension.md#storage-key-inventory
 | `sikpoketBiometricEnabled/CredId/BioKey/WrappedPassword` | `localStorage` | `unlock.js` + `popup.js` | Biometric unlock chain |
 | `sikpoketFirebaseConfig` | `localStorage` | popup Settings modal | Dead-end stub, no Firebase SDK loaded anywhere |
 | `sikpoketMasterPassword` | `sessionStorage` | popup/unlock.js | Plaintext, **scoped per top-level browsing context** — popup, side panel, and `unlock.html` each need an independent unlock |
-| `archive_snap_<id>` | `chrome.storage.local` | `ArchiveHelper` | Dead — never written (orphaned module) |
 
 **Two independent encryption postures coexist**: the extension popup encrypts `apiKeys`/`passwords` with AES-GCM derived from the master password; the dashboard has **no crypto layer at all** and stores its own key/password items as plain strings. Be careful when describing "the vault" as a single security boundary — it isn't one.
 
@@ -141,7 +138,7 @@ Full per-key detail lives in [`extension.md`](extension.md#storage-key-inventory
 |---|---|---|
 | Extension core (manifest, background, content, popup, unlock) | ✅ Stable | [`extension.md`](extension.md) |
 | Side panel | ⚠️ Partial — Sessions tab can save but never list/restore; no add-item forms; drag-drop zone unwired; stale version string | [`extension.md`](extension.md#sidepanelhtml-241-lines--confirmed-new-since-the-pre-18-spec) |
-| Helper modules (17 files) | ⚠️ Mixed — 2 fully orphaned (`sync-helper.js`, `archive-helper.js`), several dead-loaded in a context that never calls them | [`extension.md`](extension.md#helper-wiring-matrix) |
+| Helper modules (15 files) | ⚠️ Mixed — `sync-helper.js`/`archive-helper.js` removed 2026-09-02 (were fully orphaned); several remaining ones are dead-loaded in a context that never calls them | [`extension.md`](extension.md#helper-wiring-matrix) |
 | Dashboard SPA (`app.js`) | ✅ Feature-rich; the vim-crash, broken-links, logout, and secret-sync bugs are fixed — other known gaps (orphaned helpers, no crypto layer by design) remain, see § 6 | [`dashboard.md`](dashboard.md) |
 | Dashboard standalone build | ⚠️ Frozen fork, several phases behind, own auth system | [`dashboard.md`](dashboard.md#standalonehtml--frozen-fork-not-kept-in-sync) |
 | Vercel routing / MCP / API | ✅ Live and scoring well on the Ora audit, ⚠️ MCP tools are non-functional stubs, some drift between discovery docs | [`backend.md`](backend.md) |
@@ -162,7 +159,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 5. ~~Secret-encryption inconsistency: the dashboard's live extension-sync path copied encrypted blobs into a `.value` field without decrypting them (unusable).~~ **Fixed 2026-09-02** — `apiKeys`/`passwords` are no longer included in the automatic live sync at all (the dashboard has no way to decrypt them); only `urls`/`notes` sync live now. Secrets reach the dashboard only via the popup's explicit "Export to Dashboard" button (decrypted) or direct dashboard creation (plaintext from the start) — both are plaintext-at-rest in the dashboard, which remains an unchanged architectural fact, not a bug. ([dashboard.md](dashboard.md))
 
 **Orphaned / dead code:**
-6. `sync-helper.js` (GitHub Gist E2E backup) and `archive-helper.js` (offline snapshots) are fully implemented with zero callers anywhere — features described in marketing copy that don't actually exist in any UI.
+6. ~~`sync-helper.js` (GitHub Gist E2E backup) and `archive-helper.js` (offline snapshots) were fully implemented with zero callers anywhere.~~ **Removed 2026-09-02** — both files deleted, along with their `manifest.json`/`scripts/verify-build.js`/`scripts/package.js` references and the `<script>` tag for `archive-helper.js` in `dashboard/index.html`. GitHub Gist sync claims corrected in `index.html`, `about/`, `privacy/`, `developers/`, `llms.txt`, `infographic.html`, and `SIKPOKET_COMPLETE_BLUEPRINT.md`.
 7. `export-helper.js` and `vector-helper.js` are loaded in popup/sidepanel but never called there (dashboard-only in practice); `ai-helper.js` is loaded in the dashboard but never called there (popup-only in practice).
 8. The popup's "Cloud Sync ☁ / Firebase" Settings block stores a config blob to `localStorage` that nothing else in the repo reads — a second, independent dead-end sync stub.
 9. `api/markdown.js`'s markdown-serving logic is dead code in production for all 7 negotiated pages — `proxy.js`'s own inline (and more complete) markdown map always answers first. Its own map is also missing 2 of the 7 pages, so if `proxy.js` were ever bypassed, `/developers` and `/vercel` markdown would silently wrong-serve `/index.md`.
@@ -199,7 +196,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 | Initial | Dashboard multi-user auth (SHA-256 + salt) | ⚠️ Later removed from primary dashboard, survives only in `standalone.html` |
 | Initial | Biometric/Touch ID unlock via `unlock.html` | ✅ |
 | Module 1–6 (pre-1.6) | Duplicate detector, batch processing, text highlights, layout modes, reminders/notifications, broken-link scanner | ✅ (broken-link scanner later regressed in the dashboard — see § 6) |
-| Phase 8 (v1.6.0) | Bi-directional WikiLinks, Semantic Smart Spaces, Offline Page Archiver | ⚠️ Archiver shipped as dead code (`archive-helper.js`, zero callers) |
+| Phase 8 (v1.6.0) | Bi-directional WikiLinks, Semantic Smart Spaces, Offline Page Archiver | ⚠️ Archiver shipped as dead code (`archive-helper.js`, zero callers) — module removed 2026-09-02, see below |
 | Phase 9 (v1.7.0) | Vim navigation, 1-click duplicate cleaner, RSS watcher | ✅ (Vim `D` key crash fixed 2026-09-02, see § 6) |
 | Phase 10 (v1.8.0) | Obsidian Vault Exporter, Notion CSV Export, Semantic Vector Search, auto-rendered store PNGs | ✅ (store PNGs are brand-stale, see backend.md) |
 | — | Side Panel (Sessions + Assistant tabs) | ⚠️ Partial — see § 5 |
@@ -210,6 +207,7 @@ Consolidated from all three detail docs — check here first before assuming a f
 | 2026-09-02 | Fix: removed the dashboard's broken "Logout" button (linked to a nonexistent `auth.html`), its click handler, a dead CSS rule, and a stray misleading comment — leftovers from the removed multi-user auth system | ✅ |
 | 2026-09-02 | Fix: `graph-helper.js` spring physics divided by `edge.target.target?.mass` (always `NaN`→`1`) instead of `edge.target.mass`; now matches the source-side pattern. Closes [issue #4](https://github.com/njrankitsam11-gif/SikPoket/issues/4) | ✅ |
 | 2026-09-02 | Fix: `syncFromExtensionStorage()` no longer live-syncs `apiKeys`/`passwords` into the dashboard (it had no way to decrypt them — was writing an unusable encrypted-blob object as `.value`, which editing/saving would silently corrupt into the literal string `"[object Object]"`); `urls`/`notes` still sync live | ✅ |
+| 2026-09-02 | Removed `sync-helper.js` and `archive-helper.js` (fully built, zero callers, per user decision) — deleted the files, their `manifest.json`/build-script/`<script>` references, and corrected GitHub Gist sync claims across the marketing site and blueprint docs | ✅ |
 
 ---
 

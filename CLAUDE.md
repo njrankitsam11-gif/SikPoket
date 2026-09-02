@@ -10,13 +10,13 @@ When you finish a feature, fix, or module: update the relevant `.agents/*.md` do
 
 ## The three surfaces, at a glance
 
-- **Extension** (`manifest.json`, `background.js`, `content.js`, `popup.html`/`.js`, `sidepanel.html`, `unlock.html`, 17 root `*-helper.js` files) — the vault lives in `chrome.storage.local.sikpoketData`, encrypted with AES-GCM/PBKDF2, unlocked by a master password held in `sessionStorage` (scoped per top-level context — popup/side panel/`unlock.html` each unlock independently).
+- **Extension** (`manifest.json`, `background.js`, `content.js`, `popup.html`/`.js`, `sidepanel.html`, `unlock.html`, 15 root `*-helper.js` files) — the vault lives in `chrome.storage.local.sikpoketData`, encrypted with AES-GCM/PBKDF2, unlocked by a master password held in `sessionStorage` (scoped per top-level context — popup/side panel/`unlock.html` each unlock independently).
 - **Dashboard** (`dashboard/index.html` + `app.js`) — reads/writes `chrome.storage.local.sikpoketDashboardData` (or `localStorage` when run outside the extension), has **no auth and no crypto layer**. `dashboard/standalone.html` is a separately-frozen fork with its own multi-user auth — don't assume features added to `app.js` exist there too.
 - **Backend** (`vercel.json` + `proxy.js` + `api/*.js`) — serves the marketing site, a content-negotiated (.html/.md) page pattern, and an MCP server (`api/mcp.js`) whose `tools/call` is a non-functional stub by design (no server-side vault exists; everything is local-first).
 
 ## Known traps worth knowing before you touch code
 
-- Two helpers (`sync-helper.js`, `archive-helper.js`) are fully built but have zero callers anywhere — don't assume a feature exists just because marketing copy or a helper file describes it. See `SPEC.md § Known Issues` for the full list before reporting something as broken — it may already be a documented, understood gap.
+- `sync-helper.js` and `archive-helper.js` were removed 2026-09-02 — both were fully built but had zero callers anywhere, and their marketing copy (GitHub Gist sync claims) was corrected across `index.html`, `about/`, `privacy/`, `developers/`, `llms.txt`, and the blueprint docs. See `SPEC.md § Known Issues` for what else is documented-but-not-wired before reporting something as broken — it may already be a known gap.
 - The dashboard has no crypto layer at all — key/password items created there, or exported via the popup's "Export to Dashboard" button, are always plaintext-at-rest in `sikpoketDashboardData`. `apiKeys`/`passwords` no longer live-sync from the encrypted `sikpoketData` (fixed 2026-09-02 — the dashboard had no way to decrypt them anyway); only `urls`/`notes` sync live.
 - Every `RateLimit-*` header in the Vercel layer is a hardcoded literal — there is no real rate limiting.
 

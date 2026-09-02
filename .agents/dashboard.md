@@ -164,7 +164,7 @@ Evidence this is a legacy snapshot, not a mirror:
 1. ~~Broken "Logout" button → nonexistent `auth.html` (404).~~ **Fixed 2026-09-02** — button, handler, and dead CSS rule removed (no session to log out of in the primary dashboard).
 2. ~~`deleteFocused()` (vim key `D`) calls undefined `deleteItem()` → `ReferenceError`.~~ **Fixed 2026-09-02** — now calls `confirmDelete(item.id)`.
 3. ~~`health-helper.js` never `<script>`-loaded here despite `scanBrokenLinks()` calling `window.HealthHelper.scanAll()`.~~ **Fixed 2026-09-02** — added `<script src="../health-helper.js">` to `dashboard/index.html`. "Broken Links" now performs a real scan (still only detects timeouts/offline, not real 404/500s — see `extension.md`'s `health-helper.js` entry, that limitation is in the helper itself, not the wiring).
-4. `archive-helper.js` loaded but zero callers — dead include.
+4. ~~`archive-helper.js` loaded but zero callers — dead include.~~ **Removed 2026-09-02** — file deleted, `<script>` tag removed from `dashboard/index.html`. See `SPEC.md` § Known Issues #6.
 5. `ai-helper.js` loaded but zero callers here (it's a popup-only feature).
 6. ~~Secret-encryption inconsistency between live sync and explicit export.~~ **Fixed 2026-09-02** — `syncFromExtensionStorage()` no longer live-syncs `apiKeys`/`passwords` at all (see § Data persistence above); the dashboard's key/password items are still plaintext-at-rest by design (no crypto layer there), which is unchanged.
 7. Inline `onclick="..."` handlers for `openRssReader`/`removeRssFeed`/`mergeCluster` (with awkward `JSON.stringify(...).replace(/"/g,'&quot;')` escaping) — inconsistent with the addEventListener-delegation pattern used elsewhere.

@@ -63,7 +63,7 @@ curl -X POST https://sikpoket.vercel.app/api/mcp \
 
     <div class="card">
       <h2>API keys &amp; auth</h2>
-      <p style="color:rgba(10,10,10,.62)">No hosted API keys — SikPoket is local-first. Master password derives an in-memory AES-GCM key via PBKDF2. Optional WebAuthn platform credential (Touch ID / Face ID). For encrypted Gist sync, bring your own GitHub PAT and encrypt with <code>crypto-helper.js</code> before upload. Docs: <a href="/about#auth">/about#auth</a>.</p>
+      <p style="color:rgba(10,10,10,.62)">No hosted API keys — SikPoket is local-first. Master password derives an in-memory AES-GCM key via PBKDF2. Optional WebAuthn platform credential (Touch ID / Face ID). No remote sync of any kind — your vault never leaves your device. Docs: <a href="/about#auth">/about#auth</a>.</p>
     </div>
 
     <div class="card">
@@ -96,7 +96,7 @@ curl -X POST https://sikpoket.vercel.app/api/mcp \
 
     <div class="card">
       <h2>Webhooks &amp; Vercel</h2>
-      <p style="color:rgba(10,10,10,.62)">No webhooks — local-first. Optional encrypted Gist sync is the only remote hook (<code>sync-helper.js</code>). Hosted on <strong>Vercel</strong> with <code>vercel.json</code> routing, <code>proxy.js</code> for <code>Accept: text/markdown</code> negotiation, and <code>Vary: Accept</code>.</p>
+      <p style="color:rgba(10,10,10,.62)">No webhooks — local-first, no remote sync of any kind. Hosted on <strong>Vercel</strong> with <code>vercel.json</code> routing, <code>proxy.js</code> for <code>Accept: text/markdown</code> negotiation, and <code>Vary: Accept</code>.</p>
     </div>
   </main>
   <script>

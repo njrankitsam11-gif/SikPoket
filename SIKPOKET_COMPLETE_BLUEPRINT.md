@@ -11,7 +11,7 @@
 | **[1. Executive Architecture Summary](#1-executive-architecture-summary)** | Core performance metrics, privacy guarantees, and tech stack specs. |
 | **[2. End-to-End System Topology](#2-end-to-end-system-topology)** | Ingress clients, Core Processing Hub, and Storage tier architecture. |
 | **[3. Zero-Knowledge Cryptographic Model](#3-zero-knowledge-cryptographic-model)** | AES-256-GCM, PBKDF2 (100k iter), WebAuthn Touch ID, and key lifecycle. |
-| **[4. Subsystem Engineering Deep-Dive](#4-subsystem-engineering-deep-dive)** | Search, AI, Audio DSP, Health Checker, Multi-Space Dashboard, and Gist Sync. |
+| **[4. Subsystem Engineering Deep-Dive](#4-subsystem-engineering-deep-dive)** | Search, AI, Audio DSP, Health Checker, and Multi-Space Dashboard. |
 | **[5. Complete File & Module Catalog](#5-complete-file--module-catalog)** | Exact module breakdown across the entire repository. |
 | **[6. Full 5-Phase Evolution Walkthrough](#6-full-5-phase-evolution-walkthrough)** | Step-by-step development history from Foundation to Intelligence. |
 | **[7. Live Visual Infographic Deck](#7-live-visual-infographic-deck)** | Guide to accessing the interactive visual deck at `http://localhost:8089/infographic.html`. |
@@ -30,7 +30,7 @@
 │ Biometric Authentication │ WebAuthn Platform Hardware Credential (Touch ID / Face ID)    │
 │ Intelligence Subsystems  │ Chrome Gemini Nano (window.ai) + Client-Side TF-IDF Tokenizer │
 │ Audio Engine             │ Procedural HTML5 Web Audio API DSP Soundscape Synthesizer     │
-│ Storage Layers           │ chrome.storage.local + Encrypted GitHub Gist Remote Sync      │
+│ Storage Layers           │ chrome.storage.local (local-first, no remote sync)            │
 │ Target Platforms         │ Manifest V3 Chrome Extension, Chrome Side Panel, Desktop PWA  │
 │ Security Audit           │ 0 eval(), 0 new Function(), 37/37 Automated Pre-Flight Checks │
 └──────────────────────────┴───────────────────────────────────────────────────────────────┘
@@ -59,7 +59,6 @@ flowchart TB
     subgraph STORAGE["3. STORAGE & MONITORING TIER"]
         LOCAL["💾 chrome.storage.local<br/>• Multi-space partitioning<br/>• Wallpaper & theme caches<br/>• Unread badge sync"]
         HEALTH["🩺 Link Health Monitor<br/><code>health-helper.js</code><br/>• chrome.alarms weekly trigger<br/>• Non-blocking HEAD checks<br/>• Broken link badging"]
-        GIST["🌐 Encrypted Gist Sync<br/><code>sync-helper.js</code><br/>• Zero-knowledge remote backup<br/>• Client-side encryption"]
         QR["📱 Mobile QR Generator<br/><code>qr-helper.js</code><br/>• Offline canvas QR generation<br/>• Fast device beam"]
     end
 
@@ -76,7 +75,6 @@ flowchart TB
     AUDIO --> PWA
 
     LOCAL --> HEALTH
-    LOCAL --> GIST
     LOCAL --> QR
 ```
 
@@ -144,10 +142,6 @@ sequenceDiagram
 - Netscape standard HTML bookmark export for cross-browser interoperability.
 - Installable PWA support via `manifest.webmanifest` and `sw.js`.
 
-### 4.6. Encrypted GitHub Gist Remote Sync (`sync-helper.js`)
-- Enables optional cross-device sync via personal GitHub Personal Access Tokens (PAT).
-- Encrypts vault contents client-side with AES-256-GCM before pushing to GitHub Gist.
-
 ---
 
 ## 5. Complete File & Module Catalog
@@ -167,7 +161,6 @@ sequenceDiagram
 ├── chat-helper.js             # Side Panel AI Research Assistant Session Manager
 ├── audio-helper.js            # Procedural HTML5 Web Audio Ambient Synthesizer
 ├── health-helper.js           # Automated Background Link Health Checker
-├── sync-helper.js             # Encrypted GitHub Gist Remote Backup/Restore
 ├── qr-helper.js               # Offline Canvas QR Code Generator
 ├── unlock.html                # Master Password Unlock View
 ├── unlock.js                  # Master Password Unlock Controller
@@ -212,7 +205,6 @@ timeline
             : Algorithmic TextRank Sentence Graph Fallback
     Phase 4 : Progressive Web App (PWA) Offline Support
             : Procedural Web Audio Ambient Focus Generator
-            : Encrypted GitHub Gist Remote Sync
             : High-Res Chrome Web Store Promotional Graphics
     Phase 5 : Offline TF-IDF Full-Text Search Engine
             : Automated Background Link Health Checker

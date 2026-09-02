@@ -19,10 +19,10 @@ How to call (local): `chrome.storage.local.get(['sikpoketData'])` → inspect `u
 
 ## Developer resources — SikPoket (Vercel)
 
-- API helpers (local, no network): `crypto-helper.js` (AES-GCM/PBKDF2/WebAuthn), `search-helper.js` (TF-IDF), `ai-helper.js` / `chat-helper.js` (window.ai + TextRank), `qr-helper.js`, `export-helper.js`, `vector-helper.js`, `health-helper.js`, `sync-helper.js` (encrypted Gist), `audio-helper.js` — Vercel hosted at https://sikpoket.vercel.app/
+- API helpers (local, no network): `crypto-helper.js` (AES-GCM/PBKDF2/WebAuthn), `search-helper.js` (TF-IDF), `ai-helper.js` / `chat-helper.js` (window.ai + TextRank), `qr-helper.js`, `export-helper.js`, `vector-helper.js`, `health-helper.js`, `audio-helper.js` — Vercel hosted at https://sikpoket.vercel.app/
 - Auth: Master password → PBKDF2 → AES-GCM key in RAM only. WebAuthn platform credential for Touch ID. Docs: https://sikpoket.vercel.app/about#auth and https://sikpoket.vercel.app/developers
 - OpenAPI: https://sikpoket.vercel.app/openapi.json (also /api/openapi.yaml) — Vercel serverless, fully typed with operationId per endpoint. See developers portal.
-- Webhooks: None (no server). Encrypted Gist sync is the only remote hook — see `sync-helper.js`. Hosted on Vercel.
+- Webhooks: None (no server, no remote sync — everything stays in chrome.storage.local/localStorage). Hosted on Vercel.
 - MCP server: Streamable HTTP at https://sikpoket.vercel.app/.well-known/mcp and POST https://sikpoket.vercel.app/api/mcp — tools: `search_vault`, `save_url`, `list_spaces`, `export_bookmarks` — Vercel MCP adapter @vercel/mcp-adapter
 - Vercel deployment: https://sikpoket.vercel.app/ — framework static, proxy.js for Accept:text/markdown, Vary: Accept, rewrites in vercel.json — dedicated Vercel page at https://sikpoket.vercel.app/vercel with Vercel docs
 - Vercel API versioning: /api/v1/mcp and /api/v1/health via header API-Version, Deprecation/Sunset, RateLimit headers

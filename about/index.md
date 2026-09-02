@@ -2,7 +2,7 @@
 
 Sik builds local-first tools: SikPoket (bookmark vault) and SikOgami (origami). Same Paper/Ink/Sick design.
 
-> No trackers. No cloud required. 100% local, except optional encrypted Gist sync you control.
+> No trackers. No cloud. 100% local — nothing ever leaves your device.
 
 ## Auth
 Master password → PBKDF2 → AES-GCM in RAM only, or WebAuthn Touch ID. See `crypto-helper.js`.
