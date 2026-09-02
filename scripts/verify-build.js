@@ -5,9 +5,11 @@
  * Validates Manifest V3 compliance, icons, file integrity, and CSP restrictions.
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 let errors = 0;
 let warnings = 0;
