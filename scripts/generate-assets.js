@@ -5,9 +5,12 @@
  * Generates official high-resolution promo tiles (1280x800 marquee and 440x280 small tile) in SVG format.
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const assetsDir = path.resolve(__dirname, '../assets/store');
 if (!fs.existsSync(assetsDir)) {
   fs.mkdirSync(assetsDir, { recursive: true });
@@ -138,7 +141,6 @@ console.log('   - assets/store/promo-440x280.svg (Small Tile 440x280)\n');
 
 // On macOS, automatically render SVG to pixel-perfect PNG using native qlmanage & sips
 try {
-  const { execSync } = require('child_process');
   execSync(`qlmanage -t -s 1280 -o "${assetsDir}" "${path.join(assetsDir, 'promo-1280x800.svg')}" > /dev/null 2>&1`);
   execSync(`qlmanage -t -s 440 -o "${assetsDir}" "${path.join(assetsDir, 'promo-440x280.svg')}" > /dev/null 2>&1`);
   
